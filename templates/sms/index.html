@@ -1,0 +1,279 @@
+{% extends "admin/base_site.html" %}
+
+{% block page_title %}手机短信管理{% endblock %}
+{% block page_subtitle %}管理手机设备和短信记录{% endblock %}
+
+{% block nav_sms %}active{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="/static/sms/css/sms.css">
+
+<div class="sms-container">
+    <!-- 标签切换 -->
+    <div class="tab-container">
+        <button class="tab-btn active" onclick="switchTab('phones')">
+            <i class="bi bi-phone"></i> 手机管理
+        </button>
+        <button class="tab-btn" onclick="switchTab('records')">
+            <i class="bi bi-chat-text"></i> 短信记录
+        </button>
+    </div>
+
+    <!-- 手机管理面板 -->
+    <div class="tab-panel active" id="phonesPanel">
+        <div class="content-card">
+            <div class="page-header">
+                <div class="header-left">
+                    <h2>手机列表</h2>
+                    <p>管理公司手机设备信息</p>
+                </div>
+                <div class="header-right">
+                    <button class="btn btn-success" onclick="showAddPhoneModal()">
+                        <i class="bi bi-plus-circle"></i> 新增手机
+                    </button>
+                </div>
+            </div>
+
+            <!-- 筛选栏 -->
+            <div class="filter-bar">
+                <div class="filter-item">
+                    <input type="text" id="phoneSearchInput" placeholder="搜索名称/号码/使用者..." />
+                </div>
+                <div class="filter-item">
+                    <select id="phoneStatusFilter">
+                        <option value="">全部状态</option>
+                        <option value="true">启用</option>
+                        <option value="false">禁用</option>
+                    </select>
+                </div>
+                <button class="btn btn-secondary" onclick="loadPhones()">筛选</button>
+                <button class="btn btn-secondary" onclick="resetPhoneFilters()">重置</button>
+            </div>
+
+            <!-- 手机表格 -->
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>手机名称</th>
+                        <th>型号</th>
+                        <th>使用者</th>
+                        <th>手机号码</th>
+                        <th>短信数</th>
+                        <th>状态</th>
+                        <th>创建人</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="phoneTableBody">
+                    <tr><td colspan="9" class="text-center text-muted">加载中...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 短信记录面板 -->
+    <div class="tab-panel" id="recordsPanel">
+        <div class="content-card">
+            <div class="page-header">
+                <div class="header-left">
+                    <h2>短信记录</h2>
+                    <p>查看手机接收的短信</p>
+                </div>
+                <div class="header-right">
+                    <button class="btn btn-success" onclick="showAddSmsModal()">
+                        <i class="bi bi-plus-circle"></i> 新增短信
+                    </button>
+                </div>
+            </div>
+
+            <!-- 筛选栏 -->
+            <div class="filter-bar">
+                <div class="filter-item">
+                    <input type="text" id="smsSearchInput" placeholder="搜索内容..." />
+                </div>
+                <div class="filter-item">
+                    <select id="smsPhoneFilter">
+                        <option value="">全部手机</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <input type="date" id="smsStartDate" placeholder="开始日期" />
+                </div>
+                <div class="filter-item">
+                    <input type="date" id="smsEndDate" placeholder="结束日期" />
+                </div>
+                <div class="filter-item">
+                    <select id="smsReadFilter">
+                        <option value="">全部状态</option>
+                        <option value="false">未读</option>
+                        <option value="true">已读</option>
+                    </select>
+                </div>
+                <button class="btn btn-secondary" onclick="loadSmsRecords()">筛选</button>
+                <button class="btn btn-secondary" onclick="resetSmsFilters()">重置</button>
+            </div>
+
+            <!-- 短信表格 -->
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>手机号码</th>
+                        <th>短信内容</th>
+                        <th>发送方</th>
+                        <th>接收日期</th>
+                        <th>接收时间</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="smsTableBody">
+                    <tr><td colspan="8" class="text-center text-muted">加载中...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- 手机编辑模态框 -->
+<div class="modal" id="phoneModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="phoneModalTitle">新增手机</h3>
+            <button class="btn-close" onclick="closePhoneModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="phoneId" />
+            <div class="form-group">
+                <label class="form-label">手机名称 <span class="required">*</span></label>
+                <input type="text" id="phoneName" class="form-input" placeholder="请输入手机名称" maxlength="100" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">手机型号</label>
+                <input type="text" id="phoneModel" class="form-input" placeholder="请输入手机型号" maxlength="100" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">使用者</label>
+                <input type="text" id="phoneUser" class="form-input" placeholder="请输入使用者姓名" maxlength="50" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">手机号码 <span class="required">*</span></label>
+                <input type="text" id="phoneNumber" class="form-input" placeholder="请输入手机号码" maxlength="20" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">状态</label>
+                <select id="phoneActive" class="form-input">
+                    <option value="true">启用</option>
+                    <option value="false">禁用</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">备注</label>
+                <textarea id="phoneRemark" class="form-input" rows="3" placeholder="请输入备注"></textarea>
+            </div>
+            <div id="phoneErrorMessages" class="error-messages"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closePhoneModal()">取消</button>
+            <button class="btn btn-primary" onclick="savePhone()">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- 短信编辑模态框 -->
+<div class="modal" id="smsModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="smsModalTitle">新增短信</h3>
+            <button class="btn-close" onclick="closeSmsModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="smsId" />
+            <div class="form-group">
+                <label class="form-label">关联手机 <span class="required">*</span></label>
+                <select id="smsPhone" class="form-input">
+                    <option value="">请选择手机</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">手机号码</label>
+                <input type="text" id="smsPhoneNumber" class="form-input" readonly placeholder="自动填充" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">短信内容 <span class="required">*</span></label>
+                <textarea id="smsContent" class="form-input" rows="4" placeholder="请输入短信内容"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">发送方</label>
+                <input type="text" id="smsSender" class="form-input" placeholder="请输入发送方（可选）" maxlength="50" />
+            </div>
+            <div class="form-row">
+                <div class="form-group half">
+                    <label class="form-label">接收日期 <span class="required">*</span></label>
+                    <input type="date" id="smsDate" class="form-input" />
+                </div>
+                <div class="form-group half">
+                    <label class="form-label">接收时间 <span class="required">*</span></label>
+                    <input type="time" id="smsTime" class="form-input" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">是否已读</label>
+                <select id="smsRead" class="form-input">
+                    <option value="false">未读</option>
+                    <option value="true">已读</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">备注</label>
+                <textarea id="smsRemark" class="form-input" rows="2" placeholder="请输入备注"></textarea>
+            </div>
+            <div id="smsErrorMessages" class="error-messages"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeSmsModal()">取消</button>
+            <button class="btn btn-primary" onclick="saveSms()">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- 短信详情模态框 -->
+<div class="modal" id="smsDetailModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>短信详情</h3>
+            <button class="btn-close" onclick="closeSmsDetailModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="sms-detail">
+                <div class="detail-row">
+                    <label>手机号码：</label>
+                    <span id="detailPhoneNumber"></span>
+                </div>
+                <div class="detail-row">
+                    <label>发送方：</label>
+                    <span id="detailSender"></span>
+                </div>
+                <div class="detail-row">
+                    <label>接收时间：</label>
+                    <span id="detailDateTime"></span>
+                </div>
+                <div class="detail-row full">
+                    <label>短信内容：</label>
+                    <div class="sms-content-box" id="detailContent"></div>
+                </div>
+                <div class="detail-row full">
+                    <label>备注：</label>
+                    <span id="detailRemark"></span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeSmsDetailModal()">关闭</button>
+        </div>
+    </div>
+</div>
+
+<script src="/static/sms/js/sms.js"></script>
+{% endblock %}

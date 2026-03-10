@@ -1,0 +1,681 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block extrastyle %}
+{{ block.super }}
+{{ media.css }}
+<style>
+    /* 列表页面样式 - 与物流管理页面一致 */
+    #content-main {
+ffffff;
+        border-radius: 10px;
+        padding: 24px;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    /* 页面头部 */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 16px;
+        background: #f8fafc;
+        border-radius: 8px;
+    }
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 18px;
+        color: #1e293b;
+    }
+
+    /* 按钮样式 - 与物流页面一致 */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 20px;
+        background: #10b981;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn:hover {
+        background: #059669;
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-secondary {
+        background: #64748b;
+    }
+
+    .btn-secondary:hover {
+        background: #475569;
+    }
+
+    /* 搜索区域样式 */
+    .search-section {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 16px;
+        background: #f8fafc;
+        border-radius: 8px;
+    }
+
+    .search-section input[type="text"] {
+        padding: 10px 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        font-size: 14px;
+        width: 280px;
+    }
+
+    .search-section input[type="text"]:focus {
+        outline: none;
+        border-color: #10b981;
+    }
+
+    /* ==================== 表格容器 - 自动适配页面 ==================== */
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* ==================== results 结果容器 ==================== */
+    .results {
+        width: 100%;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    /* ==================== result_list 表格样式 ==================== */
+    #result_list,
+    .result_list {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        background: white !important;
+    }
+
+    /* 表头样式 */
+    #result_list thead th,
+    .result_list thead th,
+    .results th {
+        background: #f8fafc !important;
+        padding: 12px 16px !important;
+        text-align: left !important;
+        font-weight: 600 !important;
+        color: #475569 !important;
+        border-bottom: 2px solid #e2e8f0 !important;
+        font-size: 13px !important;
+        white-space: nowrap !important;
+    }
+
+    /* 单元格样式 */
+    #result_list tbody td,
+    .result_list tbody td,
+    .results td {
+        padding: 12px 16px !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        color: #1e293b !important;
+        vertical-align: middle !important;
+    }
+
+    /* ==================== 行间隔换色 (斑马纹) ==================== */
+    #result_list tbody tr:nth-child(odd),
+    .result_list tbody tr:nth-child(odd),
+    .results tbody tr:nth-child(odd) {
+        background-color: #ffffff !important;
+    }
+
+    #result_list tbody tr:nth-child(even),
+    .result_list tbody tr:nth-child(even),
+    .results tbody tr:nth-child(even) {
+        background-color: #f8fafc !important;
+    }
+
+    /* 行悬停效果 */
+    #result_list tbody tr:hover,
+    .result_list tbody tr:hover,
+    .results tbody tr:hover {
+        background-color: #e0f2fe !important;
+    }
+
+    /* ==================== action-checkbox-column 复选框列 ==================== */
+    .action-checkbox-column {
+        width: 40px !important;
+        text-align: center !important;
+        padding: 12px 8px !important;
+    }
+
+    .action-checkbox-column input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+    /* ==================== field 列样式 ==================== */
+    .field-column {
+        min-width: 100px;
+    }
+
+    /* 字段名称样式 */
+    th.column-name,
+    td.field-name {
+        min-width: 120px;
+    }
+
+    /* 各种字段类型样式 */
+    .field-__str__,
+    .field-name,
+    .field-customer_type,
+    .field-status,
+    .field-contact_person,
+    .field-contact_phone,
+    .field-market_manager,
+    .field-service_manager,
+    .field-created_by,
+    .field-created_at,
+    .field-fault_no,
+    .field-title,
+    .field-priority {
+        padding: 12px 16px !important;
+    }
+
+    /* ==================== 操作链接样式 ==================== */
+    #result_list tbody td a,
+    .result_list tbody td a,
+    .results td a {
+        color: #10b981 !important;
+        text-decoration: none !important;
+        margin-right: 8px !important;
+    }
+
+    #result_list tbody td a:hover,
+    .result_list tbody td a:hover,
+    .results td a:hover {
+        text-decoration: underline !important;
+    }
+
+    /* ==================== 分页样式 ==================== */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        padding: 20px 0;
+    }
+
+    .pagination a,
+    .pagination span {
+        padding: 8px 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        color: #1e293b;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .pagination a:hover {
+        background: #f8fafc;
+        border-color: #10b981;
+        color: #10b981;
+    }
+
+    .pagination .current {
+        background: #10b981;
+        border-color: #10b981;
+        color: white;
+    }
+
+    /* 状态徽章 */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .status-active { background: #dcfce7; color: #16a34a; }
+    .status-inactive { background: #f1f5f9; color: #94a3b8; }
+    .status-pending { background: #fef3c7; color: #d97706; }
+    .status-processing { background: #dbeafe; color: #2563eb; }
+    .status-resolved { background: #dcfce7; color: #16a34a; }
+    .status-closed { background: #f1f5f9; color: #94a3b8; }
+
+    /* ==================== 故障管理专用样式 ==================== */
+    /* 优先级徽章 - 带图标和颜色 */
+    .priority-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .priority-urgent {
+        background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+        color: #dc2626;
+        border: 1px solid #fecaca;
+        animation: pulse-urgent 2s ease-in-out infinite;
+    }
+
+    .priority-high {
+        background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+        color: #c2410c;
+        border: 1px solid #fed7aa;
+    }
+
+    .priority-normal {
+        background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
+        color: #a16207;
+        border: 1px solid #fef08a;
+    }
+
+    .priority-low {
+        background: linear-gradient(135deg, #bbf7d0 0%, #86efac 100%);
+        color: #15803d;
+        border: 1px solid #bbf7d0;
+    }
+
+    /* 紧急状态动画 */
+    @keyframes pulse-urgent {
+        0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
+        }
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 8px rgba(220, 38, 38, 0);
+        }
+    }
+
+    /* 故障状态特殊样式 */
+    .status-pending {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #d97706;
+        border: 1px solid #fef3c7;
+        font-weight: 600;
+    }
+
+    .status-processing {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #2563eb;
+        border: 1px solid #dbeafe;
+        font-weight: 600;
+        animation: pulse-processing 1.5s ease-in-out infinite;
+    }
+
+    .status-resolved {
+        background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+        color: #16a34a;
+        border: 1px solid #dcfce7;
+        opacity: 0.7;
+    }
+
+    .status-closed {
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        color: #64748b;
+        border: 1px solid #f1f5f9;
+        opacity: 0.6;
+    }
+
+    @keyframes pulse-processing {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.8;
+        }
+    }
+
+    /* 优先级列特殊样式 */
+    th.column-formatted_priority,
+    td.field-formatted_priority {
+        width: 80px !important;
+        text-align: center !important;
+    }
+
+    /* 状态列特殊样式 */
+    th.column-formatted_status,
+    td.field-formatted_status {
+        width: 100px !important;
+        text-align: center !important;
+    }
+
+    /* 高优先级行的视觉提示 */
+    tr.urgent-row {
+        border-left: 3px solid #dc2626 !important;
+    }
+
+    tr.high-priority-row {
+        border-left: 3px solid #ea580c !important;
+    }
+
+    tr.resolved-row {
+        opacity: 0.7;
+    }
+
+    tr.closed-row {
+        opacity: 0.5;
+        background: #f8fafc !important;
+    }
+
+    /* 筛选器 */
+    .filter-section {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding: 12px 16px;
+        background: #f8fafc;
+        border-radius: 8px;
+        flex-wrap: wrap;
+    }
+
+    .filter-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .filter-item label {
+        font-size: 13px;
+        color: #64748b;
+    }
+
+    .filter-item select {
+        padding: 6px 10px;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        font-size: 13px;
+    }
+
+    /* 空白状态 */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #64748b;
+    }
+
+    .empty-state-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    .empty-state-text {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .empty-state-subtext {
+        font-size: 14px;
+        color: #94a3b8;
+    }
+
+    /* 响应式 */
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            gap: 16px;
+            align-items: flex-start;
+        }
+        .search-section {
+            flex-direction: column;
+            width: 100%;
+        }
+        .search-section input[type="text"] {
+            width: 100%;
+        }
+        .filter-section {
+            flex-direction: column;
+        }
+    }
+
+    /* 隐藏Django admin默认元素 */
+    #changelist-filter,
+    #toolbar,
+    .actions,
+    .date-hierarchy,
+    #changelist-search {
+        display: none !important;
+    }
+
+    /* 表格行操作 */
+    .row-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .row-action {
+        color: #10b981;
+        text-decoration: none;
+        font-size: 13px;
+    }
+
+    .row-action:hover {
+        text-decoration: underline;
+    }
+
+    .row-action.edit {
+        color: #2563eb;
+    }
+
+    .row-action.delete {
+        color: #ef4444;
+    }
+</style>
+{% endblock %}
+
+{% block page_title %}{{ cl.opts.verbose_name_plural|capfirst }}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <!-- 页面头部 -->
+    <div class="page-header">
+        <h1><i class="bi bi-list"></i> {{ cl.opts.verbose_name_plural|capfirst }}</h1>
+        <div class="header-actions">
+            {% url cl.opts|admin_urlname:'add' as add_url %}
+            {% if add_url and has_add_permission %}
+            <a href="{{ add_url }}" class="btn">
+                <i class="bi bi-plus-circle"></i> 添加 {{ cl.opts.verbose_name }}
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 搜索区域 -->
+    <div class="search-section">
+        <form method="get" style="display:flex;gap:12px;align-items:center;width:100%;flex-wrap:wrap;">
+            <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="搜索..." style="flex:1;min-width:200px;max-width:400px;padding:10px 14px;border:1px solid #e2e8f0;border-radius:6px;font-size:14px;">
+            <button type="submit" class="btn">
+                <i class="bi bi-search"></i> 搜索
+            </button>
+            {% if request.GET.q %}
+            <a href="?" class="btn btn-secondary">
+                <i class="bi bi-x-circle"></i> 清除
+            </a>
+            {% endif %}
+            {% for key, value in request.GET.items %}
+            {% if key != 'q' and key != 'p' %}
+            <input type="hidden" name="{{ key }}" value="{{ value }}">
+            {% endif %}
+            {% endfor %}
+        </form>
+    </div>
+
+    <!-- 筛选器 -->
+    {% if cl.has_filters %}
+    <div class="filter-section">
+        <span style="font-size:13px;color:#64748b;margin-right:8px;">筛选:</span>
+        {% for spec in cl.filter_specs %}
+            {% if spec.choices %}
+            <div class="filter-item">
+                <label>{{ spec.title }}:</label>
+                <select onchange="location.href=this.value">
+                    <option value="">全部</option>
+                    {% for choice in spec.choices %}
+                    <option value="{{ choice.query_string|escape }}" {% if choice.selected %}selected{% endif %}>
+                        {{ choice.display }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- 结果列表 -->
+    <div class="table-container">
+        {% if cl.result_count %}
+        {% result_list cl %}
+        {% if cl.result_count == 0 %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <div class="empty-state-text">暂无数据</div>
+            <div class="empty-state-subtext">没有找到符合条件的记录</div>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <div class="empty-state-text">暂无数据</div>
+            <div class="empty-state-subtext">点击"添加"按钮创建新记录</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- 分页 -->
+    {% if cl.paginator %}
+    <div class="pagination">
+        {% if cl.page_num > 1 %}
+        <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}p={{ cl.page_num|add:-1 }}">
+            <i class="bi bi-chevron-left"></i> 上一页
+        </a>
+        {% endif %}
+
+        {% for p in cl.paginator.page_range %}
+            {% if p >= cl.page_num|add:-2 and p <= cl.page_num|add:2 %}
+                {% if p == cl.page_num %}
+                <span class="current">{{ p }}</span>
+                {% else %}
+                <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}p={{ p }}">{{ p }}</a>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        {% if cl.page_num < cl.paginator.num_pages %}
+        <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}p={{ cl.page_num|add:1 }}">
+            下一页 <i class="bi bi-chevron-right"></i>
+        </a>
+        {% endif %}
+
+        <span style="margin-left:16px;color:#64748b;font-size:13px;">
+            共 {{ cl.paginator.num_pages }} 页，{{ cl.result_count }} 条记录
+        </span>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+{{ media.js }}
+<script>
+(function() {
+    'use strict';
+
+    function initPage() {
+        try {
+            // 高亮当前菜单
+            var currentPath = window.location.pathname || '';
+            var menuItems = document.querySelectorAll('.menu-item');
+            if (menuItems && menuItems.length > 0) {
+                for (var i = 0; i < menuItems.length; i++) {
+                    var href = menuItems[i].getAttribute('href');
+                    if (href && href === currentPath) {
+                        menuItems[i].classList.add('active');
+                    }
+                }
+            }
+
+            // 为表格行添加样式 - 故障管理页面
+            if (currentPath.indexOf('/admin/faults/') !== -1) {
+                applyFaultManagementStyles();
+            }
+        } catch (e) {
+            console.warn('页面初始化出错:', e);
+        }
+    }
+
+    function applyFaultManagementStyles() {
+        // 为表格行根据优先级和状态添加特殊样式
+        var tableRows = document.querySelectorAll('#result_list tbody tr');
+        var priorityIndex = 0;
+        var statusIndex = 0;
+
+        // 获取表头索引
+        var headers = document.querySelectorAll('#result_list thead th');
+        for (var i = 0; i < headers.length; i++) {
+            var headerText = headers[i].textContent.trim();
+            if (headerText === '优先级' || headerText === 'Priority') {
+                priorityIndex = i;
+            } else if (headerText === '状态' || headerText === 'Status') {
+                statusIndex = i;
+            }
+        }
+
+        tableRows.forEach(function(row) {
+            var cells = row.querySelectorAll('td');
+            if (cells.length > 0) {
+                // 检查优先级
+                if (cells[priorityIndex]) {
+                    var priorityText = cells[priorityIndex].textContent.trim();
+                    if (priorityText.includes('紧急') || priorityText.includes('🔴')) {
+                        row.classList.add('urgent-row');
+                    } else if (priorityText.includes('高') || priorityText.includes('🟠')) {
+                        row.classList.add('high-priority-row');
+                    }
+                }
+
+                // 检查状态
+                if (cells[statusIndex]) {
+                    var statusText = cells[statusIndex].textContent.trim();
+                    if (statusText.includes('已解决') || statusText.includes('已关闭')) {
+                        row.style.opacity = '0.7';
+                    } else if (statusText.includes('待处理')) {
+                        row.style.fontWeight = '500';
+                    }
+                }
+
+                // 悬停效果
+                row.style.cursor = 'pointer';
+            }
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPage);
+    } else {
+        initPage();
+    }
+})();
+</script>
+{% endblock %}

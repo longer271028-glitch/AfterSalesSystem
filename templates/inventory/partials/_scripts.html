@@ -1,0 +1,401 @@
+<script>
+    function switchTab(tabName) {
+        // 移除所有按钮的active状态
+        document.querySelectorAll('.tab-btn').forEach(function(btn) {
+            btn.classList.remove('active');
+        });
+
+        // 隐藏所有tab内容
+        document.querySelectorAll('.tab-content').forEach(function(content) {
+            content.style.display = 'none';
+        });
+
+        // 激活对应按钮
+        var btn = document.querySelector('.tab-btn[data-tab="' + tabName + '"]');
+        if (btn) btn.classList.add('active');
+
+        // 显示对应内容
+        var content = document.getElementById('tab-' + tabName);
+        if (content) content.style.display = 'block';
+    }
+
+    // 事件委托处理仓库链接和按钮点击
+    document.addEventListener('click', function(e) {
+        // 仓库详情查看
+        if (e.target.classList.contains('warehouse-link') || e.target.closest('.warehouse-detail-btn')) {
+            var target = e.target.classList.contains('warehouse-link') ? e.target : e.target.closest('.warehouse-detail-btn');
+            var warehouseId = target.getAttribute('data-id');
+            var warehouseName = target.getAttribute('data-name');
+            viewWarehouseDetail(warehouseId, warehouseName);
+        }
+
+        // 仓库管理 - 启用/停用
+        if (e.target.classList.contains('toggle-warehouse-btn')) {
+            var btn = e.target;
+            var warehouseId = btn.getAttribute('data-id');
+            var activate = btn.getAttribute('data-active') === 'true';
+            toggleWarehouse(warehouseId, activate);
+        }
+
+        // 仓库管理 - 编辑
+        if (e.target.classList.contains('edit-warehouse-btn')) {
+            var btn = e.target;
+            editWarehouse(btn.getAttribute('data-id'), btn.getAttribute('data-name'), btn.getAttribute('data-code'), btn.getAttribute('data-address'));
+        }
+    });
+
+    // 查看仓库详情
+    function viewWarehouseDetail(warehouseId, warehouseName) {
+        document.getElementById('warehouseDetailTitle').textContent = '仓库详情 - ' + warehouseName;
+        document.getElementById('warehouseDetailModal').style.display = 'block';
+
+        // 获取仓库详情数据
+        fetch('/api/inventory/stock/query/?warehouse=' + warehouseId, {
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        })
+        .then(res => res.json())
+        .then(data => {
+            var tbody = document.getElementById('warehouseDetailTable');
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">暂无数据</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.map(item => {
+                var inQty = 0, outQty = 0;
+                if (item.warehouses) {
+                    for (var wid in item.warehouses) {
+                        inQty += item.warehouses[wid].in || 0;
+                        outQty += item.warehouses[wid].out || 0;
+                    }
+                }
+                var balance = inQty - outQty;
+                return '<tr>' +
+                    '<td>' + (item.product_code || '-') + '</td>' +
+                    '<td>' + (item.product_name || '-') + '</td>' +
+                    '<td>-</td>' +
+                    '<td class="text-success">' + inQty + '</td>' +
+                    '<td class="text-danger">' + outQty + '</td>' +
+                    '<td class="text-primary"><strong>' + balance + '</strong></td>' +
+                '</tr>';
+            }).join('');
+        })
+        .catch(err => {
+            document.getElementById('warehouseDetailTable').innerHTML =
+                '<tr><td colspan="6" class="text-center text-danger">加载失败: ' + err + '</td></tr>';
+        });
+    }
+
+    function closeWarehouseDetail() {
+        document.getElementById('warehouseDetailModal').style.display = 'none';
+    }
+
+    // 入库弹窗显示
+    function showInboundModal() {
+        document.getElementById('inboundModal').style.display = 'block';
+    }
+    function closeInboundModal() {
+        document.getElementById('inboundModal').style.display = 'none';
+    }
+
+    // 出库弹窗显示
+    function showOutboundModal() {
+        document.getElementById('outboundModal').style.display = 'block';
+    }
+    function closeOutboundModal() {
+        document.getElementById('outboundModal').style.display = 'none';
+    }
+
+    // 提交入库
+    function submitInbound() {
+        const warehouse = document.getElementById('inWarehouseModal').value;
+        const productId = document.getElementById('inProductModal').value;
+        const quantity = document.getElementById('inQuantityModal').value;
+        const orderNo = document.getElementById('inOrderNoModal').value;
+        const remark = document.getElementById('inRemarkModal').value;
+
+        if (!productId || !quantity) {
+            alert('请填写完整信息');
+            return;
+        }
+
+        fetch('/api/inventory/stock/in_stock/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({
+                warehouse: warehouse,
+                product_id: productId,
+                quantity: parseInt(quantity),
+                order_no: orderNo,
+                remark: remark
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert('入库成功!');
+            closeInboundModal();
+            location.reload();
+        })
+        .catch(err => {
+            alert('入库失败: ' + err);
+        });
+    }
+
+    // 提交出库
+    function submitOutbound() {
+        const warehouse = document.getElementById('outWarehouseModal').value;
+        const productId = document.getElementById('outProductModal').value;
+        const quantity = document.getElementById('outQuantityModal').value;
+        const orderNo = document.getElementById('outOrderNoModal').value;
+        const remark = document.getElementById('outRemarkModal').value;
+
+        if (!productId || !quantity) {
+            alert('请填写完整信息');
+            return;
+        }
+
+        fetch('/api/inventory/stock/out_stock/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({
+                warehouse: warehouse,
+                product_id: productId,
+                quantity: parseInt(quantity),
+                order_no: orderNo,
+                remark: remark
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                alert('出库成功!');
+                closeOutboundModal();
+                location.reload();
+            }
+        })
+        .catch(err => {
+            alert('出库失败: ' + err);
+        });
+    }
+
+    // 库存查询
+    function queryStock() {
+        const warehouseId = document.getElementById('queryWarehouse').value;
+        const productKeyword = document.getElementById('queryProduct').value;
+
+        let url = '/api/inventory/stock/query/?';
+        if (warehouseId) url += 'warehouse=' + warehouseId + '&';
+        if (productKeyword) url += 'product=' + encodeURIComponent(productKeyword);
+
+        fetch(url, {
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        })
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('stockQueryResult');
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">未找到数据</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.map(item => `
+                <tr>
+                    <td>${item.product_code}</td>
+                    <td>${item.product_name}</td>
+                    <td>${item.warehouse_name || '-'}</td>
+                    <td>${item.quantity}</td>
+                    <td><span class="stock-badge ${item.quantity > 10 ? 'stock-normal' : (item.quantity > 0 ? 'stock-low' : 'stock-out')}">${item.status}</span></td>
+                </tr>
+            `).join('');
+        })
+        .catch(err => {
+            alert('查询失败: ' + err);
+        });
+    }
+
+    // 入库记录查询
+    function queryInboundRecords(page) {
+        const startDate = document.getElementById('inStartDate').value;
+        const endDate = document.getElementById('inEndDate').value;
+        const warehouse = document.getElementById('inQueryWarehouse').value;
+        const product = document.getElementById('inQueryProduct').value;
+
+        let url = `/api/inventory/stock/?record_type=in&page=${page}`;
+        if (startDate) url += `&start_date=${startDate}`;
+        if (endDate) url += `&end_date=${endDate}`;
+        if (warehouse) url += `&warehouse=${warehouse}`;
+        if (product) url += `&product=${encodeURIComponent(product)}`;
+
+        fetch(url, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('inboundRecordsTable');
+            if (!data.results || data.results.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">未找到数据</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.results.map(item => `
+                <tr>
+                    <td>${item.operate_time}</td>
+                    <td>${item.product_name}</td>
+                    <td>${item.warehouse_name || '-'}</td>
+                    <td class="text-success">+${item.quantity}</td>
+                    <td>${item.balance}</td>
+                    <td>${item.related_order_no || '-'}</td>
+                    <td>${item.operator_name || '-'}</td>
+                </tr>
+            `).join('');
+            // 简单分页
+            const totalPages = Math.ceil(data.count / 20);
+            if (totalPages > 1) {
+                let html = '';
+                for (let i = 1; i <= totalPages && i <= 5; i++) {
+                    html += `<li class="page-item ${i === page ? 'active' : ''}"><a class="page-link" href="javascript:queryInboundRecords(${i})">${i}</a></li>`;
+                }
+                document.getElementById('inboundPagination').innerHTML = html;
+            }
+        })
+        .catch(err => {
+            alert('查询失败: ' + err);
+        });
+    }
+
+    // 出库记录查询
+    function queryOutboundRecords(page) {
+        const startDate = document.getElementById('outStartDate').value;
+        const endDate = document.getElementById('outEndDate').value;
+        const warehouse = document.getElementById('outQueryWarehouse').value;
+        const product = document.getElementById('outQueryProduct').value;
+
+        let url = `/api/inventory/stock/?record_type=out&page=${page}`;
+        if (startDate) url += `&start_date=${startDate}`;
+        if (endDate) url += `&end_date=${endDate}`;
+        if (warehouse) url += `&warehouse=${warehouse}`;
+        if (product) url += `&product=${encodeURIComponent(product)}`;
+
+        fetch(url, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('outboundRecordsTable');
+            if (!data.results || data.results.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">未找到数据</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.results.map(item => `
+                <tr>
+                    <td>${item.operate_time}</td>
+                    <td>${item.product_name}</td>
+                    <td>${item.warehouse_name || '-'}</td>
+                    <td class="text-danger">-${item.quantity}</td>
+                    <td>${item.balance}</td>
+                    <td>${item.related_order_no || '-'}</td>
+                    <td>${item.operator_name || '-'}</td>
+                </tr>
+            `).join('');
+            const totalPages = Math.ceil(data.count / 20);
+            if (totalPages > 1) {
+                let html = '';
+                for (let i = 1; i <= totalPages && i <= 5; i++) {
+                    html += `<li class="page-item ${i === page ? 'active' : ''}"><a class="page-link" href="javascript:queryOutboundRecords(${i})">${i}</a></li>`;
+                }
+                document.getElementById('outboundPagination').innerHTML = html;
+            }
+        })
+        .catch(err => {
+            alert('查询失败: ' + err);
+        });
+    }
+
+    // 添加仓库
+    function showAddWarehouseModal() {
+        const name = prompt('请输入仓库名称:');
+        if (!name) return;
+        const code = prompt('请输入仓库编码:');
+        if (!code) return;
+        const address = prompt('请输入仓库地址 (可选):') || '';
+
+        fetch('/api/inventory/warehouses/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({
+                name: name,
+                code: code,
+                address: address
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert('仓库添加成功!');
+            location.reload();
+        })
+        .catch(err => {
+            alert('添加失败: ' + err);
+        });
+    }
+
+    // 编辑仓库
+    function editWarehouse(id, name, code, address) {
+        const newName = prompt('请输入仓库名称:', name);
+        if (!newName) return;
+        const newCode = prompt('请输入仓库编码:', code);
+        if (!newCode) return;
+        const newAddress = prompt('请输入仓库地址:', address || '') || '';
+
+        fetch('/api/inventory/warehouses/' + id + '/', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({
+                name: newName,
+                code: newCode,
+                address: newAddress
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert('仓库更新成功!');
+            location.reload();
+        })
+        .catch(err => {
+            alert('更新失败: ' + err);
+        });
+    }
+
+    // 启用/停用仓库
+    function toggleWarehouse(id, activate) {
+        const url = '/api/inventory/warehouses/' + id + '/';
+        fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({
+                is_active: activate
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(activate ? '仓库已启用!' : '仓库已停用!');
+            location.reload();
+        })
+        .catch(err => {
+            alert('操作失败: ' + err);
+        });
+    }
+
+    function getCSRFToken() {
+        return document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+    }
+</script>

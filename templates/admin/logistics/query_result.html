@@ -1,0 +1,107 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <div class="module">
+        <h2>{{ title }}</h2>
+
+        <!-- 物流基本信息 -->
+        <table>
+            <caption>物流基本信息</caption>
+            <tr>
+                <th width="20%">关联单号</th>
+                <td>{{ record.order_no }}</td>
+            </tr>
+            <tr>
+                <th>物流单号</th>
+                <td>{{ record.track_no }}</td>
+            </tr>
+            <tr>
+                <th>物流类型</th>
+                <td>{{ record.get_track_type_display }}</td>
+            </tr>
+            <tr>
+                <th>物流渠道</th>
+                <td>{{ record.channel.name|default:"未配置" }}</td>
+            </tr>
+            <tr>
+                <th>物流状态</th>
+                <td><span style="color: {% if record.is_delivered %}green{% elif record.is_completed %}gray{% else %}blue{% endif %}; font-weight: bold;">{{ record.status|default:"未知" }}</span></td>
+            </tr>
+            <tr>
+                <th>当前位置</th>
+                <td>{{ record.current_location|default:"未知" }}</td>
+            </tr>
+            <tr>
+                <th>最后查询时间</th>
+                <td>{{ record.last_query_time|date:"Y-m-d H:i:s"|default:"未查询" }}</td>
+            </tr>
+        </table>
+
+        <!-- 收发货信息 -->
+        <table style="margin-top: 20px;">
+            <caption>收发货信息</caption>
+            <tr>
+                <th width="20%">发货人</th>
+                <td>{{ record.sender_name|default:"-" }}</td>
+            </tr>
+            <tr>
+                <th>发货人电话</th>
+                <td>{{ record.sender_phone|default:"-" }}</td>
+            </tr>
+            <tr>
+                <th>发货地址</th>
+                <td>{{ record.sender_address|default:"-" }}</td>
+            </tr>
+            <tr>
+                <th>收货人</th>
+                <td>{{ record.receiver_name|default:"-" }}</td>
+            </tr>
+            <tr>
+                <th>收货人电话</th>
+                <td>{{ record.receiver_phone|default:"-" }}</td>
+            </tr>
+            <tr>
+                <th>收货地址</th>
+                <td>{{ record.receiver_address|default:"-" }}</td>
+            </tr>
+        </table>
+
+        <!-- 物流轨迹 -->
+        <table style="margin-top: 20px;">
+            <caption>物流轨迹</caption>
+            <thead>
+                <tr>
+                    <th width="25%">时间</th>
+                    <th width="15%">状态</th>
+                    <th>地点/描述</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if traces %}
+                    {% for trace in traces %}
+                    <tr>
+                        <td>{{ trace.trace_time|date:"Y-m-d H:i:s" }}</td>
+                        <td>{{ trace.status|default:"-" }}</td>
+                        <td>{{ trace.location|default:trace.description|default:"-" }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: #999;">暂无物流轨迹信息</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <!-- 操作按钮 -->
+        <div style="margin-top: 30px; text-align: center;">
+            <a href="{% url 'admin:logistics_logisticsrecord_changelist' %}" class="button">返回列表</a>
+            <a href="{% url 'admin:logistics_logisticsrecord_change' record.id %}" class="button">查看详情</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

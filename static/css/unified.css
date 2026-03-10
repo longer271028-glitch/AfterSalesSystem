@@ -1,0 +1,1055 @@
+/* ============================================================================
+   统一样式表 - 田小二售后服务平台
+   ============================================================================ */
+
+/* CSS 变量定义 */
+:root {
+    /* 主色调 */
+    --primary-color: #2563eb;
+    --primary-hover: #1d4ed8;
+    --secondary-color: #64748b;
+    --secondary-hover: #475569;
+
+    /* 功能色 */
+    --success-color: #10b981;
+    --success-hover: #059669;
+    --warning-color: #f59e0b;
+    --warning-hover: #d97706;
+    --danger-color: #ef4444;
+    --danger-hover: #dc2626;
+
+    /* 中性色 */
+    --bg-color: #f8fafc;
+    --bg-white: #ffffff;
+    --bg-gray-light: #f1f5f9;
+    --bg-gray-medium: #e2e8f0;
+
+    /* 文字颜色 */
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --text-white: #ffffff;
+
+    /* 边框颜色 */
+    --border-color: #d1d5db;
+    --border-hover: #94a3b8;
+
+    /* 阴影 */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+    /* 间距 */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 20px;
+    --spacing-xl: 24px;
+    --spacing-2xl: 32px;
+
+    /* 圆角 */
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 10px;
+    --radius-xl: 16px;
+
+    /* 侧边栏 */
+    --sidebar-width: 260px;
+    --sidebar-bg: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
+}
+
+/* ============================================================================
+   基础样式
+   ============================================================================ */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    background-color: var(--bg-color);
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: var(--spacing-md);
+    color: var(--text-primary);
+}
+
+h1 { font-size: 28px; }
+h2 { font-size: 24px; }
+h3 { font-size: 20px; }
+h4 { font-size: 18px; }
+h5 { font-size: 16px; }
+h6 { font-size: 14px; }
+
+p {
+    margin-bottom: var(--spacing-md);
+}
+
+/* ============================================================================
+   侧边栏样式 - 优化版
+   ============================================================================ */
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--sidebar-width);
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    color: var(--text-white);
+    z-index: 10000;
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-header {
+    padding: 24px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-header h4 {
+    margin: 0;
+    color: var(--text-white);
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar-header h4::before {
+    content: '';
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    border-radius: 8px;
+}
+
+.sidebar-header small {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    display: block;
+    margin-top: 4px;
+    margin-left: 42px;
+}
+
+.sidebar-menu {
+    padding: 12px 0;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+    font-weight: 450;
+    font-size: 14px;
+    margin: 2px 12px;
+    border-radius: 8px;
+}
+
+.menu-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-white);
+    border-left-color: transparent;
+}
+
+.menu-item.active {
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.05) 100%);
+    color: #10b981;
+    border-left-color: #10b981;
+}
+
+.menu-item i {
+    margin-right: 12px;
+    width: 20px;
+    font-size: 16px;
+    text-align: center;
+    opacity: 0.9;
+}
+
+.menu-item:hover i,
+.menu-item.active i {
+    opacity: 1;
+}
+
+.menu-item .badge {
+    margin-left: auto;
+    font-size: 11px;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+.menu-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 12px 20px;
+}
+
+.menu-section-title {
+    padding: 16px 20px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* 退出登录按钮 */
+.menu-logout {
+    margin: 20px 12px 12px;
+    padding: 12px 20px;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 8px;
+    color: #fca5a5;
+    border-left: 3px solid transparent;
+}
+
+.menu-logout:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border-left-color: #ef4444;
+}
+
+.sidebar-header {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-header h4 {
+    margin: 0;
+    color: var(--text-white);
+    font-size: 18px;
+}
+
+.sidebar-header small {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+}
+
+.sidebar-menu {
+    padding: 15px 0;
+}
+
+.menu-item {
+    display: block;
+    padding: 12px 20px;
+    color: var(--text-white);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+    font-weight: 500;
+}
+
+.menu-item:hover,
+.menu-item.active {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-white);
+    border-left-color: var(--success-color);
+}
+
+.menu-item i {
+    margin-right: 10px;
+    width: 20px;
+    font-size: 16px;
+}
+
+.menu-item .badge {
+    float: right;
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+/* ============================================================================
+   主内容区样式
+   ============================================================================ */
+
+.main-content {
+    margin-left: var(--sidebar-width);
+    padding: var(--spacing-lg);
+    min-height: 100vh;
+}
+
+/* 顶部导航条 */
+.top-bar {
+    background: var(--bg-white);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.top-bar h4 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.top-bar small {
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+/* 内容卡片 */
+.content-card {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* ============================================================================
+   表单元素样式
+   ============================================================================ */
+
+/* 文本输入框 */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+textarea,
+select {
+    width: 100%;
+    max-width: 500px;
+    padding: 8px 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background-color: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* 下拉选择框 */
+select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* IE10+ 隐藏默认箭头 */
+select::-ms-expand {
+    display: none;
+}
+
+/* 文本域 */
+textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* 只读字段 */
+input[readonly],
+textarea[readonly],
+select[readonly] {
+    background-color: var(--bg-gray-light);
+    cursor: not-allowed;
+}
+
+/* ============================================================================
+   按钮样式
+   ============================================================================ */
+
+button,
+input[type="button"],
+input[type="submit"],
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+}
+
+button:disabled,
+input[type="button"]:disabled,
+input[type="submit"]:disabled,
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* 主要按钮 */
+.btn-primary,
+.button.primary,
+input[type="submit"] {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--text-white);
+}
+
+.btn-primary:hover,
+.button.primary:hover,
+input[type="submit"]:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+/* 成功按钮 */
+.btn-success {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+    color: var(--text-white);
+}
+
+.btn-success:hover {
+    background-color: var(--success-hover);
+    border-color: var(--success-hover);
+}
+
+/* 警告按钮 */
+.btn-warning {
+    background-color: var(--warning-color);
+    border-color: var(--warning-color);
+    color: var(--text-white);
+}
+
+.btn-warning:hover {
+    background-color: var(--warning-hover);
+    border-color: var(--warning-hover);
+}
+
+/* 危险按钮 */
+.btn-danger {
+    background-color: var(--danger-color);
+    border-color: var(--danger-color);
+    color: var(--text-white);
+}
+
+.btn-danger:hover {
+    background-color: var(--danger-hover);
+    border-color: var(--danger-hover);
+}
+
+/* 次要按钮 */
+.btn-secondary,
+.button,
+input[type="button"] {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: var(--text-white);
+}
+
+.btn-secondary:hover,
+.button:hover,
+input[type="button"]:hover {
+    background-color: var(--secondary-hover);
+    border-color: var(--secondary-hover);
+}
+
+/* 轮廓按钮 */
+.btn-outline-primary {
+    background-color: transparent;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    color: var(--text-white);
+}
+
+/* ============================================================================
+   表格样式
+   ============================================================================ */
+
+.table {
+    width: 100%;
+    margin-bottom: 0;
+    background-color: var(--bg-white);
+    border-collapse: collapse;
+}
+
+.table thead {
+    background-color: var(--bg-gray-light);
+}
+
+.table thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--border-color);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.table tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.table tbody tr:hover {
+    background-color: var(--bg-gray-light);
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ============================================================================
+   徽章样式
+   ============================================================================ */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 20px;
+    line-height: 1;
+}
+
+.badge-primary {
+    background-color: rgba(37, 99, 235, 0.1);
+    color: var(--primary-color);
+}
+
+.badge-success {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
+}
+
+.badge-warning {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: var(--warning-color);
+}
+
+.badge-danger {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger-color);
+}
+
+.badge-secondary {
+    background-color: rgba(100, 116, 139, 0.1);
+    color: var(--secondary-color);
+}
+
+/* ============================================================================
+   状态标签样式
+   ============================================================================ */
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-pending { background: #fef3c7; color: #d97706; }
+.status-processing { background: #dbeafe; color: #2563eb; }
+.status-resolved { background: #dcfce7; color: #16a34a; }
+.status-closed { background: #f1f5f9; color: #94a3b8; }
+
+.status-received { background: #fef3c7; color: #d97706; }
+.status-inbound { background: #dbeafe; color: #2563eb; }
+.status-detecting { background: #e0e7ff; color: #4f46e5; }
+.status-quoting { background: #fce7f3; color: #db2777; }
+.status-repairing { background: #d1fae5; color: #059669; }
+.status-testing { background: #cffafe; color: #0891b2; }
+.status-outbound { background: #f3e8ff; color: #7c3aed; }
+.status-completed { background: #dcfce7; color: #16a34a; }
+.status-cancelled { background: #f1f5f9; color: #94a3b8; }
+
+/* ============================================================================
+   卡片和统计样式
+   ============================================================================ */
+
+.stat-card {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.stat-card .stat-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-lg);
+    font-size: 24px;
+}
+
+.stat-card .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.stat-card .stat-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* ============================================================================
+   模态框样式
+   ============================================================================ */
+
+.modal {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal .modal-content {
+    border: none;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+}
+
+.modal .modal-header {
+    background-color: var(--bg-white);
+    border-bottom: 1px solid var(--border-color);
+    padding: var(--spacing-lg);
+}
+
+.modal .modal-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.modal .modal-body {
+    padding: var(--spacing-lg);
+}
+
+.modal .modal-footer {
+    background-color: var(--bg-white);
+    border-top: 1px solid var(--border-color);
+    padding: var(--spacing-lg);
+}
+
+/* ============================================================================
+   标签页样式
+   ============================================================================ */
+
+.tab-nav {
+    display: flex;
+    gap: 5px;
+    margin-bottom: var(--spacing-lg);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0;
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+    color: var(--primary-color);
+}
+
+.tab-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+/* ============================================================================
+   分页样式
+   ============================================================================ */
+
+.pagination {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: var(--spacing-md) 0;
+}
+
+.pagination a,
+.pagination span {
+    padding: 6px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.pagination a:hover {
+    background-color: var(--bg-gray-light);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.pagination span.current {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--text-white);
+}
+
+/* ============================================================================
+   Django Admin 覆盖样式
+   ============================================================================ */
+
+/* 隐藏默认 admin 头部 */
+#header,
+.breadcrumbs {
+    display: none !important;
+}
+
+/* Admin 内容区域样式 - 基础布局 */
+#content {
+    margin-left: var(--sidebar-width) !important;
+    padding: var(--spacing-lg) !important;
+    width: calc(100% - var(--sidebar-width)) !important;
+    box-sizing: border-box !important;
+    max-width: none !important;
+}
+
+/* 注意: 具体的 #content-main 样式现在由 admin_form.css 和 admin_list.css 管理 */
+#content-main {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* 注意: Module 样式现在由 admin_form.css 和 admin_list.css 管理 */
+.module {
+    background: transparent !important;
+    border: none !important;
+}
+
+/* 注意: 表单样式现在由 admin_form.css 管理 */
+/* 注意: 表格样式现在由 admin_list.css 管理 */
+
+/* ============================================================================
+   Admin 表单增强样式 - 客户管理、故障管理专用
+   ============================================================================ */
+
+/* ============================================================================
+   Admin 特定页面样式说明
+   ============================================================================ */
+
+/* 注意：以下Admin页面样式已移至专门的CSS文件中：
+   - 表单页面（添加/编辑）样式：请查看 static/css/admin_form.css
+   - 列表页面样式：请查看 static/css/admin_list.css
+   
+   这样做是为了提高样式隔离性和维护性，避免样式冲突。
+*/
+
+/* ============================================================================
+   响应式设计
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .main-content,
+    #content {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+
+    .stat-card {
+        margin-bottom: var(--spacing-md);
+    }
+}
+
+/* ============================================================================
+   工具类
+   ============================================================================ */
+
+.text-primary { color: var(--primary-color) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-success { color: var(--success-color) !important; }
+.text-warning { color: var(--warning-color) !important; }
+.text-danger { color: var(--danger-color) !important; }
+.text-muted { color: var(--text-muted) !important; }
+.text-white { color: var(--text-white) !important; }
+
+.bg-white { background-color: var(--bg-white) !important; }
+.bg-gray-light { background-color: var(--bg-gray-light) !important; }
+
+.d-flex { display: flex !important; }
+.align-items-center { align-items: center !important; }
+.justify-content-between { justify-content: space-between !important; }
+.justify-content-center { justify-content: center !important; }
+.gap-2 { gap: 8px !important; }
+.gap-3 { gap: 12px !important; }
+
+.mb-0 { margin-bottom: 0 !important; }
+.mb-3 { margin-bottom: 12px !important; }
+.mr-2 { margin-right: 8px !important; }
+.mt-3 { margin-top: 12px !important; }
+
+.w-100 { width: 100% !important; }
+.h-100 { height: 100% !important; }
+
+.text-center { text-align: center !important; }
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+
+.font-weight-bold { font-weight: 600 !important; }
+.font-weight-normal { font-weight: 400 !important; }
+
+/* ============================================================================
+   Django Admin 表格样式覆盖 - 与物流管理页面一致
+   ============================================================================ */
+
+/* 表格容器 */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 20px;
+}
+
+/* 结果列表表格 - 覆盖Django admin默认样式 */
+#changelist table,
+.module table,
+.results table,
+#result_list,
+#result_list table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    background: white !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+}
+
+#changelist table thead,
+.module table thead,
+.results table thead,
+#result_list thead {
+    background: #f8fafc !important;
+}
+
+#changelist table thead th,
+.module table thead th,
+.results table thead th,
+#result_list thead th {
+    background: #f8fafc !important;
+    padding: 12px 16px !important;
+    text-align: left !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+    font-size: 13px !important;
+    white-space: nowrap !important;
+}
+
+#changelist table tbody tr,
+.module table tbody tr,
+.results table tbody tr,
+#result_list tbody tr {
+    border-bottom: 1px solid #f1f5f9 !important;
+    transition: background-color 0.2s ease !important;
+}
+
+/* 斑马纹 - 间隔换色 */
+#changelist table tbody tr:nth-child(odd),
+.module table tbody tr:nth-child(odd),
+.results table tbody tr:nth-child(odd) {
+    background-color: #ffffff !important;
+}
+
+#changelist table tbody tr:nth-child(even),
+.module table tbody tr:nth-child(even),
+.results table tbody tr:nth-child(even) {
+    background-color: #f8fafc !important;
+}
+
+#changelist table tbody tr:hover,
+.module table tbody tr:hover,
+.results table tbody tr:hover {
+    background: #e0f2fe !important;
+}
+
+#changelist table tbody td,
+.module table tbody td,
+.results table tbody td {
+    padding: 12px 16px !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    vertical-align: middle !important;
+    color: #1e293b !important;
+}
+
+/* 操作链接 */
+#changelist table tbody td a,
+.module table tbody td a,
+.results table tbody td a {
+    color: #10b981 !important;
+    text-decoration: none !important;
+}
+
+#changelist table tbody td a:hover,
+.module table tbody td a:hover,
+.results table tbody td a:hover {
+    text-decoration: underline !important;
+}
+
+/* 复选框列 */
+#changelist table tbody td.action-checkbox-column,
+.module table tbody td.action-checkbox-column,
+.results table tbody td.action-checkbox-column {
+    text-align: center !important;
+    width: 40px !important;
+}
+
+/* 结果容器 */
+#changelist .results,
+.module .results {
+    overflow-x: auto;
+    margin-top: 20px;
+    width: 100%;
+}
+
+/* 表格外部容器 */
+#changelist .table-container,
+.module .table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Django Admin module 覆盖 */
+.module {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+.module.filtered {
+    background: transparent !important;
+}
+
+/* 结果列表整体容器 */
+#changelist {
+    background: transparent !important;
+}
+
+/* 筛选区域 */
+#changelist-filter {
+    display: none !important;
+}
+
+/* 分页器 */
+.paginator {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 20px 0 !important;
+}
+
+.paginator a,
+.paginator span {
+    padding: 8px 14px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 6px !important;
+    color: #1e293b !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+}
+
+.paginator a:hover {
+    background: #f8fafc !important;
+    border-color: #10b981 !important;
+    color: #10b981 !important;
+}
+
+.paginator .this-page {
+    background: #10b981 !important;
+    border-color: #10b981 !important;
+    color: white !important;
+}
+
+/* 结果计数 */
+.paginator .result-count {
+    color: #64748b !important;
+    font-size: 13px !important;
+}
+
+/* 工具栏 */
+#changelist .actions {
+    display: none !important;
+}
+
+/* 日期层次导航 */
+.date-hierarchy {
+    display: none !important;
+}
+
+/* 搜索框区域 */
+#changelist-search {
+    display: none !important;
+}

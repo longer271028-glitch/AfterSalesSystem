@@ -1,0 +1,149 @@
+{% extends "admin/base_site.html" %}
+
+{% block page_title %}系统设置{% endblock %}
+{% block page_subtitle %}配置数据库连接和系统参数{% endblock %}
+
+{% block nav_settings %}active{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="/static/system_management/css/settings.css">
+
+<div class="settings-container">
+    <!-- 标签切换 -->
+    <div class="tab-container">
+        <button class="tab-btn active" onclick="switchTab('database')">
+            <i class="bi bi-database"></i> 数据库配置
+        </button>
+        <button class="tab-btn" onclick="switchTab('init')">
+            <i class="bi bi-play-circle"></i> 初始化数据库
+        </button>
+    </div>
+
+    <!-- 数据库配置面板 -->
+    <div class="tab-panel active" id="databasePanel">
+        <div class="content-card">
+            <div class="page-header">
+                <div class="header-left">
+                    <h2>数据库连接配置</h2>
+                    <p>配置系统使用的数据库类型和连接参数</p>
+                </div>
+            </div>
+
+            <form id="databaseForm">
+                <div class="form-section">
+                    <h4>数据库类型</h4>
+                    <div class="form-group">
+                        <label class="form-label">选择数据库</label>
+                        <select id="dbType" class="form-input" onchange="toggleDbFields()">
+                            <option value="sqlite">SQLite（本地文件数据库）</option>
+                            <option value="mysql">MySQL（远程数据库）</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- MySQL配置 -->
+                <div id="mysqlFields" class="form-section" style="display: none;">
+                    <h4>MySQL连接参数</h4>
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label class="form-label">主机地址</label>
+                            <input type="text" id="mysqlHost" class="form-input" placeholder="localhost" />
+                        </div>
+                        <div class="form-group half">
+                            <label class="form-label">端口</label>
+                            <input type="number" id="mysqlPort" class="form-input" value="3306" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label class="form-label">用户名</label>
+                            <input type="text" id="mysqlUser" class="form-input" placeholder="root" />
+                        </div>
+                        <div class="form-group half">
+                            <label class="form-label">密码</label>
+                            <input type="password" id="mysqlPassword" class="form-input" placeholder="请输入密码" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">数据库名称</label>
+                        <input type="text" id="mysqlDatabase" class="form-input" placeholder="after_sales_db" />
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="testConnection()">
+                        <i class="bi bi-link-45deg"></i> 测试连接
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="saveDatabaseConfig()">
+                        <i class="bi bi-check-circle"></i> 保存配置
+                    </button>
+                </div>
+
+                <div id="dbMessage" class="message-box"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 初始化面板 -->
+    <div class="tab-panel" id="initPanel">
+        <div class="content-card">
+            <div class="page-header">
+                <div class="header-left">
+                    <h2>初始化数据库</h2>
+                    <p>执行数据库迁移并创建默认超级管理员</p>
+                </div>
+            </div>
+
+            <div class="init-info">
+                <div class="info-card">
+                    <i class="bi bi-database-gear"></i>
+                    <div>
+                        <h5>数据库迁移</h5>
+                        <p>创建所有数据表和索引</p>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <i class="bi bi-person-badge"></i>
+                    <div>
+                        <h5>超级管理员</h5>
+                        <p>用户名: admin | 密码: 123456</p>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <i class="bi bi-shield-check"></i>
+                    <div>
+                        <h5>全部权限</h5>
+                        <p>赋予超级管理员所有权限</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-success btn-lg" onclick="initDatabase()">
+                    <i class="bi bi-play-fill"></i> 开始初始化
+                </button>
+            </div>
+
+            <div id="initMessage" class="message-box"></div>
+
+            <div id="initResult" class="init-result" style="display: none;">
+                <h4>初始化结果</h4>
+                <div class="result-item">
+                    <span class="result-icon" id="resultMigrations"></span>
+                    <span>数据库迁移</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-icon" id="resultSuperuser"></span>
+                    <span>超级管理员</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-icon" id="resultPermissions"></span>
+                    <span>权限授予</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/static/system_management/js/settings.js"></script>
+{% endblock %}

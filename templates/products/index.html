@@ -1,0 +1,172 @@
+{% extends "admin/base_site.html" %}
+
+{% block page_title %}产品管理{% endblock %}
+{% block page_subtitle %}管理产品价格和工时费{% endblock %}
+
+{% block nav_quotes %}active{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="/static/products/css/products.css">
+
+<div class="content-card">
+    <!-- 顶部操作栏 -->
+    <div class="page-header">
+        <div class="header-left">
+            <h2>产品列表</h2>
+            <p>管理产品价格和工时费</p>
+        </div>
+        <div class="header-right">
+            <button class="btn btn-primary" onclick="showSeriesModal()">
+                <i class="bi bi-folder-plus"></i> 管理系列
+            </button>
+            <button class="btn btn-success" onclick="showAddProductModal()">
+                <i class="bi bi-plus-circle"></i> 新增产品
+            </button>
+        </div>
+    </div>
+
+    <!-- 筛选栏 -->
+    <div class="filter-bar">
+        <div class="filter-item">
+            <input type="text" id="searchInput" placeholder="搜索产品名称..." />
+        </div>
+        <div class="filter-item">
+            <select id="seriesFilter">
+                <option value="">全部系列</option>
+            </select>
+        </div>
+        <div class="filter-item">
+            <input type="number" id="minPrice" placeholder="最小维修价格" step="0.01" />
+        </div>
+        <div class="filter-item">
+            <input type="number" id="maxPrice" placeholder="最大维修价格" step="0.01" />
+        </div>
+        <div class="filter-item">
+            <input type="number" id="minLabor" placeholder="最小工时费" step="0.01" />
+        </div>
+        <div class="filter-item">
+            <input type="number" id="maxLabor" placeholder="最大工时费" step="0.01" />
+        </div>
+        <div class="filter-item">
+            <select id="statusFilter">
+                <option value="">全部状态</option>
+                <option value="active">上架</option>
+                <option value="inactive">下架</option>
+            </select>
+        </div>
+        <button class="btn btn-secondary" onclick="applyFilters()">筛选</button>
+        <button class="btn btn-secondary" onclick="resetFilters()">重置</button>
+    </div>
+
+    <!-- 产品表格 -->
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th onclick="sortTable('name')">ID <i class="bi bi-arrow-down-up"></i></th>
+                <th onclick="sortTable('name')">产品名称 <i class="bi bi-arrow-down-up"></i></th>
+                <th onclick="sortTable('series_name')">系列 <i class="bi bi-arrow-down-up"></i></th>
+                <th onclick="sortTable('repair_price')">维修价格 <i class="bi bi-arrow-down-up"></i></th>
+                <th onclick="sortTable('labor_fee')">工时费 <i class="bi bi-arrow-down-up"></i></th>
+                <th onclick="sortTable('status')">状态 <i class="bi bi-arrow-down-up"></i></th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="productTableBody">
+            <tr><td colspan="7" class="text-center text-muted">加载中...</td></tr>
+        </tbody>
+    </table>
+
+    <!-- 分页 -->
+    <div class="pagination" id="pagination"></div>
+</div>
+
+<!-- 产品编辑/新增模态框 -->
+<div class="modal" id="productModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">新增产品</h3>
+            <button class="btn-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="productId" />
+
+            <div class="form-group">
+                <label class="form-label">产品名称 <span class="required">*</span></label>
+                <input type="text" id="productName" class="form-input" placeholder="请输入产品名称（1-50字符）" maxlength="50" />
+                <div class="form-hint">产品名称在产品库中必须唯一</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">系列</label>
+                <div style="display: flex; gap: 10px;">
+                    <select id="productSeries" class="form-input" style="flex: 1;">
+                        <option value="">请选择系列</option>
+                    </select>
+                    <button class="btn btn-secondary" onclick="showAddSeriesModal()">新增系列</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">维修价格 <span class="required">*</span></label>
+                <input type="number" id="repairPrice" class="form-input" placeholder="请输入维修价格" step="0.01" min="0.01" max="999999.99" />
+                <div class="form-hint">必须大于0，最多999999.99</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">维修工时费 <span class="required">*</span></label>
+                <input type="number" id="laborFee" class="form-input" placeholder="请输入维修工时费" step="0.01" min="0.01" />
+                <div class="form-hint">必须大于0且小于等于维修价格</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">状态</label>
+                <select id="productStatus" class="form-input">
+                    <option value="active">上架</option>
+                    <option value="inactive">下架</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">产品描述</label>
+                <textarea id="productDesc" class="form-input" rows="3" placeholder="请输入产品描述"></textarea>
+            </div>
+
+            <div id="errorMessages" class="error-messages"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+            <button class="btn btn-primary" onclick="saveProduct()">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- 产品系列管理模态框 -->
+<div class="modal" id="seriesModal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h3>产品系列管理</h3>
+            <button class="btn-close" onclick="closeSeriesModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <!-- 新增系列表单 -->
+            <div class="mb-3 p-3 bg-light rounded">
+                <h6 class="mb-3">新增系列</h6>
+                <div class="form-group mb-2">
+                    <input type="text" id="newSeriesName" class="form-input" placeholder="请输入系列名称" maxlength="100" />
+                </div>
+                <div class="form-group mb-2">
+                    <textarea id="newSeriesDesc" class="form-input" rows="2" placeholder="请输入系列描述（可选）"></textarea>
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="saveSeries()">添加系列</button>
+            </div>
+
+            <!-- 系列列表 -->
+            <div id="seriesList" class="mt-3">
+                <div class="text-center text-muted">加载中...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/static/products/js/products.js"></script>
+{% endblock %}

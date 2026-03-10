@@ -1,0 +1,116 @@
+/* Common Global Styles */
+
+/* Content Card */
+.content-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* Status Badges - Common */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-received { background: #fef3c7; color: #d97706; }
+.status-inbound { background: #dbeafe; color: #2563eb; }
+.status-detecting { background: #e0e7ff; color: #4f46e5; }
+.status-quoting { background: #fce7f3; color: #db2777; }
+.status-repairing { background: #d1fae5; color: #059669; }
+.status-testing { background: #cffafe; color: #0891b2; }
+.status-outbound { background: #f3e8ff; color: #7c3aed; }
+.status-completed { background: #dcfce7; color: #16a34a; }
+.status-cancelled { background: #f1f5f9; color: #94a3b8; }
+
+/* Action Buttons - Common */
+.action-btn-primary { background: #2563eb; color: white; }
+.action-btn-success { background: #10b981; color: white; }
+.action-btn-warning { background: #f59e0b; color: white; }
+.action-btn-danger { background: #ef4444; color: white; }
+.action-btn-secondary { background: #64748b; color: white; }
+
+/* Utility Classes */
+.text-truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+
+.modal-overlay.show {
+    display: block;
+}
+
+.modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+}
+
+.modal-content.large {
+    max-width: 800px;
+    width: 90%;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.modal-close {
+    border: none;
+    background: none;
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.modal-footer {
+    text-align: right;
+    margin-top: 20px;
+}
+
+/* Table Enhancements */
+.table-hover tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}

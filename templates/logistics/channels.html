@@ -1,0 +1,413 @@
+{% extends 'admin/base_site.html' %}
+
+{% block page_title %}渠道配置{% endblock %}
+{% block page_subtitle %}管理物流渠道{% endblock %}
+
+{% block nav_logistics %}active{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .page-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-primary { background: #2563eb; color: white; }
+    .btn-primary:hover { background: #1d4ed8; }
+
+    .btn-success { background: #10b981; color: white; }
+    .btn-success:hover { background: #059669; }
+
+    .btn-secondary { background: #64748b; color: white; }
+    .btn-secondary:hover { background: #475569; }
+
+    .btn-danger { background: #ef4444; color: white; }
+    .btn-danger:hover { background: #dc2626; }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .data-table th {
+        background: #f8fafc;
+        padding: 12px 16px;
+        text-align: left;
+        font-weight: 600;
+        color: #475569;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .data-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .data-table tr:hover {
+        background: #f8fafc;
+    }
+
+    .action-link {
+        color: #2563eb;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        margin-right: 12px;
+    }
+
+    .action-link:hover {
+        text-decoration: underline;
+    }
+
+    .action-link.delete {
+        color: #ef4444;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal.show {
+        display: flex;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 500px;
+    }
+
+    .modal-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #64748b;
+        cursor: pointer;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 6px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #2563eb;
+    }
+
+    .form-help {
+        font-size: 12px;
+        color: #64748b;
+        margin-top: 4px;
+    }
+
+    .modal-footer {
+        padding: 16px 20px;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+</style>
+
+<div class="content-card">
+    <!-- 页面头部 -->
+    <div class="page-header">
+        <h1 class="page-title">渠道配置</h1>
+        <div class="header-actions">
+            <a href="/logistics/" class="btn btn-secondary">← 返回物流列表</a>
+            <button class="btn btn-primary" onclick="showAddModal()">+ 新增渠道</button>
+        </div>
+    </div>
+
+    <!-- 数据表格 -->
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>渠道名称</th>
+                <th>Secret ID</th>
+                <th>API地址</th>
+                <th>创建时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="channelsTable">
+            <tr>
+                <td colspan="5" style="text-align:center;padding:40px;">加载中...</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- 新增/编辑模态框 -->
+<div class="modal" id="channelModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modalTitle">新增渠道</h3>
+            <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="channelId">
+
+            <div class="form-group">
+                <label class="form-label">渠道名称 <span style="color:red">*</span></label>
+                <input type="text" class="form-input" id="name" placeholder="请输入渠道名称">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Secret ID <span style="color:red">*</span></label>
+                <input type="text" class="form-input" id="secretId" placeholder="请输入Secret ID">
+                <div class="form-help">从腾讯云市场获取</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Secret Key <span style="color:red">*</span></label>
+                <input type="password" class="form-input" id="secretKeyMarket" placeholder="请输入Secret Key">
+                <div class="form-help">从腾讯云市场获取</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">API地址</label>
+                <input type="text" class="form-input" id="marketApiUrl" value="https://ap-beijing.cloudmarket-apigw.com/service-2r11e3tz/point-list">
+                <div class="form-help">腾讯云市场物流查询API地址</div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+            <button class="btn btn-success" onclick="saveChannel()">保存</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// 加载渠道列表
+async function loadChannels() {
+    try {
+        const response = await fetch('/api/logistics/channels/');
+        const data = await response.json();
+        const channels = data.results || data || [];
+        renderChannels(channels);
+    } catch (error) {
+        console.error('加载失败:', error);
+        document.getElementById('channelsTable').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;">加载失败</td></tr>';
+    }
+}
+
+// 渲染渠道列表
+function renderChannels(channels) {
+    const tbody = document.getElementById('channelsTable');
+
+    if (!channels || channels.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#64748b;">暂无数据，点击"新增渠道"添加</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = channels.map(channel => `
+        <tr>
+            <td>${channel.name}</td>
+            <td>${channel.secret_id ? channel.secret_id.substring(0, 20) + '...' : '-'}</td>
+            <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;">${channel.market_api_url || '-'}</td>
+            <td>${formatDate(channel.created_at)}</td>
+            <td>
+                <a class="action-link" onclick="editChannel(${channel.id})">编辑</a>
+                <a class="action-link delete" onclick="deleteChannel(${channel.id})">删除</a>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// 格式化日期
+function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    return date.toLocaleString('zh-CN');
+}
+
+// 显示新增模态框
+function showAddModal() {
+    document.getElementById('modalTitle').textContent = '新增渠道';
+    document.getElementById('channelId').value = '';
+    document.getElementById('name').value = '';
+    document.getElementById('secretId').value = '';
+    document.getElementById('secretKeyMarket').value = '';
+    document.getElementById('marketApiUrl').value = 'https://ap-beijing.cloudmarket-apigw.com/service-2r11e3tz/point-list';
+    document.getElementById('channelModal').classList.add('show');
+}
+
+// 编辑渠道
+async function editChannel(id) {
+    try {
+        const response = await fetch(`/api/logistics/channels/${id}/`);
+        const channel = await response.json();
+
+        document.getElementById('modalTitle').textContent = '编辑渠道';
+        document.getElementById('channelId').value = channel.id;
+        document.getElementById('name').value = channel.name;
+        document.getElementById('secretId').value = channel.secret_id || '';
+        document.getElementById('secretKeyMarket').value = channel.secret_key_market || '';
+        document.getElementById('marketApiUrl').value = channel.market_api_url || 'https://ap-beijing.cloudmarket-apigw.com/service-2r11e3tz/point-list';
+
+        document.getElementById('channelModal').classList.add('show');
+    } catch (error) {
+        console.error('加载失败:', error);
+        alert('加载渠道信息失败');
+    }
+}
+
+// 删除渠道
+async function deleteChannel(id) {
+    if (!confirm('确定要删除该渠道吗？')) return;
+
+    try {
+        const response = await fetch(`/api/logistics/channels/${id}/`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            alert('删除成功');
+            loadChannels();
+        } else {
+            alert('删除失败');
+        }
+    } catch (error) {
+        console.error('删除失败:', error);
+        alert('删除失败');
+    }
+}
+
+// 保存渠道
+async function saveChannel() {
+    const id = document.getElementById('channelId').value;
+    const name = document.getElementById('name').value.trim();
+    const secretId = document.getElementById('secretId').value.trim();
+    const secretKey = document.getElementById('secretKeyMarket').value.trim();
+    const marketApiUrl = document.getElementById('marketApiUrl').value.trim();
+
+    if (!name) {
+        alert('请填写渠道名称');
+        return;
+    }
+    if (!secretId) {
+        alert('请填写Secret ID');
+        return;
+    }
+    if (!secretKey) {
+        alert('请填写Secret Key');
+        return;
+    }
+
+    const data = {
+        name,
+        code: name.toLowerCase().replace(/\s+/g, '_'),
+        api_type: 'tencent_market',
+        secret_id: secretId,
+        secret_key_market: secretKey,
+        market_api_url: marketApiUrl || 'https://ap-beijing.cloudmarket-apigw.com/service-2r11e3tz/point-list',
+        is_active: true,
+    };
+
+    try {
+        const url = id ? `/api/logistics/channels/${id}/` : '/api/logistics/channels/';
+        const method = id ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            alert('保存成功');
+            closeModal();
+            loadChannels();
+        } else {
+            const error = await response.json();
+            alert('保存失败: ' + JSON.stringify(error));
+        }
+    } catch (error) {
+        console.error('保存失败:', error);
+        alert('保存失败');
+    }
+}
+
+// 关闭模态框
+function closeModal() {
+    document.getElementById('channelModal').classList.remove('show');
+}
+
+// 页面加载时初始化
+document.addEventListener('DOMContentLoaded', () => {
+    loadChannels();
+});
+</script>
+{% endblock %}

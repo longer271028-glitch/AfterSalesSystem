@@ -1,0 +1,122 @@
+{% extends 'admin/base_site.html' %}
+
+{% block page_title %}物流管理{% endblock %}
+{% block page_subtitle %}管理物流记录和渠道{% endblock %}
+
+{% block nav_logistics %}active{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="/static/logistics/css/logistics.css">
+
+<div class="content-card">
+    <!-- 标签导航 -->
+    <div class="logistics-tabs">
+        <button class="logistics-tab active" data-tab="records">📦 物流记录</button>
+        <button class="logistics-tab" data-tab="channels">⚙️ 渠道配置</button>
+    </div>
+
+    <!-- 物流记录标签页 -->
+    <div id="recordsTab">
+        <!-- 搜索筛选 -->
+        <div class="logistics-page-header" style="margin-bottom: 0;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="text" id="searchInput" class="channel-form-input" style="width: 200px;" placeholder="搜索物流单号...">
+                <select id="typeFilter" class="channel-form-input" style="width: 120px;">
+                    <option value="">全部类型</option>
+                    <option value="inbound">收件</option>
+                    <option value="outbound">发件</option>
+                </select>
+                <button class="logistics-btn" id="searchBtn">查询</button>
+            </div>
+            <a href="/admin/logistics/logisticsrecord/add/" class="logistics-btn">➕ 添加物流记录</a>
+        </div>
+
+        <!-- 物流记录表格 -->
+        <table class="logistics-table">
+            <thead>
+                <tr>
+                    <th>物流单号</th>
+                    <th>关联单号</th>
+                    <th>类型</th>
+                    <th>物流渠道</th>
+                    <th>状态</th>
+                    <th>物流信息</th>
+                    <th>当前位置</th>
+                    <th>创建时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="recordsTable">
+                <tr><td colspan="9" class="logistics-empty">加载中...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 渠道配置标签页 -->
+    <div id="channelsTab" style="display: none;">
+        <div class="logistics-page-header" style="margin-bottom: 0;">
+            <div>
+                <h2 style="margin: 0;">⚙️ 渠道配置</h2>
+                <p style="margin: 4px 0 0 0;">配置腾讯云市场物流API，填写Secret ID和Secret Key</p>
+            </div>
+            <button class="logistics-btn" onclick="showAddChannelModal()">➕ 添加渠道</button>
+        </div>
+
+        <!-- 渠道列表表格 -->
+        <table class="logistics-table">
+            <thead>
+                <tr>
+                    <th>渠道名称</th>
+                    <th>Secret ID</th>
+                    <th>创建时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="channelsTable">
+                <tr><td colspan="4" class="logistics-empty">加载中...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 渠道编辑模态框 -->
+<div class="logistics-modal" id="channelModal">
+    <div class="logistics-modal-content">
+        <div class="logistics-modal-header">
+            <h3 id="modalTitle">添加物流渠道</h3>
+            <button class="logistics-modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="logistics-modal-body">
+            <input type="hidden" id="channelId">
+
+            <div class="channel-form-group">
+                <label class="channel-form-label">渠道名称 <span>*</span></label>
+                <input type="text" id="channelName" class="channel-form-input" placeholder="请输入渠道名称">
+            </div>
+
+            <div class="channel-form-group">
+                <label class="channel-form-label">Secret ID <span>*</span></label>
+                <input type="text" id="secretId" class="channel-form-input" placeholder="从腾讯云市场获取">
+                <div class="channel-form-help">腾讯云市场API的Secret ID</div>
+            </div>
+
+            <div class="channel-form-group">
+                <label class="channel-form-label">Secret Key <span>*</span></label>
+                <input type="password" id="secretKey" class="channel-form-input" placeholder="从腾讯云市场获取">
+                <div class="channel-form-help">腾讯云市场API的Secret Key</div>
+            </div>
+
+            <div class="channel-form-group">
+                <label class="channel-form-label">API地址</label>
+                <input type="text" id="apiUrl" class="channel-form-input" value="https://ap-beijing.cloudmarket-apigw.com/service-2r11e3tz/point-list">
+            </div>
+        </div>
+        <div class="logistics-modal-footer">
+            <button class="logistics-btn logistics-btn-secondary" onclick="closeModal()">取消</button>
+            <button class="logistics-btn" onclick="saveChannel()">保存</button>
+        </div>
+    </div>
+</div>
+
+<script src="/static/logistics/js/logistics.js"></script>
+{% endblock %}

@@ -1,0 +1,160 @@
+INFO 2026-03-08 20:58:33,871 autoreload Watching for file changes with StatReloader
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (6.0.0.post1)/charset_normalizer (3.3.2) doesn't match a supported version!
+  warnings.warn(
+INFO 2026-03-08 21:00:31,938 log "GET /logistics/ HTTP/1.1" 200 15956
+INFO 2026-03-08 21:03:40,821 log "GET /admin/logistics/logisticsrecord/ HTTP/1.1" 302 0
+WARNING 2026-03-08 21:05:53,222 log Not Found: /logistics/api/records/
+WARNING 2026-03-08 21:05:53,223 log "GET /logistics/api/records/ HTTP/1.1" 404 13432
+INFO 2026-03-08 21:06:59,412 autoreload /Volumes/主盘/project/AICode/ProductSupportSystem/AfterSalesSystem/apps/logistics/urls.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 08, 2026 - 20:58:34
+Django version 6.0.3, using settings 'core.settings'
+Starting development server at http://127.0.0.1:8888/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+INFO 2026-03-08 21:07:00,543 autoreload Watching for file changes with StatReloader
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (6.0.0.post1)/charset_normalizer (3.3.2) doesn't match a supported version!
+  warnings.warn(
+INFO 2026-03-08 21:07:09,914 log "GET /logistics/api/records/ HTTP/1.1" 200 687
+INFO 2026-03-08 21:09:04,395 log "GET /logistics/api/channels/ HTTP/1.1" 200 833
+INFO 2026-03-08 21:14:11,094 log "GET /logistics/ HTTP/1.1" 200 15956
+INFO 2026-03-08 21:14:24,290 log "GET /logistics/channels/ HTTP/1.1" 200 22796
+INFO 2026-03-08 21:19:50,993 log "GET /admin/logistics/logisticsrecord/ HTTP/1.1" 200 18469
+INFO 2026-03-08 21:19:51,061 log "GET /static/admin/css/buttons.css HTTP/1.1" 304 0
+INFO 2026-03-08 21:19:57,104 log "GET /admin/logistics/logisticsrecord/add/ HTTP/1.1" 200 27503
+INFO 2026-03-08 21:20:01,809 log "GET /admin/logistics/logisticschannel/?_to_field=id&_popup=1 HTTP/1.1" 200 14306
+INFO 2026-03-08 21:20:11,015 log "GET /admin/logistics/logisticsrecord/ HTTP/1.1" 200 18469
+INFO 2026-03-08 21:25:04,760 log "GET /logistics/ HTTP/1.1" 200 15956
+INFO 2026-03-08 21:58:15,637 log "GET /logistics/ HTTP/1.1" 200 15956
+INFO 2026-03-08 21:58:28,165 log "GET /admin/logistics/logisticsrecord/ HTTP/1.1" 302 0
+INFO 2026-03-08 21:58:34,960 log "GET /logistics/ HTTP/1.1" 200 15956
+INFO 2026-03-08 21:59:11,382 log "GET /static/logistics/css/logistics.css HTTP/1.1" 200 4638
+INFO 2026-03-08 21:59:37,582 log "GET /logistics/ HTTP/1.1" 200 15956
+INFO 2026-03-08 22:01:23,941 log "GET /logistics/ HTTP/1.1" 200 15934
+INFO 2026-03-08 22:06:51,121 log "GET /admin/logistics/logisticsrecord/ HTTP/1.1" 200 18447
+INFO 2026-03-08 22:06:51,239 log "GET /static/admin/css/buttons.css HTTP/1.1" 304 0
+WARNING 2026-03-08 22:06:51,303 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2026-03-08 22:06:51,305 log "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5043
+INFO 2026-03-08 22:06:54,710 log "GET /logistics/ HTTP/1.1" 200 15927
+INFO 2026-03-08 22:06:54,790 log "GET /static/logistics/js/logistics.js HTTP/1.1" 200 10078
+INFO 2026-03-08 22:06:54,791 log "GET /static/logistics/css/logistics.css HTTP/1.1" 200 4638
+WARNING 2026-03-08 22:06:54,890 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2026-03-08 22:06:54,890 log "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5043
+INFO 2026-03-08 22:06:55,036 log "GET /logistics/api/channels/ HTTP/1.1" 200 833
+INFO 2026-03-08 22:06:55,039 log "GET /logistics/api/records/? HTTP/1.1" 200 687
+INFO 2026-03-08 22:07:00,442 log "GET /logistics/api/channels/ HTTP/1.1" 200 833
+INFO 2026-03-08 22:07:02,534 log "GET /logistics/api/records/? HTTP/1.1" 200 687
+INFO 2026-03-08 22:07:04,495 log "GET /logistics/api/channels/ HTTP/1.1" 200 833
+INFO 2026-03-08 22:07:07,433 log "GET /logistics/api/records/? HTTP/1.1" 200 687
+INFO 2026-03-08 22:07:12,507 log "GET /admin/logistics/logisticsrecord/1/change/ HTTP/1.1" 200 27637
+WARNING 2026-03-08 22:07:12,594 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2026-03-08 22:07:12,595 log "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5043
+INFO 2026-03-08 22:07:19,521 log "GET /logistics/ HTTP/1.1" 200 15927
+WARNING 2026-03-08 22:07:19,684 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2026-03-08 22:07:19,685 log "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5043
+INFO 2026-03-08 22:07:19,757 log "GET /logistics/api/channels/ HTTP/1.1" 200 833
+INFO 2026-03-08 22:07:19,769 log "GET /logistics/api/records/? HTTP/1.1" 200 687
+INFO 2026-03-08 22:21:30,812 log "GET /logistics/api/records/ HTTP/1.1" 200 687
+INFO 2026-03-08 22:27:46,225 log "GET /logistics/ HTTP/1.1" 200 15976
+INFO 2026-03-08 22:39:16,193 log "GET /admin/logistics/logisticstrace/ HTTP/1.1" 302 0
+INFO 2026-03-08 22:45:04,925 log "GET /logistics/ HTTP/1.1" 200 15976
+INFO 2026-03-08 22:45:42,830 log "GET /static/logistics/js/logistics.js HTTP/1.1" 200 10971
+INFO 2026-03-08 22:47:34,587 log "GET /logistics/ HTTP/1.1" 200 15969
+WARNING 2026-03-08 22:47:34,736 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+INFO 2026-03-08 22:47:34,736 log "GET /static/logistics/css/logistics.css HTTP/1.1" 304 0
+WARNING 2026-03-08 22:47:34,739 log "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5043
+INFO 2026-03-08 22:47:34,745 log "GET /static/logistics/js/logistics.js HTTP/1.1" 200 10971
+INFO 2026-03-08 22:47:34,909 log "GET /logistics/api/channels/ HTTP/1.1" 200 833
+INFO 2026-03-08 22:47:34,914 log "GET /logistics/api/records/? HTTP/1.1" 200 687
+INFO 2026-03-08 22:47:43,570 log "GET /admin/logistics/logisticsrecord/1/change/ HTTP/1.1" 200 27637
+WARNING 2026-03-08 22:47:43,670 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+INFO 2026-03-08 22:47:43,671 log "GET /static/admin/css/buttons.css HTTP/1.1" 304 0
+WARNING 2026-03-08 22:47:43,672 log "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5043
+INFO 2026-03-08 22:47:43,673 basehttp - Broken pipe from ('127.0.0.1', 57769)
+INFO 2026-03-08 22:47:49,743 log "GET /inventory/ HTTP/1.1" 200 66912
+WARNING 2026-03-08 22:47:49,904 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2026-03-08 22:47:49,904 log "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5043
+INFO 2026-03-08 22:47:50,012 log "GET /inventory/api/warehouse-categories/ HTTP/1.1" 200 985
+INFO 2026-03-08 22:47:52,298 log "GET /logistics/ HTTP/1.1" 200 15969
+WARNING 2026-03-08 22:47:52,433 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2026-03-08 22:47:52,434 log "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5043
+INFO 2026-03-08 22:47:52,571 log "GET /logistics/api/channels/ HTTP/1.1" 200 833
+INFO 2026-03-08 22:47:52,583 log "GET /logistics/api/records/? HTTP/1.1" 200 687
+INFO 2026-03-08 22:47:55,217 log "GET /admin/logistics/logisticsrecord/1/change/ HTTP/1.1" 200 27637
+WARNING 2026-03-08 22:47:55,348 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2026-03-08 22:47:55,352 log "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5043
+INFO 2026-03-08 22:49:53,108 log "GET /admin/logistics/logisticsrecord/1/change/ HTTP/1.1" 302 0
+INFO 2026-03-08 22:49:59,740 log "GET /admin/logistics/logisticsrecord/1/change/ HTTP/1.1" 302 0
+INFO 2026-03-08 22:51:49,824 log "GET /logistics/api/channels/ HTTP/1.1" 200 833
+INFO 2026-03-08 22:53:14,741 log "GET /logistics/ HTTP/1.1" 200 15976
+INFO 2026-03-08 22:59:07,780 log "GET /admin/logistics/logisticsrecord/2/change/ HTTP/1.1" 302 0
+INFO 2026-03-08 23:07:23,621 log "GET /logistics/channels/ HTTP/1.1" 200 22774
+INFO 2026-03-08 23:08:25,170 log "GET /logistics/ HTTP/1.1" 200 15976
+INFO 2026-03-08 23:09:24,180 log "GET /admin/logistics/logisticsrecord/1/change/ HTTP/1.1" 302 0
+INFO 2026-03-08 23:09:43,160 log "GET /admin/logistics/logisticschannel/2/change/ HTTP/1.1" 302 0
+INFO 2026-03-08 23:10:00,185 autoreload /Volumes/主盘/project/AICode/ProductSupportSystem/AfterSalesSystem/apps/logistics/admin.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 08, 2026 - 21:07:01
+Django version 6.0.3, using settings 'core.settings'
+Starting development server at http://127.0.0.1:8888/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+INFO 2026-03-08 23:10:01,552 autoreload Watching for file changes with StatReloader
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (6.0.0.post1)/charset_normalizer (3.3.2) doesn't match a supported version!
+  warnings.warn(
+INFO 2026-03-08 23:10:07,945 autoreload /Volumes/主盘/project/AICode/ProductSupportSystem/AfterSalesSystem/apps/logistics/admin.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 08, 2026 - 23:10:02
+Django version 6.0.3, using settings 'core.settings'
+Starting development server at http://127.0.0.1:8888/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+INFO 2026-03-08 23:10:08,752 autoreload Watching for file changes with StatReloader
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (6.0.0.post1)/charset_normalizer (3.3.2) doesn't match a supported version!
+  warnings.warn(
+INFO 2026-03-08 23:12:02,742 log "GET /admin/logistics/logisticschannel/2/change/ HTTP/1.1" 302 0
+INFO 2026-03-08 23:30:48,858 log "GET /admin/logistics/logisticsrecord/1/change/ HTTP/1.1" 302 0
+INFO 2026-03-08 23:37:30,403 log "GET /admin/logistics/logisticschannel/ HTTP/1.1" 302 0
+INFO 2026-03-08 23:38:58,980 log "GET /admin/logistics/logisticsrecord/1/change/ HTTP/1.1" 200 25126
+INFO 2026-03-08 23:38:59,102 log "GET /static/admin/css/buttons.css HTTP/1.1" 304 0
+WARNING 2026-03-08 23:38:59,124 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2026-03-08 23:38:59,127 log "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5043
+INFO 2026-03-08 23:39:08,177 log "GET /inventory/ HTTP/1.1" 200 66912
+WARNING 2026-03-08 23:39:08,279 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2026-03-08 23:39:08,280 log "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5043
+INFO 2026-03-08 23:39:08,287 log "GET /static/css/common.css HTTP/1.1" 304 0
+INFO 2026-03-08 23:39:08,294 log "GET /static/inventory/css/inventory.css HTTP/1.1" 304 0
+INFO 2026-03-08 23:39:08,301 log "GET /static/inventory/js/warehouse.js HTTP/1.1" 304 0
+INFO 2026-03-08 23:39:08,306 log "GET /static/inventory/js/inventory.js HTTP/1.1" 304 0
+INFO 2026-03-08 23:39:08,307 log "GET /static/inventory/js/inbound-outbound.js HTTP/1.1" 304 0
+INFO 2026-03-08 23:39:08,308 log "GET /static/inventory/js/check.js HTTP/1.1" 304 0
+INFO 2026-03-08 23:39:08,483 log "GET /inventory/api/warehouse-categories/ HTTP/1.1" 200 985
+INFO 2026-03-08 23:39:09,470 log "GET /logistics/ HTTP/1.1" 200 15969
+INFO 2026-03-08 23:39:09,532 log "GET /static/logistics/css/logistics.css HTTP/1.1" 304 0
+INFO 2026-03-08 23:39:09,533 log "GET /static/logistics/js/logistics.js HTTP/1.1" 304 0
+WARNING 2026-03-08 23:39:09,551 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2026-03-08 23:39:09,552 log "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5043
+INFO 2026-03-08 23:39:09,613 log "GET /logistics/api/channels/ HTTP/1.1" 200 833
+INFO 2026-03-08 23:39:09,695 log "GET /logistics/api/records/? HTTP/1.1" 200 687
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 08, 2026 - 23:10:09
+Django version 6.0.3, using settings 'core.settings'
+Starting development server at http://127.0.0.1:8888/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/

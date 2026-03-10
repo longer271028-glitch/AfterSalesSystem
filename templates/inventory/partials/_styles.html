@@ -1,0 +1,158 @@
+<style>
+    .tab-nav {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 0;
+    }
+
+    .tab-nav .tab-btn {
+        padding: 10px 20px;
+        border: none;
+        background: transparent;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        transition: all 0.2s;
+    }
+
+    .tab-nav .tab-btn:hover {
+        color: #2563eb;
+    }
+
+    .tab-nav .tab-btn.active {
+        color: #2563eb;
+        border-bottom-color: #2563eb;
+    }
+
+    .tab-nav .tab-btn .badge {
+        background: #e2e8f0;
+        color: #64748b;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 12px;
+        margin-left: 5px;
+    }
+
+    .tab-nav .tab-btn.active .badge {
+        background: #2563eb;
+        color: white;
+    }
+
+    .stats-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 15px;
+        background: #f8fafc;
+        border-radius: 8px;
+    }
+
+    .stat-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #2563eb;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: #64748b;
+        margin-top: 5px;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .stock-badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .stock-normal { background: #d1fae5; color: #059669; }
+    .stock-low { background: #fef3c7; color: #d97706; }
+    .stock-out { background: #fee2e2; color: #dc2626; }
+
+    .action-btn {
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+        border: none;
+        margin-right: 5px;
+    }
+
+    .btn-in { background: #10b981; color: white; }
+    .btn-out { background: #f59e0b; color: white; }
+    .btn-check { background: #6366f1; color: white; }
+
+    /* 下拉框文字优化 */
+    select.form-select {
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    select.form-select option {
+        font-size: 12px;
+        padding: 5px;
+    }
+
+    /* 仓库统计卡片 */
+    .warehouse-stat-card {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .warehouse-stat-card h6 {
+        margin-bottom: 10px;
+        color: #374151;
+        font-weight: 600;
+    }
+    .warehouse-stat-card .stat-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        font-size: 13px;
+    }
+    .warehouse-stat-card .stat-row .label {
+        color: #6b7280;
+    }
+    .warehouse-stat-card .stat-row .value {
+        font-weight: 500;
+    }
+    .warehouse-stat-card .stat-row .value.in { color: #10b981; }
+    .warehouse-stat-card .stat-row .value.out { color: #ef4444; }
+    .warehouse-stat-card .stat-row .value.balance { color: #3b82f6; }
+</style>

@@ -1,0 +1,401 @@
+/* 物流管理页面统一样式 */
+.logistics-page-header {
+    margin-bottom: 20px;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logistics-page-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #1e293b;
+}
+
+.logistics-page-header p {
+    margin: 4px 0 0 0;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.logistics-header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.logistics-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    background: #10b981;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.logistics-btn:hover {
+    background: #059669;
+    color: white;
+}
+
+.logistics-btn-secondary {
+    background: #64748b;
+}
+
+.logistics-btn-secondary:hover {
+    background: #475569;
+}
+
+/* 物流渠道卡片样式 */
+.channel-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.channel-card h3 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    color: #1e293b;
+}
+
+.channel-form-group {
+    margin-bottom: 16px;
+}
+
+.channel-form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+.channel-form-group label span {
+    color: red;
+}
+
+.channel-form-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.channel-form-input:focus {
+    outline: none;
+    border-color: #10b981;
+}
+
+.channel-form-help {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 4px;
+}
+
+/* 物流记录表格样式 */
+.logistics-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-top: 20px;
+}
+
+.logistics-table th {
+    background: #f8fafc;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #475569;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.logistics-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.logistics-table tr:hover {
+    background: #f8fafc;
+}
+
+.logistics-status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.logistics-status-transit { background: #dbeafe; color: #2563eb; }
+.logistics-status-delivered { background: #dcfce7; color: #16a34a; }
+.logistics-status-completed { background: #d1fae5; color: #059669; }
+
+/* 模态框样式 */
+.logistics-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.logistics-modal.show {
+    display: flex;
+}
+
+.logistics-modal-content {
+    background: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+}
+
+.logistics-modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logistics-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #1e293b;
+}
+
+.logistics-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #64748b;
+    cursor: pointer;
+}
+
+.logistics-modal-body {
+    padding: 20px;
+}
+
+.logistics-modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.logistics-empty {
+    text-align: center;
+    padding: 40px;
+    color: #64748b;
+}
+
+.logistics-action-link {
+    color: #10b981;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-right: 12px;
+}
+
+.logistics-action-link:hover {
+    text-decoration: underline;
+}
+
+.logistics-action-link.delete {
+    color: #ef4444;
+}
+
+.logistics-action-link.query {
+    color: #2563eb;
+}
+
+.logistics-action-link.trace {
+    color: #7c3aed;
+}
+
+/* 物流轨迹弹窗样式 */
+.logistics-trace-modal {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.logistics-trace-modal-content {
+    background: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.logistics-trace-modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8fafc;
+}
+
+.logistics-trace-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #1e293b;
+}
+
+.logistics-trace-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #64748b;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logistics-trace-modal-close:hover {
+    color: #1e293b;
+}
+
+.logistics-trace-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.trace-info-section {
+    margin-bottom: 24px;
+}
+
+.trace-info-section h4,
+.trace-list-section h4 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.trace-info-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.trace-info-table th {
+    background: #f8fafc;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 500;
+    color: #475569;
+    width: 20%;
+}
+
+.trace-info-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.trace-info-table tr:last-child td {
+    border-bottom: none;
+}
+
+.trace-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.trace-table th {
+    background: #f8fafc;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #475569;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.trace-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.trace-table tr:hover {
+    background: #f8fafc;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* 切换标签样式 */
+.logistics-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.logistics-tab {
+    padding: 12px 24px;
+    background: transparent;
+    border: none;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+}
+
+.logistics-tab:hover {
+    color: #10b981;
+}
+
+.logistics-tab.active {
+    color: #10b981;
+    border-bottom-color: #10b981;
+}

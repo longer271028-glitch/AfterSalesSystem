@@ -1,0 +1,283 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block nav_home %}active{% endblock %}
+
+{% block page_title %}控制台{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fs-3 fw-bold text-primary">128</div>
+                        <div class="text-muted small">客户总数</div>
+                    </div>
+                    <div class="fs-1 text-primary" style="opacity: 0.15;">
+                        <i class="bi bi-people"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fs-3 fw-bold text-warning">12</div>
+                        <div class="text-muted small">待处理故障</div>
+                    </div>
+                    <div class="fs-1 text-warning" style="opacity: 0.15;">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fs-3 fw-bold text-success">8</div>
+                        <div class="text-muted small">维修中</div>
+                    </div>
+                    <div class="fs-1 text-success" style="opacity: 0.15;">
+                        <i class="bi bi-tools"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fs-3 fw-bold text-danger">5</div>
+                        <div class="text-muted small">库存预警</div>
+                    </div>
+                    <div class="fs-1 text-danger" style="opacity: 0.15;">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- 快捷操作 -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h5 class="mb-0"><i class="bi bi-lightning text-warning"></i> 快捷操作</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-2 col-4">
+                        <a href="/admin/faults/faultreport/add/" class="btn btn-outline-primary w-100 py-3">
+                            <i class="bi bi-plus-circle d-block mb-2 fs-4"></i>
+                            <small>故障上报</small>
+                        </a>
+                    </div>
+                    <div class="col-md-2 col-4">
+                        <a href="/admin/repairs/repairorder/add/" class="btn btn-outline-success w-100 py-3">
+                            <i class="bi bi-clipboard-plus d-block mb-2 fs-4"></i>
+                            <small>创建返修</small>
+                        </a>
+                    </div>
+                    <div class="col-md-2 col-4">
+                        <a href="/admin/customers/customer/add/" class="btn btn-outline-info w-100 py-3">
+                            <i class="bi bi-person-plus d-block mb-2 fs-4"></i>
+                            <small>添加客户</small>
+                        </a>
+                    </div>
+                    <div class="col-md-2 col-4">
+                        <a href="/admin/inventory/stockrecord/" class="btn btn-outline-warning w-100 py-3">
+                            <i class="bi bi-box-arrow-in-down d-block mb-2 fs-4"></i>
+                            <small>库存入库</small>
+                        </a>
+                    </div>
+                    <div class="col-md-2 col-4">
+                        <a href="/admin/quotes/quote/add/" class="btn btn-outline-secondary w-100 py-3">
+                            <i class="bi bi-file-earmark-text d-block mb-2 fs-4"></i>
+                            <small>维修报价</small>
+                        </a>
+                    </div>
+                    <div class="col-md-2 col-4">
+                        <a href="/admin/analytics/dashboard/" class="btn btn-outline-dark w-100 py-3">
+                            <i class="bi bi-pie-chart d-block mb-2 fs-4"></i>
+                            <small>数据报表</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 最近故障 -->
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle text-warning"></i> 最近故障</h5>
+                <a href="/admin/faults/faultreport/" class="btn btn-sm btn-outline-primary">查看全部</a>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>故障单号</th>
+                            <th>标题</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>FT202403150001</td>
+                            <td>设备无法启动</td>
+                            <td><span class="badge bg-warning">待处理</span></td>
+                        </tr>
+                        <tr>
+                            <td>FT202403140002</td>
+                            <td>显示屏闪烁</td>
+                            <td><span class="badge bg-primary">处理中</span></td>
+                        </tr>
+                        <tr>
+                            <td>FT202403130003</td>
+                            <td>传感器异常</td>
+                            <td><span class="badge bg-success">已解决</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 最近返修 -->
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-tools text-success"></i> 返修进度</h5>
+                <a href="/admin/repairs/repairorder/" class="btn btn-sm btn-outline-primary">查看全部</a>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>返修单号</th>
+                            <th>设备</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>RO202403150001</td>
+                            <td>工业控制器-X1</td>
+                            <td><span class="badge bg-primary">检测中</span></td>
+                        </tr>
+                        <tr>
+                            <td>RO202403140002</td>
+                            <td>电机驱动-M2</td>
+                            <td><span class="badge bg-warning">报价中</span></td>
+                        </tr>
+                        <tr>
+                            <td>RO202403130003</td>
+                            <td>电源模块-P3</td>
+                            <td><span class="badge bg-success">已完成</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 加载控制台数据
+async function loadDashboardData() {
+    try {
+        const response = await fetch('/api/analytics/dashboard-stats/');
+        const data = await response.json();
+
+        // 更新统计数据
+        const primaryElement = document.querySelector('.text-primary.fs-3');
+        if (primaryElement) primaryElement.textContent = data.customer_count;
+
+        const warningElement = document.querySelector('.text-warning.fs-3');
+        if (warningElement) warningElement.textContent = data.pending_faults_count;
+
+        document.querySelectorAll('.text-success.fs-3').forEach(el => {
+            el.textContent = data.repairing_count;
+        });
+
+        const dangerElement = document.querySelector('.text-danger.fs-3');
+        if (dangerElement) dangerElement.textContent = data.low_stock_count;
+
+        // 更新最近故障
+        const faultTableBody = document.querySelector('tbody');
+        if (faultTableBody && data.recent_faults && data.recent_faults.length > 0) {
+            const firstTable = faultTableBody;
+            firstTable.innerHTML = data.recent_faults.map(fault => {
+                let statusBadge = '';
+                if (fault.status === '待处理' || fault.status === 'pending') {
+                    statusBadge = '<span class="badge bg-warning">待处理</span>';
+                } else if (fault.status === '处理中' || fault.status === 'processing') {
+                    statusBadge = '<span class="badge bg-primary">处理中</span>';
+                } else if (fault.status === '已解决' || fault.status === 'resolved') {
+                    statusBadge = '<span class="badge bg-success">已解决</span>';
+                } else {
+                    statusBadge = `<span class="badge bg-secondary">${fault.status}</span>`;
+                }
+                return `
+                    <tr>
+                        <td>${fault.fault_no || '-'}</td>
+                        <td>${fault.title || '-'}</td>
+                        <td>${statusBadge}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 更新最近返修
+        const tables = document.querySelectorAll('tbody');
+        if (tables.length >= 2 && data.recent_repairs && data.recent_repairs.length > 0) {
+            const repairTableBody = tables[1];
+            repairTableBody.innerHTML = data.recent_repairs.map(repair => {
+                let statusBadge = '';
+                if (repair.status === '检测中' || repair.status === 'testing') {
+                    statusBadge = '<span class="badge bg-primary">检测中</span>';
+                } else if (repair.status === '报价中' || repair.status === 'quoting') {
+                    statusBadge = '<span class="badge bg-warning">报价中</span>';
+                } else if (repair.status === '已完成' || repair.status === 'completed') {
+                    statusBadge = '<span class="badge bg-success">已完成</span>';
+                } else if (repair.status === '维修中' || repair.status === 'repairing') {
+                    statusBadge = '<span class="badge bg-info">维修中</span>';
+                } else if (repair.status === 'outbound') {
+                    statusBadge = '<span class="badge bg-secondary">已出库</span>';
+                } else {
+                    statusBadge = `<span class="badge bg-secondary">${repair.status}</span>`;
+                }
+                return `
+                    <tr>
+                        <td>${repair.repair_no || '-'}</td>
+                        <td>${repair.equipment_name || '-'}</td>
+                        <td>${statusBadge}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+    } catch (error) {
+        console.error('加载控制台数据失败:', error);
+    }
+}
+
+// 页面加载时执行
+document.addEventListener('DOMContentLoaded', loadDashboardData);
+</script>
+{% endblock %}

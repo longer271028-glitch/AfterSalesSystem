@@ -1,0 +1,81 @@
+<div class="form-card">
+    <h5><i class="bi bi-clipboard-check"></i> 库存盘点</h5>
+    <form id="checkForm">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label class="form-label">盘点单号</label>
+                    <input type="text" id="checkNo" class="form-control" value="{{ check_no }}" readonly>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label class="form-label">盘点仓库</label>
+                    <select id="checkWarehouse" class="form-select">
+                        <option value="">请选择仓库</option>
+                        {% for warehouse in warehouses %}
+                        <option value="{{ warehouse.name }}">{{ warehouse.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label class="form-label">备注</label>
+                    <input type="text" id="checkRemark" class="form-control" placeholder="可选">
+                </div>
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="startCheck()">开始盘点</button>
+    </form>
+</div>
+
+<div class="table-card">
+    <h5>盘点记录</h5>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>盘点单号</th>
+                <th>仓库</th>
+                <th>状态</th>
+                <th>开始日期</th>
+                <th>结束日期</th>
+                <th>操作人</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for check in stock_checks %}
+            <tr>
+                <td>{{ check.check_no }}</td>
+                <td>{{ check.warehouse }}</td>
+                <td>
+                    {% if check.status == 'draft' %}
+                    <span class="badge bg-secondary">草稿</span>
+                    {% elif check.status == 'checking' %}
+                    <span class="badge bg-primary">盘点中</span>
+                    {% elif check.status == 'completed' %}
+                    <span class="badge bg-success">已完成</span>
+                    {% else %}
+                    <span class="badge bg-danger">已取消</span>
+                    {% endif %}
+                </td>
+                <td>{{ check.start_date|default:"-" }}</td>
+                <td>{{ check.end_date|default:"-" }}</td>
+                <td>{{ check.operator.username|default:"-" }}</td>
+                <td>
+                    {% if check.status == 'draft' %}
+                    <button class="action-btn btn-check" onclick="startStockCheck({{ check.id }})">开始</button>
+                    {% elif check.status == 'checking' %}
+                    <button class="action-btn btn-success" onclick="completeStockCheck({{ check.id }})">完成</button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center text-muted">暂无盘点记录</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

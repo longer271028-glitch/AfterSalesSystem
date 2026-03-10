@@ -1,0 +1,1012 @@
+{% extends "admin/change_form.html" %}
+
+{% block content %}
+{% if add %}
+{# 添加页面使用默认表单 #}
+{{ block.super }}
+{% else %}
+{# 编辑页面使用自定义界面 #}
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<style>
+    .status-tabs {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 0;
+    }
+
+    .status-tabs .tab-btn {
+        padding: 12px 24px;
+        border: none;
+        background: transparent;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        transition: all 0.2s;
+    }
+
+    .status-tabs .tab-btn:hover {
+        color: #2563eb;
+    }
+
+    .status-tabs .tab-btn.active {
+        color: #2563eb;
+        border-bottom-color: #2563eb;
+        background: #f8fafc;
+    }
+
+    .status-content {
+        display: none;
+    }
+
+    .status-content.active {
+        display: block;
+    }
+
+    .action-panel {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .action-panel h4 {
+        margin-bottom: 15px;
+        color: #1e293b;
+        font-size: 16px;
+    }
+
+    .form-section {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 15px;
+    }
+
+    .form-section h5 {
+        margin-bottom: 15px;
+        color: #334155;
+        font-size: 14px;
+        font-weight: 600;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 10px;
+    }
+
+    .info-row {
+        display: flex;
+        margin-bottom: 10px;
+    }
+
+    .info-label {
+        width: 120px;
+        font-weight: 500;
+        color: #64748b;
+    }
+
+    .info-value {
+        flex: 1;
+        color: #1e293b;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .status-received { background: #fef3c7; color: #d97706; }
+    .status-inbound { background: #dbeafe; color: #2563eb; }
+    .status-detecting { background: #e0e7ff; color: #4f46e5; }
+    .status-quoting { background: #fce7f3; color: #db2777; }
+    .status-repairing { background: #d1fae5; color: #059669; }
+    .status-testing { background: #cffafe; color: #0891b2; }
+    .status-outbound { background: #f3e8ff; color: #7c3aed; }
+    .status-completed { background: #dcfce7; color: #16a34a; }
+    .status-cancelled { background: #f1f5f9; color: #94a3b8; }
+
+    .btn-action {
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        margin-right: 8px;
+        transition: all 0.2s;
+    }
+
+    .btn-action:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+
+    .btn-primary { background: #2563eb; color: white; }
+    .btn-success { background: #10b981; color: white; }
+    .btn-warning { background: #f59e0b; color: white; }
+    .btn-danger { background: #ef4444; color: white; }
+    .btn-secondary { background: #64748b; color: white; }
+
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 8px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e2e8f0;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -25px;
+        top: 6px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #2563eb;
+        border: 2px solid white;
+        box-shadow: 0 0 0 2px #2563eb;
+    }
+
+    .timeline-item.active::before {
+        background: #10b981;
+        box-shadow: 0 0 0 2px #10b981;
+    }
+
+    .timeline-content {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 15px;
+    }
+
+    .timeline-title {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 5px;
+    }
+
+    .timeline-time {
+        font-size: 12px;
+        color: #94a3b8;
+    }
+</style>
+
+<div id="content-main">
+    <!-- 状态指示器 -->
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px; color: white;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h2 style="margin: 0; font-size: 24px;">{{ original.repair_no }}</h2>
+                <p style="margin: 5px 0 0 0; opacity: 0.9;">{% if original.customer %}{{ original.customer.name }}{% endif %} - {{ original.equipment_name }}</p>
+            </div>
+            <div style="text-align: right;">
+                <span class="status-badge" style="background: rgba(255,255,255,0.2); color: white; font-size: 16px; padding: 8px 20px;">
+                    {{ original.get_status_display }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab导航 -->
+    <div class="status-tabs">
+        <button class="tab-btn active" data-tab="info" onclick="showTab('info')">
+            <i class="bi bi-info-circle"></i> 基本信息
+        </button>
+        <button class="tab-btn" data-tab="process" onclick="showTab('process')">
+            <i class="bi bi-diagram-3"></i> 处理流程
+        </button>
+        <button class="tab-btn" data-tab="records" onclick="showTab('records')">
+            <i class="bi bi-clock-history"></i> 操作记录
+        </button>
+        <button class="tab-btn" data-tab="parts" onclick="showTab('parts')">
+            <i class="bi bi-box-seam"></i> 维修配件
+        </button>
+    </div>
+
+    <!-- 基本信息Tab -->
+    <div id="tab-info" class="status-content active">
+        <div class="form-section">
+            <h5>客户信息</h5>
+            <div class="info-row">
+                <span class="info-label">客户名称:</span>
+                <span class="info-value">{% if original.customer %}{{ original.customer.name }}{% else %}-{% endif %}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">联系人:</span>
+                <span class="info-value">{% if original.customer %}{{ original.customer.contact_person|default:"-" }}{% else %}-{% endif %}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">联系电话:</span>
+                <span class="info-value">{% if original.customer %}{{ original.customer.contact_phone|default:"-" }}{% else %}-{% endif %}</span>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h5>设备信息</h5>
+            <div class="info-row">
+                <span class="info-label">设备名称:</span>
+                <span class="info-value">{{ original.equipment_name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">设备序列号:</span>
+                <span class="info-value">{{ original.equipment_sn }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">接收数量:</span>
+                <span class="info-value">{{ original.receive_quantity }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">故障描述:</span>
+                <span class="info-value">{{ original.fault_description }}</span>
+            </div>
+            {% if original.fault_report %}
+            <div class="info-row">
+                <span class="info-label">关联故障:</span>
+                <span class="info-value"><a href="/admin/faults/faultreport/{{ original.fault_report.id }}/change/">{{ original.fault_report.fault_no }}</a> - {{ original.fault_report.title }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-section">
+            <h5>当前状态</h5>
+            <div class="info-row">
+                <span class="info-label">状态:</span>
+                <span class="info-value"><span class="status-badge status-{{ original.status }}">{{ original.get_status_display }}</span></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">创建时间:</span>
+                <span class="info-value">{{ original.created_at|date:"Y-m-d H:i:s" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">最后更新:</span>
+                <span class="info-value">{{ original.updated_at|date:"Y-m-d H:i:s" }}</span>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h5>物流信息</h5>
+            {% if original.inbound_warehouse %}
+            <div class="info-row">
+                <span class="info-label">入库仓库:</span>
+                <span class="info-value">{{ original.inbound_warehouse.name }}</span>
+            </div>
+            {% endif %}
+            {% if original.outbound_warehouse %}
+            <div class="info-row">
+                <span class="info-label">出库仓库:</span>
+                <span class="info-value">{{ original.outbound_warehouse.name }}</span>
+            </div>
+            {% endif %}
+            {% if original.inbound_logistics %}
+            <div class="info-row">
+                <span class="info-label">入库物流:</span>
+                <span class="info-value">{{ original.inbound_logistics }}</span>
+            </div>
+            {% endif %}
+            {% if original.outbound_logistics %}
+            <div class="info-row">
+                <span class="info-label">出库物流:</span>
+                <span class="info-value">{{ original.outbound_logistics }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 处理流程Tab -->
+    <div id="tab-process" class="status-content">
+        <div class="action-panel">
+            <h4><i class="bi bi-play-circle"></i> 状态操作</h4>
+            <p style="color: #64748b; margin-bottom: 20px;">当前状态: <strong>{{ original.get_status_display }}</strong></p>
+
+            {% if original.status == 'received' %}
+            <div style="text-align: center;">
+                <p style="color: #64748b; margin-bottom: 15px;">返修单已创建，请进行入库操作</p>
+                <button class="btn-action btn-primary" onclick="showInboundModal()">
+                    <i class="bi bi-box-seam"></i> 确认入库
+                </button>
+            </div>
+
+            {% elif original.status == 'inbound' %}
+            <div style="text-align: center;">
+                <p style="color: #64748b; margin-bottom: 15px;">设备已入库，请进行检测</p>
+                <button class="btn-action btn-primary" onclick="detectDevice()">
+                    <i class="bi bi-search"></i> 开始检测
+                </button>
+            </div>
+
+            {% elif original.status == 'detecting' %}
+            <div>
+                <p style="color: #64748b; margin-bottom: 15px;">请填写检测结果并提交报价</p>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">检测结果:</label>
+                    <textarea id="detectResult" class="form-control" rows="4" style="width: 100%; border: 1px solid #d1d5db; border-radius: 6px; padding: 10px;">{{ original.detect_result }}</textarea>
+                </div>
+                <button class="btn-action btn-primary" onclick="submitDetect()">
+                    <i class="bi bi-currency-dollar"></i> 提交报价
+                </button>
+            </div>
+
+            {% elif original.status == 'quoting' %}
+            <div>
+                <p style="color: #64748b; margin-bottom: 15px;">报价金额: ¥{{ original.quote_amount }}</p>
+                <p style="color: #64748b; margin-bottom: 20px;">请审批报价</p>
+                <button class="btn-action btn-success" onclick="approveQuote(true)">
+                    <i class="bi bi-check-circle"></i> 审批通过
+                </button>
+                <button class="btn-action btn-danger" onclick="approveQuote(false)">
+                    <i class="bi bi-x-circle"></i> 审批拒绝
+                </button>
+            </div>
+
+            {% elif original.status == 'repairing' %}
+            <div>
+                <p style="color: #64748b; margin-bottom: 15px;">设备维修中，请填写维修结果</p>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">维修结果:</label>
+                    <textarea id="repairResult" class="form-control" rows="4" style="width: 100%; border: 1px solid #d1d5db; border-radius: 6px; padding: 10px;">{{ original.repair_result }}</textarea>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">维修备注:</label>
+                    <textarea id="repairRemark" class="form-control" rows="3" style="width: 100%; border: 1px solid #d1d5db; border-radius: 6px; padding: 10px;">{{ original.repair_remark }}</textarea>
+                </div>
+                <button class="btn-action btn-primary" onclick="submitRepair()">
+                    <i class="bi bi-clipboard-check"></i> 提交质检
+                </button>
+            </div>
+
+            {% elif original.status == 'testing' %}
+            <div>
+                <p style="color: #64748b; margin-bottom: 15px;">请填写质检结果</p>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">质检结果:</label>
+                    <select id="testResult" class="form-control" style="width: 100%; border: 1px solid #d1d5db; border-radius: 6px; padding: 10px;">
+                        <option value="合格">合格</option>
+                        <option value="不合格">不合格</option>
+                        <option value="需返工">需返工</option>
+                    </select>
+                </div>
+                <button class="btn-action btn-success" onclick="submitTest()">
+                    <i class="bi bi-clipboard-check"></i> 提交质检
+                </button>
+                {% if original.status == 'testing' %}
+                <button class="btn-action btn-warning" onclick="backToRepair()">
+                    <i class="bi bi-arrow-return-left"></i> 返回维修
+                </button>
+                {% endif %}
+            </div>
+
+            {% elif original.status == 'outbound' %}
+            <div style="text-align: center;">
+                <p style="color: #64748b; margin-bottom: 15px;">设备已出库，可以完成返修单</p>
+                <button class="btn-action btn-success" onclick="completeOrder()">
+                    <i class="bi bi-check2-circle"></i> 完成返修
+                </button>
+            </div>
+
+            {% elif original.status == 'completed' %}
+            <div style="text-align: center; padding: 40px;">
+                <i class="bi bi-check-circle" style="font-size: 64px; color: #10b981; display: block; margin-bottom: 20px;"></i>
+                <h3 style="color: #1e293b; margin-bottom: 10px;">返修已完成</h3>
+                <p style="color: #64748b;">返修单已成功完成，所有流程都已处理完毕</p>
+            </div>
+
+            {% else %}
+            <div style="text-align: center; padding: 40px;">
+                <i class="bi bi-x-circle" style="font-size: 64px; color: #94a3b8; display: block; margin-bottom: 20px;"></i>
+                <h3 style="color: #1e293b; margin-bottom: 10px;">已取消</h3>
+                <p style="color: #64748b;">返修单已取消</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- 流程时间线 -->
+        <div class="form-section">
+            <h5>处理流程</h5>
+            <div class="timeline">
+                <div class="timeline-item active">
+                    <div class="timeline-content">
+                        <div class="timeline-title">已接收</div>
+                        <div class="timeline-time">{{ original.created_at|date:"Y-m-d H:i:s" }}</div>
+                    </div>
+                </div>
+                {% if original.inbound_warehouse %}
+                <div class="timeline-item active">
+                    <div class="timeline-content">
+                        <div class="timeline-title">已入库</div>
+                        <div class="timeline-time">{{ original.inbound_time|date:"Y-m-d H:i:s" }}</div>
+                        <p>仓库: {{ original.inbound_warehouse.name }}</p>
+                        {% if original.inbound_logistics %}
+                        <p>物流: {{ original.inbound_logistics }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                {% if original.detect_result %}
+                <div class="timeline-item active">
+                    <div class="timeline-content">
+                        <div class="timeline-title">检测完成</div>
+                        <div class="timeline-time">{{ original.detect_time|date:"Y-m-d H:i:s" }}</div>
+                        <p>{{ original.detect_result }}</p>
+                    </div>
+                </div>
+                {% endif %}
+                {% if original.quote_amount %}
+                <div class="timeline-item active">
+                    <div class="timeline-content">
+                        <div class="timeline-title">报价提交</div>
+                        <div class="timeline-time">{{ original.quote_time|date:"Y-m-d H:i:s" }}</div>
+                        <p>报价金额: ¥{{ original.quote_amount }}</p>
+                    </div>
+                </div>
+                {% endif %}
+                {% if original.quote_approved %}
+                <div class="timeline-item active">
+                    <div class="timeline-content">
+                        <div class="timeline-title">报价审批通过</div>
+                        <div class="timeline-time">已审批</div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if original.repair_result %}
+                <div class="timeline-item active">
+                    <div class="timeline-content">
+                        <div class="timeline-title">维修完成</div>
+                        <div class="timeline-time">{{ original.repair_time|date:"Y-m-d H:i:s" }}</div>
+                        <p>{{ original.repair_result }}</p>
+                    </div>
+                </div>
+                {% endif %}
+                {% if original.test_result %}
+                <div class="timeline-item active">
+                    <div class="timeline-content">
+                        <div class="timeline-title">质检完成</div>
+                        <div class="timeline-time">{{ original.test_time|date:"Y-m-d H:i:s" }}</div>
+                        <p>质检结果: {{ original.test_result }}</p>
+                    </div>
+                </div>
+                {% endif %}
+                {% if original.outbound_warehouse %}
+                <div class="timeline-item active">
+                    <div class="timeline-content">
+                        <div class="timeline-title">已出库</div>
+                        <div class="timeline-time">{{ original.updated_at|date:"Y-m-d H:i:s" }}</div>
+                        <p>仓库: {{ original.outbound_warehouse.name }}</p>
+                        {% if original.outbound_logistics %}
+                        <p>物流: {{ original.outbound_logistics }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                {% if original.status == 'completed' %}
+                <div class="timeline-item active">
+                    <div class="timeline-content">
+                        <div class="timeline-title">已完成</div>
+                        <div class="timeline-time">返修完成</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 操作记录Tab -->
+    <div id="tab-records" class="status-content">
+        <div class="form-section">
+            <h5>操作记录</h5>
+            {% if original.records.all %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>操作类型</th>
+                        <th>描述</th>
+                        <th>操作人</th>
+                        <th>操作时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in original.records.all %}
+                    <tr>
+                        <td>{{ record.get_action_display }}</td>
+                        <td>{{ record.description }}</td>
+                        <td>{% if record.operator %}{{ record.operator.username }}{% else %}-{% endif %}</td>
+                        <td>{{ record.operate_time|date:"Y-m-d H:i:s" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="color: #94a3b8; text-align: center; padding: 20px;">暂无操作记录</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 维修配件Tab -->
+    <div id="tab-parts" class="status-content">
+        <div class="form-section">
+            <h5>维修配件</h5>
+            {% if original.parts.all %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>配件名称</th>
+                        <th>配件编码</th>
+                        <th>数量</th>
+                        <th>单价</th>
+                        <th>总价</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for part in original.parts.all %}
+                    <tr>
+                        <td>{{ part.part_name }}</td>
+                        <td>{{ part.part_code }}</td>
+                        <td>{{ part.quantity }}</td>
+                        <td>¥{{ part.unit_price }}</td>
+                        <td>¥{{ part.total_price }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="color: #94a3b8; text-align: center; padding: 20px;">暂无维修配件</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function showTab(tabName) {
+        // 隐藏所有内容
+        document.querySelectorAll('.status-content').forEach(content => {
+            content.classList.remove('active');
+        });
+
+        // 移除所有tab按钮的active
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // 显示选中的内容
+        document.getElementById('tab-' + tabName).classList.add('active');
+
+        // 激活选中的tab按钮
+        document.querySelector(`.tab-btn[data-tab="${tabName}"]`).classList.add('active');
+    }
+
+    function updateStatus(newStatus) {
+        if (!confirm('确认要执行此操作吗?')) return;
+
+        const repairId = {{ original.id }};
+        const url = '/api/repairs/orders/' + repairId + '/';
+        const data = { status: newStatus };
+
+        fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert('操作成功!');
+            location.reload();
+        })
+        .catch(err => {
+            alert('操作失败: ' + err);
+        });
+    }
+
+    function detectDevice() {
+        alert('开始检测功能已触发');
+
+        // 切换到检测状态
+        const repairId = {{ original.id }};
+        const url = '/api/repairs/orders/' + repairId + '/detect/';
+        const data = { result: '开始检测' };
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert('状态已更新');
+            location.reload();
+        })
+        .catch(err => {
+            alert('操作失败: ' + err);
+        });
+    }
+
+    function submitDetect() {
+        const result = document.getElementById('detectResult').value;
+        if (!result.trim()) {
+            alert('请输入检测结果');
+            return;
+        }
+
+        if (!confirm('确认提交检测结果吗?')) return;
+
+        const repairId = {{ original.id }};
+        const url = '/api/repairs/orders/' + repairId + '/detect/';
+        const data = { result: result };
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert('提交成功!');
+            location.reload();
+        })
+        .catch(err => {
+            alert('提交失败: ' + err);
+        });
+    }
+
+    function approveQuote(approved) {
+        const action = approved ? '通过' : '拒绝';
+        if (!confirm(`确认要${action}报价吗?`)) return;
+
+        const repairId = {{ original.id }};
+        const url = '/api/repairs/orders/' + repairId + '/approve_quote/';
+        const data = { approved: approved };
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert('审批成功!');
+            location.reload();
+        })
+        .catch(err => {
+            alert('审批失败: ' + err);
+        });
+    }
+
+    function submitRepair() {
+        const result = document.getElementById('repairResult').value;
+        const remark = document.getElementById('repairRemark').value;
+
+        if (!result.trim()) {
+            alert('请输入维修结果');
+            return;
+        }
+
+        if (!confirm('确认提交维修结果吗?')) return;
+
+        const repairId = {{ original.id }};
+        const url = '/api/repairs/orders/' + repairId + '/repair/';
+        const data = { result: result, remark: remark };
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert('提交成功!');
+            location.reload();
+        })
+        .catch(err => {
+            alert('提交失败: ' + err);
+        });
+    }
+
+    function submitTest() {
+        const result = document.getElementById('testResult').value;
+
+        if (!confirm('确认完成质检吗?')) return;
+
+        const repairId = {{ original.id }};
+        const url = '/api/repairs/orders/' + repairId + '/test/';
+        const data = { result: result };
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert('质检完成，请选择出库信息!');
+            // 质检成功后，弹窗选择出库信息
+            showOutboundModal();
+        })
+        .catch(err => {
+            alert('提交失败: ' + err);
+        });
+    }
+
+    function backToRepair() {
+        if (!confirm('确认要返回维修状态吗?')) return;
+
+        const repairId = {{ original.id }};
+        const url = '/api/repairs/orders/' + repairId + '/';
+        const data = { status: 'repairing' };
+
+        fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert('操作成功!');
+            location.reload();
+        })
+        .catch(err => {
+            alert('操作失败: ' + err);
+        });
+    }
+
+    function completeOrder() {
+        if (!confirm('确认要完成返修吗?')) return;
+
+        const repairId = {{ original.id }};
+        const url = '/api/repairs/orders/' + repairId + '/';
+        const data = { status: 'completed' };
+
+        fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert('完成成功!');
+            location.reload();
+        })
+        .catch(err => {
+            alert('操作失败: ' + err);
+        });
+    }
+
+    function getCSRFToken() {
+        return document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+    }
+
+    // 仓库列表
+    let warehouses = [];
+
+    // 加载仓库列表
+    function loadWarehouses() {
+        return fetch('/inventory/api/warehouses/', {
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        })
+        .then(res => res.json())
+        .then(data => {
+            const warehouseData = data.results || data;
+            warehouses = warehouseData.filter(w => w.is_active);
+            return warehouses;
+        })
+        .catch(err => {
+            console.error('Failed to load warehouses:', err);
+            return [];
+        });
+    }
+
+    // 显示入库弹窗
+    async function showInboundModal() {
+        const warehouses = await loadWarehouses();
+        const warehouseOptions = warehouses.map(w =>
+            `<option value="${w.id}">${w.name} (${w.code})${w.category ? ' - ' + w.category.name : ''}</option>`
+        ).join('');
+
+        const html = `
+            <div id="inboundModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+                <div style="background: white; padding: 30px; border-radius: 10px; width: 400px; max-width: 90%;">
+                    <h3 style="margin-top: 0; color: #1e293b;">入库操作</h3>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">选择仓库 <span style="color: red;">*</span></label>
+                        <select id="inboundWarehouseSelect" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                            <option value="">请选择仓库</option>
+                            ${warehouseOptions}
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button onclick="closeInboundModal()" style="padding: 10px 20px; border: 1px solid #d1d5db; background: white; border-radius: 6px; cursor: pointer;">取消</button>
+                        <button onclick="submitInbound()" style="padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">确认入库</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', html);
+    }
+
+    function closeInboundModal() {
+        const modal = document.getElementById('inboundModal');
+        if (modal) modal.remove();
+    }
+
+    function submitInbound() {
+        const warehouseId = document.getElementById('inboundWarehouseSelect').value;
+
+        if (!warehouseId) {
+            alert('请选择仓库');
+            return;
+        }
+
+        const repairId = {{ original.id }};
+        const url = '/api/repairs/orders/' + repairId + '/inbound/';
+        const data = { warehouse_id: parseInt(warehouseId) };
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => {
+            if (!res.ok) {
+                return res.json().then(err => Promise.reject(err));
+            }
+            return res.json();
+        })
+        .then(data => {
+            alert('入库成功!');
+            closeInboundModal();
+            location.reload();
+        })
+        .catch(err => {
+            const errorMsg = err.error || err.detail || JSON.stringify(err);
+            alert('入库失败: ' + errorMsg);
+        });
+    }
+
+    // 显示出库弹窗
+    async function showOutboundModal(defaultQuantity = {{ original.receive_quantity|default:1 }}) {
+        const warehouses = await loadWarehouses();
+        const warehouseOptions = warehouses.map(w =>
+            `<option value="${w.id}">${w.name} (${w.code})${w.category ? ' - ' + w.category.name : ''}</option>`
+        ).join('');
+
+        const html = `
+            <div id="outboundModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+                <div style="background: white; padding: 30px; border-radius: 10px; width: 400px; max-width: 90%;">
+                    <h3 style="margin-top: 0; color: #1e293b;">出库操作</h3>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">选择仓库 <span style="color: red;">*</span></label>
+                        <select id="outboundWarehouseSelect" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                            <option value="">请选择仓库</option>
+                            ${warehouseOptions}
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">出库数量 <span style="color: red;">*</span></label>
+                        <input type="number" id="outboundQuantity" value="${defaultQuantity}" min="1" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                        <small style="color: #64748b;">接收数量: ${defaultQuantity}</small>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">物流信息</label>
+                        <input type="text" id="outboundLogistics" placeholder="请输入物流单号或信息" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button onclick="closeOutboundModal()" style="padding: 10px 20px; border: 1px solid #d1d5db; background: white; border-radius: 6px; cursor: pointer;">取消</button>
+                        <button onclick="submitOutbound()" style="padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">确认出库</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', html);
+    }
+
+    function closeOutboundModal() {
+        const modal = document.getElementById('outboundModal');
+        if (modal) modal.remove();
+    }
+
+    function submitOutbound() {
+        const warehouseId = document.getElementById('outboundWarehouseSelect').value;
+        const quantity = parseInt(document.getElementById('outboundQuantity').value);
+        const logistics = document.getElementById('outboundLogistics').value;
+
+        if (!warehouseId) {
+            alert('请选择仓库');
+            return;
+        }
+
+        if (!quantity || quantity <= 0) {
+            alert('请输入有效的出库数量');
+            return;
+        }
+
+        const repairId = {{ original.id }};
+        const url = '/api/repairs/orders/' + repairId + '/outbound/';
+        const data = {
+            warehouse_id: parseInt(warehouseId),
+            quantity: quantity,
+            logistics: logistics
+        };
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => {
+            if (!res.ok) {
+                return res.json().then(err => Promise.reject(err));
+            }
+            return res.json();
+        })
+        .then(data => {
+            alert('出库成功!');
+            closeOutboundModal();
+            location.reload();
+        })
+        .catch(err => {
+            const errorMsg = err.error || err.detail || JSON.stringify(err);
+            alert('出库失败: ' + errorMsg);
+        });
+    }
+
+    // 根据当前状态自动显示对应的Tab
+    document.addEventListener('DOMContentLoaded', function() {
+        const status = '{{ original.status }}';
+        if (status === 'received' || status === 'inbound' || status === 'detecting' ||
+            status === 'quoting' || status === 'repairing' || status === 'testing' ||
+            status === 'outbound') {
+            showTab('process');
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

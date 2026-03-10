@@ -1,0 +1,116 @@
+{% extends "admin/base_site.html" %}
+
+{% block page_title %}权限管理{% endblock %}
+{% block page_subtitle %}管理用户页面访问权限{% endblock %}
+
+{% block nav_permissions %}active{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="/static/user_management/css/permissions.css">
+
+<div class="content-card">
+    <div class="page-header">
+        <div class="header-left">
+            <h2>用户权限管理</h2>
+            <p>为用户分配页面访问权限</p>
+        </div>
+    </div>
+
+    <!-- 筛选栏 -->
+    <div class="filter-bar">
+        <div class="filter-item">
+            <input type="text" id="searchInput" placeholder="搜索用户名/姓名..." />
+        </div>
+        <div class="filter-item">
+            <select id="roleFilter">
+                <option value="">全部角色</option>
+                <option value="admin">管理员</option>
+                <option value="manager">经理</option>
+                <option value="staff">员工</option>
+                <option value="viewer">访客</option>
+            </select>
+        </div>
+        <div class="filter-item">
+            <select id="statusFilter">
+                <option value="">全部状态</option>
+                <option value="active">激活</option>
+                <option value="inactive">未激活</option>
+            </select>
+        </div>
+        <button class="btn btn-secondary" onclick="applyFilters()">筛选</button>
+        <button class="btn btn-secondary" onclick="resetFilters()">重置</button>
+    </div>
+
+    <!-- 用户列表 -->
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>用户名</th>
+                <th>姓名</th>
+                <th>角色</th>
+                <th>部门</th>
+                <th>状态</th>
+                <th>页面权限</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="userTableBody">
+            <tr><td colspan="7" class="text-center text-muted">加载中...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- 权限编辑模态框 -->
+<div class="modal" id="permissionModal">
+    <div class="modal-content modal-lg">
+        <div class="modal-header">
+            <h3>编辑用户权限</h3>
+            <button class="btn-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="editUserId" />
+            
+            <div class="user-info-row">
+                <div class="info-item">
+                    <label>用户名：</label>
+                    <span id="editUsername"></span>
+                </div>
+                <div class="info-item">
+                    <label>姓名：</label>
+                    <input type="text" id="editName" class="form-input" placeholder="请输入姓名" />
+                </div>
+            </div>
+            
+            <div class="user-info-row">
+                <div class="info-item">
+                    <label>角色：</label>
+                    <select id="editRole" class="form-input">
+                        <option value="admin">管理员</option>
+                        <option value="manager">经理</option>
+                        <option value="staff">员工</option>
+                        <option value="viewer">访客</option>
+                    </select>
+                </div>
+                <div class="info-item">
+                    <label>部门：</label>
+                    <input type="text" id="editDepartment" class="form-input" placeholder="请输入部门" />
+                </div>
+            </div>
+
+            <div class="permissions-section">
+                <h4>页面权限</h4>
+                <p class="hint">勾选用户可访问的页面：</p>
+                <div id="permissionsList" class="permissions-grid">
+                    <!-- 权限复选框将动态生成 -->
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+            <button class="btn btn-primary" onclick="savePermissions()">保存</button>
+        </div>
+    </div>
+</div>
+
+<script src="/static/user_management/js/permissions.js"></script>
+{% endblock %}

@@ -1,0 +1,561 @@
+/* ============================================================================
+   Admin Form Styles - 表单页面样式（客户管理、故障管理等）
+   ============================================================================ */
+
+/* 重置和基础样式 */
+#content-main {
+    background: #ffffff;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    padding: 24px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+/* 表单容器 */
+form {
+    margin: 0;
+}
+
+/* 卡片样式 - 表单区域 */
+.card {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.card-header {
+    background: #f1f5f9;
+    border-bottom: 1px solid #d1d5db;
+    padding: 16px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    -webkit-border-radius: 10px 10px 0 0;
+    -moz-border-radius: 10px 10px 0 0;
+    border-radius: 10px 10px 0 0;
+}
+
+.card-header .mb-0,
+.card-header h5 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* 字段集样式 */
+.module {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.module.aligned {
+    padding: 0;
+}
+
+/* 表单行样式 - 修复布局问题 */
+.form-row {
+    display: block;
+    padding: 16px 0;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.form-row:last-child {
+    border-bottom: none;
+}
+
+.form-row.errors {
+    padding: 16px 0;
+    background: #fef2f2;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    border: 1px solid #fecaca;
+}
+
+/* 表单标签样式 */
+.form-label,
+.aligned label {
+    display: block;
+    font-weight: 500;
+    color: #64748b;
+    margin-bottom: 8px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* 表单字段容器 */
+.field-box {
+    display: block;
+    margin-bottom: 16px;
+}
+
+/* 输入框样式 */
+.form-control,
+.vTextField,
+.vLargeTextField {
+    width: 100%;
+    max-width: 500px;
+    padding: 8px 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #1e293b;
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    display: block;
+}
+
+.form-control:focus,
+.vTextField:focus,
+.vLargeTextField:focus {
+    outline: none;
+    border-color: #2563eb;
+    -webkit-box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    -moz-box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-control:disabled,
+.form-control[readonly],
+.vTextField:disabled,
+.vTextField[readonly] {
+    background-color: #f1f5f9;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* 下拉选择框 */
+select,
+select.form-control {
+    width: 100%;
+    max-width: 500px;
+    padding: 8px 12px;
+    padding-right: 32px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #1e293b;
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 8px center;
+    background-repeat: no-repeat;
+    background-size: 16px 16px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    display: block;
+}
+
+/* IE10+ 隐藏默认箭头 */
+select::-ms-expand,
+select.form-control::-ms-expand {
+    display: none;
+}
+
+select[multiple] {
+    height: auto;
+    min-height: 100px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: none;
+    padding-right: 12px;
+}
+
+/* 文本域 */
+textarea,
+.vLargeTextField {
+    min-height: 80px;
+    resize: vertical;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* 复选框样式 */
+.form-check {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -moz-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    margin: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: 1px solid #d1d5db;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    background: #ffffff;
+    position: relative;
+}
+
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+    background-color: #2563eb;
+    border-color: #2563eb;
+}
+
+input[type="checkbox"]:checked::after {
+    content: '✓';
+    color: #ffffff;
+    font-size: 12px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+input[type="radio"] {
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%;
+}
+
+input[type="radio"]:checked::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #ffffff;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+/* 提交按钮行 */
+.submit-row {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 20px;
+    background: #f1f5f9;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    margin-top: 20px;
+}
+
+.submit-row input[type="submit"] {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+/* 按钮样式 */
+.btn-primary {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+.btn-outline-primary {
+    background-color: transparent;
+    border-color: #2563eb;
+    color: #2563eb;
+}
+
+.btn-outline-primary:hover {
+    background-color: #2563eb;
+    color: #ffffff;
+}
+
+/* 警告提示样式 */
+.alert {
+    padding: 16px;
+    margin-bottom: 20px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    border: 1px solid;
+}
+
+.alert-danger {
+    background-color: #fef2f2;
+    border-color: #fecaca;
+    color: #991b1b;
+}
+
+.alert-success {
+    background-color: #f0fdf4;
+    border-color: #bbf7d0;
+    color: #166534;
+}
+
+/* 错误信息样式 */
+.text-danger {
+    color: #ef4444 !important;
+}
+
+.errornote {
+    color: #ef4444;
+    padding: 10px;
+    background: #fef2f2;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    border: 1px solid #fecaca;
+    margin-bottom: 16px;
+}
+
+/* 帮助文本 */
+.form-text,
+.help,
+helptext {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 4px;
+    display: block;
+    line-height: 1.4;
+}
+
+/* 小提示文字 */
+small {
+    font-size: 12px !important;
+}
+
+/* 字段集标题 */
+h6.border-bottom {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #2563eb !important;
+    margin-top: 0;
+}
+
+/* 字段组标题 */
+fieldset.module h2 {
+    display: none;
+}
+
+/* 只读字段 */
+.readonly {
+    background-color: #f1f5f9;
+    color: #64748b;
+}
+
+/* 相关查找链接 */
+.related-lookup {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    line-height: 30px;
+    background: #f1f5f9;
+    border: 1px solid #d1d5db;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 8px;
+    text-align: center;
+    vertical-align: middle;
+    text-decoration: none;
+}
+
+/* Raw ID 字段 */
+.vForeignKeyRawIdAdminField {
+    width: 100%;
+    max-width: 300px;
+}
+
+/* 日期时间选择器 */
+.datetimeshortcuts {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.datetimeshortcuts a {
+    font-size: 12px;
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.datetimeshortcuts a:hover {
+    text-decoration: underline;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+    #content-main {
+        padding: 16px;
+        margin-right: 0;
+    }
+
+    .card-body {
+        padding: 16px;
+    }
+
+    .form-control,
+    .vTextField,
+    select {
+        max-width: 100%;
+    }
+
+    .submit-row {
+        padding: 16px;
+    }
+
+    .submit-row input[type="submit"] {
+        width: 100%;
+    }
+}
+
+/* 字段容器对齐 */
+.field-__all__,
+.field-title,
+.field-description,
+.field-customer,
+.field-equipment_sn,
+.field-equipment_name,
+.field-fault_category,
+.field-reporter_name,
+.field-reporter_phone,
+.field-status,
+.field-priority,
+.field-name,
+.field-customer_type,
+.field-contact_person,
+.field-contact_phone,
+.field-market_manager,
+.field-service_manager,
+.field-address {
+    display: block;
+    width: 100%;
+}
+
+/* 兼容旧版浏览器的flexbox */
+.row {
+    display: block;
+    width: 100%;
+}
+
+.col-md-6 {
+    display: block;
+    width: 100%;
+    max-width: none;
+    margin-bottom: 16px;
+}
+
+.d-flex {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+.text-end {
+    text-align: right;
+}
+
+@media (min-width: 768px) {
+    .row {
+        display: -webkit-box;
+        display: -moz-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-orient: horizontal;
+        -webkit-box-direction: normal;
+        -moz-box-orient: horizontal;
+        -moz-box-direction: normal;
+        -ms-flex-direction: row;
+        flex-direction: row;
+        -webkit-flex-wrap: wrap;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        margin: 0 -12px;
+    }
+
+    .col-md-6 {
+        -webkit-box-flex: 0;
+        -moz-box-flex: 0;
+        -ms-flex: 0 0 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
+        padding: 0 12px;
+        margin-bottom: 0;
+    }
+}
+
+/* 确保内容不会溢出 */
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}

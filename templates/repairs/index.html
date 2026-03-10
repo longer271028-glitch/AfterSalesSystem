@@ -1,0 +1,714 @@
+{% extends 'admin/base_site.html' %}
+
+{% block page_title %}返修管理{% endblock %}
+{% block page_subtitle %}管理返修工单{% endblock %}
+
+{% block nav_repairs %}active{% endblock %}
+
+{% block content %}
+<style>
+    /* 页面头部样式 */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 16px;
+        background: #f8fafc;
+        border-radius: 8px;
+    }
+
+    .page-header h2 {
+        margin: 0;
+        font-size: 18px;
+        color: #1e293b;
+    }
+
+    .page-header p {
+        margin: 4px 0 0 0;
+        font-size: 13px;
+        color: #64748b;
+    }
+
+    /* 标签导航样式 */
+    .tab-nav {
+        display: flex;
+        gap: 0;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-nav .tab-btn {
+        padding: 12px 20px;
+        border: none;
+        background: transparent;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .tab-nav .tab-btn:hover {
+        color: #10b981;
+    }
+
+    .tab-nav .tab-btn.active {
+        color: #10b981;
+        border-bottom-color: #10b981;
+    }
+
+    .tab-nav .tab-btn .badge {
+        background: #e2e8f0;
+        color: #64748b;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 12px;
+        margin-left: 5px;
+    }
+
+    .tab-nav .tab-btn.active .badge {
+        background: #10b981;
+        color: white;
+    }
+
+    /* 状态徽章 */
+    .status-badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .status-received { background: #fef3c7; color: #d97706; }
+    .status-inbound { background: #dbeafe; color: #2563eb; }
+    .status-detecting { background: #e0e7ff; color: #4f46e5; }
+    .status-quoting { background: #fce7f3; color: #db2777; }
+    .status-repairing { background: #d1fae5; color: #059669; }
+    .status-testing { background: #cffafe; color: #0891b2; }
+    .status-outbound { background: #f3e8ff; color: #7c3aed; }
+    .status-completed { background: #dcfce7; color: #16a34a; }
+    .status-cancelled { background: #f1f5f9; color: #94a3b8; }
+
+    /* 操作按钮 */
+    .action-btn {
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+        border: none;
+        margin-right: 5px;
+    }
+
+    .action-btn-primary { background: #2563eb; color: white; }
+    .action-btn-success { background: #10b981; color: white; }
+    .action-btn-warning { background: #f59e0b; color: white; }
+    .action-btn-danger { background: #ef4444; color: white; }
+    .action-btn-secondary { background: #64748b; color: white; }
+
+    /* 表格样式 */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        margin-top: 20px;
+    }
+
+    .data-table th {
+        background: #f8fafc;
+        padding: 12px 16px;
+        text-align: left;
+        font-weight: 600;
+        color: #475569;
+        border-bottom: 2px solid #e2e8f0;
+        font-size: 13px;
+    }
+
+    .data-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .data-table tr:hover {
+        background: #f8fafc;
+    }
+
+    /* 按钮样式 */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 20px;
+        background: #10b981;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn:hover {
+        background: #059669;
+        color: white;
+    }
+
+    .btn-primary {
+        background: #10b981;
+    }
+
+    .btn-secondary {
+        background: #64748b;
+    }
+
+    .btn-secondary:hover {
+        background: #475569;
+    }
+
+    /* Flex 工具类 */
+    .d-flex {
+        display: flex;
+    }
+
+    .justify-content-between {
+        justify-content: space-between;
+    }
+
+    .align-items-center {
+        align-items: center;
+    }
+
+    .gap-2 {
+        gap: 8px;
+    }
+
+    .mb-3 {
+        margin-bottom: 16px;
+    }
+
+    /* 输入框 */
+    input[type="text"] {
+        padding: 10px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+    input[type="text"]:focus {
+        outline: none;
+        border-color: #10b981;
+    }
+</style>
+
+<div class="content-card">
+    <!-- Tab导航 -->
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="filterStatus('')">
+            全部 <span class="badge">{{ stats.total }}</span>
+        </button>
+        <button class="tab-btn" onclick="filterStatus('received')">
+            已接收 <span class="badge">{{ stats.received }}</span>
+        </button>
+        <button class="tab-btn" onclick="filterStatus('inbound')">
+            已入库 <span class="badge">{{ stats.inbound }}</span>
+        </button>
+        <button class="tab-btn" onclick="filterStatus('detecting')">
+            检测中 <span class="badge">{{ stats.detecting }}</span>
+        </button>
+        <button class="tab-btn" onclick="filterStatus('quoting')">
+            报价中 <span class="badge">{{ stats.quoting }}</span>
+        </button>
+        <button class="tab-btn" onclick="filterStatus('repairing')">
+            维修中 <span class="badge">{{ stats.repairing }}</span>
+        </button>
+        <button class="tab-btn" onclick="filterStatus('testing')">
+            质检中 <span class="badge">{{ stats.testing }}</span>
+        </button>
+        <button class="tab-btn" onclick="filterStatus('outbound')">
+            已出库 <span class="badge">{{ stats.outbound }}</span>
+        </button>
+        <button class="tab-btn" onclick="filterStatus('completed')">
+            已完成 <span class="badge">{{ stats.completed }}</span>
+        </button>
+        <button class="tab-btn" onclick="filterStatus('cancelled')">
+            已取消 <span class="badge">{{ stats.cancelled }}</span>
+        </button>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <a href="/admin/repairs/repairorder/add/" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> 新增返修单
+            </a>
+        </div>
+        <div class="d-flex gap-2">
+            <input type="text" id="searchInput" placeholder="搜索返修单号/设备序列号..." style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; width: 250px;">
+            <button onclick="searchRepairs()" class="btn btn-secondary">
+                <i class="bi bi-search"></i> 搜索
+            </button>
+        </div>
+    </div>
+
+    <!-- 返修单列表 -->
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>返修单号</th>
+                <th>客户名称</th>
+                <th>故障编号</th>
+                <th>设备名称</th>
+                <th>设备序列号</th>
+                <th>状态</th>
+                <th>报价金额</th>
+                <th>创建时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="repairTableBody">
+            {% for repair in repairs %}
+            <tr>
+                <td>
+                    <a href="/admin/repairs/repairorder/{{ repair.id }}/change/">{{ repair.repair_no }}</a>
+                </td>
+                <td>{% if repair.customer %}{{ repair.customer.name }}{% else %}-{% endif %}</td>
+                <td>{% if repair.fault_report %}{{ repair.fault_report.fault_no }}{% else %}-{% endif %}</td>
+                <td>{{ repair.equipment_name }}</td>
+                <td>{{ repair.equipment_sn }}</td>
+                <td>
+                    <span class="status-badge status-{{ repair.status }}">
+                        {{ repair.get_status_display }}
+                    </span>
+                </td>
+                <td>¥{{ repair.quote_amount|default:"0.00" }}</td>
+                <td>{{ repair.created_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    {% if repair.status == 'received' %}
+                    <button class="action-btn action-btn-primary" onclick="showInboundModal({{ repair.id }})">入库</button>
+                    {% elif repair.status == 'inbound' %}
+                    <button class="action-btn action-btn-primary" onclick="updateStatus({{ repair.id }}, 'detecting', '检测')">检测</button>
+                    {% elif repair.status == 'detecting' %}
+                    <button class="action-btn action-btn-primary" onclick="showQuoteModal({{ repair.id }})">报价</button>
+                    {% elif repair.status == 'quoting' %}
+                    <button class="action-btn action-btn-success" onclick="approveQuote({{ repair.id }}, true)">审批通过</button>
+                    <button class="action-btn action-btn-danger" onclick="approveQuote({{ repair.id }}, false)">审批拒绝</button>
+                    {% elif repair.status == 'repairing' %}
+                    <button class="action-btn action-btn-primary" onclick="updateStatus({{ repair.id }}, 'testing', '质检')">提交质检</button>
+                    {% elif repair.status == 'testing' %}
+                    <button class="action-btn action-btn-success" onclick="showOutboundModal({{ repair.id }})">出库</button>
+                    {% elif repair.status == 'outbound' %}
+                    <button class="action-btn action-btn-success" onclick="updateStatus({{ repair.id }}, 'completed', '完成')">完成</button>
+                    {% elif repair.status == 'completed' %}
+                    <button class="action-btn action-btn-secondary" onclick="viewDetail({{ repair.id }})">查看</button>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" style="text-align: center; color: #64748b; padding: 40px;">暂无数据</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- 报价弹窗 -->
+<div class="modal fade" id="quoteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">报价</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="quoteRepairId">
+                <div class="mb-3">
+                    <label class="form-label">报价金额</label>
+                    <input type="number" id="quoteAmount" class="form-control" step="0.01">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">备注</label>
+                    <textarea id="quoteRemark" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitQuote()">提交报价</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 入库弹窗 -->
+<div class="modal fade" id="inboundModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">入库操作</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="inboundRepairId">
+                <div class="mb-3">
+                    <label class="form-label">选择仓库 <span class="text-danger">*</span></label>
+                    <select id="inboundWarehouse" class="form-select" required>
+                        <option value="">请选择仓库</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitInbound()">确认入库</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 出库弹窗 -->
+<div class="modal fade" id="outboundModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">出库操作</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="outboundRepairId">
+                <div class="mb-3">
+                    <label class="form-label">选择仓库 <span class="text-danger">*</span></label>
+                    <select id="outboundWarehouse" class="form-select" required>
+                        <option value="">请选择仓库</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">出库数量 <span class="text-danger">*</span></label>
+                    <input type="number" id="outboundQuantity" class="form-control" min="1" value="1" required>
+                    <small class="text-muted">请输入出库数量</small>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">物流信息</label>
+                    <input type="text" id="outboundLogistics" class="form-control" placeholder="请输入物流单号或信息">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitOutbound()">确认出库</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentStatus = '';
+    let warehouses = [];
+
+    // 页面加载时获取仓库列表
+    document.addEventListener('DOMContentLoaded', function() {
+        loadWarehouses();
+    });
+
+    function loadWarehouses() {
+        fetch('/inventory/api/warehouses/', {
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        })
+        .then(res => res.json())
+        .then(data => {
+            // 处理分页响应格式
+            const warehouseData = data.results || data;
+            warehouses = warehouseData.filter(w => w.is_active);
+            populateWarehouseSelects();
+        })
+        .catch(err => console.error('Failed to load warehouses:', err));
+    }
+
+    function populateWarehouseSelects() {
+        const inboundSelect = document.getElementById('inboundWarehouse');
+        const outboundSelect = document.getElementById('outboundWarehouse');
+
+        if (!inboundSelect || !outboundSelect) return;
+
+        const options = warehouses.map(w =>
+            `<option value="${w.id}">${w.name} (${w.code})${w.category ? ' - ' + w.category.name : ''}</option>`
+        ).join('');
+
+        inboundSelect.innerHTML = '<option value="">请选择仓库</option>' + options;
+        outboundSelect.innerHTML = '<option value="">请选择仓库</option>' + options;
+    }
+
+    function filterStatus(status) {
+        currentStatus = status;
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.closest('.tab-btn').classList.add('active');
+        loadRepairs();
+    }
+
+    function searchRepairs() {
+        loadRepairs();
+    }
+
+    function loadRepairs() {
+        const search = document.getElementById('searchInput').value;
+        let url = '/api/repairs/orders/?';
+        if (currentStatus) url += 'status=' + currentStatus + '&';
+        if (search) url += 'search=' + encodeURIComponent(search);
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                // 处理DRF分页格式
+                const repairs = data.results || data;
+                const tbody = document.getElementById('repairTableBody');
+                if (repairs && repairs.length > 0) {
+                    const statusMap = {
+                        'received': '已接收',
+                        'inbound': '已入库',
+                        'detecting': '检测中',
+                        'quoting': '报价中',
+                        'repairing': '维修中',
+                        'testing': '质检中',
+                        'outbound': '已出库',
+                        'completed': '已完成',
+                        'cancelled': '已取消'
+                    };
+                    tbody.innerHTML = repairs.map(repair => `
+                        <tr>
+                            <td><a href="/admin/repairs/repairorder/${repair.id}/change/">${repair.repair_no}</a></td>
+                            <td>${repair.customer_name || '-'}</td>
+                            <td>${repair.fault_report_no || '-'}</td>
+                            <td>${repair.equipment_name}</td>
+                            <td>${repair.equipment_sn}</td>
+                            <td><span class="status-badge status-${repair.status}">${statusMap[repair.status] || repair.status}</span></td>
+                            <td>¥${repair.quote_amount || '0.00'}</td>
+                            <td>${new Date(repair.created_at).toLocaleString('zh-CN')}</td>
+                            <td>${getActionButtons(repair)}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">暂无数据</td></tr>';
+                }
+            });
+    }
+
+    function getActionButtons(repair) {
+        if (repair.status === 'received') {
+            return `<button class="action-btn action-btn-primary" onclick="showInboundModal(${repair.id})">入库</button>`;
+        } else if (repair.status === 'inbound') {
+            return `<button class="action-btn action-btn-primary" onclick="updateStatus(${repair.id}, 'detecting', '检测')">检测</button>`;
+        } else if (repair.status === 'detecting') {
+            return `<button class="action-btn action-btn-primary" onclick="showQuoteModal(${repair.id})">报价</button>`;
+        } else if (repair.status === 'quoting') {
+            return `<button class="action-btn action-btn-success" onclick="approveQuote(${repair.id}, true)">审批通过</button>
+                    <button class="action-btn action-btn-danger" onclick="approveQuote(${repair.id}, false)">审批拒绝</button>`;
+        } else if (repair.status === 'repairing') {
+            return `<button class="action-btn action-btn-primary" onclick="updateStatus(${repair.id}, 'testing', '质检')">提交质检</button>`;
+        } else if (repair.status === 'testing') {
+            return `<button class="action-btn action-btn-success" onclick="showOutboundModal(${repair.id})">出库</button>`;
+        } else if (repair.status === 'outbound') {
+            return `<button class="action-btn action-btn-success" onclick="updateStatus(${repair.id}, 'completed', '完成')">完成</button>`;
+        } else if (repair.status === 'completed') {
+            return `<button class="action-btn action-btn-secondary" onclick="viewDetail(${repair.id})">查看</button>`;
+        }
+        return '-';
+    }
+
+    function updateStatus(id, status, action) {
+        if (!confirm(`确认要${action}吗?`)) return;
+
+        let url = '/api/repairs/orders/' + id + '/';
+        let data = { status: status };
+
+        if (status === 'detecting') {
+            data.result = prompt('请输入检测结果:', '');
+            if (data.result === null) return;
+        } else if (status === 'testing') {
+            data.result = prompt('请输入质检结果:', '合格');
+            if (data.result === null) return;
+        }
+
+        fetch(url, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert('操作成功!');
+            loadRepairs();
+            location.reload();
+        })
+        .catch(err => alert('操作失败: ' + err));
+    }
+
+    function showQuoteModal(id) {
+        document.getElementById('quoteRepairId').value = id;
+        document.getElementById('quoteAmount').value = '';
+        document.getElementById('quoteRemark').value = '';
+        new bootstrap.Modal(document.getElementById('quoteModal')).show();
+    }
+
+    function submitQuote() {
+        const id = document.getElementById('quoteRepairId').value;
+        const amount = document.getElementById('quoteAmount').value;
+
+        if (!amount || parseFloat(amount) <= 0) {
+            alert('请输入有效的报价金额');
+            return;
+        }
+
+        fetch('/api/repairs/orders/' + id + '/quote/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+            body: JSON.stringify({ quote_amount: amount })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert('报价成功!');
+            bootstrap.Modal.getInstance(document.getElementById('quoteModal')).hide();
+            loadRepairs();
+            location.reload();
+        })
+        .catch(err => alert('报价失败: ' + err));
+    }
+
+    function approveQuote(id, approved) {
+        const action = approved ? '通过' : '拒绝';
+        if (!confirm(`确认要${action}报价吗?`)) return;
+
+        fetch('/api/repairs/orders/' + id + '/approve_quote/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+            body: JSON.stringify({ approved: approved })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert('审批成功!');
+            loadRepairs();
+            location.reload();
+        })
+        .catch(err => alert('审批失败: ' + err));
+    }
+
+    function viewDetail(id) {
+        window.location.href = '/admin/repairs/repairorder/' + id + '/change/';
+    }
+
+    function getCSRFToken() {
+        return document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+    }
+
+    // 入库相关函数
+    function showInboundModal(id) {
+        document.getElementById('inboundRepairId').value = id;
+        document.getElementById('inboundWarehouse').value = '';
+        new bootstrap.Modal(document.getElementById('inboundModal')).show();
+    }
+
+    function submitInbound() {
+        const id = document.getElementById('inboundRepairId').value;
+        const warehouseId = document.getElementById('inboundWarehouse').value;
+
+        if (!warehouseId) {
+            alert('请选择仓库');
+            return;
+        }
+
+        fetch('/api/repairs/orders/' + id + '/inbound/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+            body: JSON.stringify({ warehouse_id: parseInt(warehouseId) })
+        })
+        .then(res => {
+            if (!res.ok) {
+                return res.json().then(err => Promise.reject(err));
+            }
+            return res.json();
+        })
+        .then(data => {
+            alert('入库成功!');
+            bootstrap.Modal.getInstance(document.getElementById('inboundModal')).hide();
+            loadRepairs();
+            location.reload();
+        })
+        .catch(err => {
+            const errorMsg = err.error || err.detail || JSON.stringify(err);
+            alert('入库失败: ' + errorMsg);
+        });
+    }
+
+    // 出库相关函数
+    async function showOutboundModal(id) {
+        document.getElementById('outboundRepairId').value = id;
+        document.getElementById('outboundWarehouse').value = '';
+        document.getElementById('outboundLogistics').value = '';
+
+        // 获取返修单详情以获取接收数量
+        try {
+            const response = await fetch('/api/repairs/orders/' + id + '/');
+            const repair = await response.json();
+            document.getElementById('outboundQuantity').value = repair.receive_quantity || 1;
+        } catch (err) {
+            console.error('Failed to fetch repair details:', err);
+            document.getElementById('outboundQuantity').value = 1;
+        }
+
+        new bootstrap.Modal(document.getElementById('outboundModal')).show();
+    }
+
+    function submitOutbound() {
+        const id = document.getElementById('outboundRepairId').value;
+        const warehouseId = document.getElementById('outboundWarehouse').value;
+        const quantity = parseInt(document.getElementById('outboundQuantity').value);
+        const logistics = document.getElementById('outboundLogistics').value;
+
+        if (!warehouseId) {
+            alert('请选择仓库');
+            return;
+        }
+
+        if (!quantity || quantity <= 0) {
+            alert('请输入有效的出库数量');
+            return;
+        }
+
+        fetch('/api/repairs/orders/' + id + '/outbound/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+            body: JSON.stringify({
+                warehouse_id: parseInt(warehouseId),
+                quantity: quantity,
+                logistics: logistics
+            })
+        })
+        .then(res => {
+            if (!res.ok) {
+                return res.json().then(err => Promise.reject(err));
+            }
+            return res.json();
+        })
+        .then(data => {
+            alert('出库成功!');
+            bootstrap.Modal.getInstance(document.getElementById('outboundModal')).hide();
+            loadRepairs();
+            location.reload();
+        })
+        .catch(err => {
+            const errorMsg = err.error || err.detail || JSON.stringify(err);
+            alert('出库失败: ' + errorMsg);
+        });
+    }
+
+</script>
+{% endblock %}

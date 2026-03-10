@@ -1,0 +1,49 @@
+{% load static %}
+<!-- Tab导航 - 动态配置 -->
+<div class="tab-nav d-flex justify-content-between align-items-center">
+    <div class="d-flex">
+        {% for config in tab_configs %}
+        {% if config.is_visible %}
+        <button type="button" class="tab-btn {% if config.tab_key == 'overview' %}active{% endif %}" data-tab="{{ config.tab_key }}" onclick="switchTab('{{ config.tab_key }}')">
+            {% if config.tab_key == 'overview' %}
+            <i class="bi bi-speedometer2"></i>
+            {% elif config.tab_key == 'inbound' %}
+            <i class="bi bi-box-arrow-in-down"></i>
+            {% elif config.tab_key == 'outbound' %}
+            <i class="bi bi-box-arrow-up"></i>
+            {% elif config.tab_key == 'check' %}
+            <i class="bi bi-clipboard-check"></i>
+            {% elif config.tab_key == 'report' %}
+            <i class="bi bi-file-earmark-bar-graph"></i>
+            {% elif config.tab_key == 'warehouse' %}
+            <i class="bi bi-building"></i>
+            {% endif %}
+            {{ config.get_tab_key_display }}
+        </button>
+        {% endif %}
+        {% empty %}
+        <!-- 默认Tab -->
+        <button type="button" class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">
+            <i class="bi bi-speedometer2"></i> 库存概览
+        </button>
+        <button type="button" class="tab-btn" data-tab="inbound" onclick="switchTab('inbound')">
+            <i class="bi bi-box-arrow-in-down"></i> 入库
+        </button>
+        <button type="button" class="tab-btn" data-tab="outbound" onclick="switchTab('outbound')">
+            <i class="bi bi-box-arrow-up"></i> 出库
+        </button>
+        <button type="button" class="tab-btn" data-tab="check" onclick="switchTab('check')">
+            <i class="bi bi-clipboard-check"></i> 盘点
+        </button>
+        <button type="button" class="tab-btn" data-tab="report" onclick="switchTab('report')">
+            <i class="bi bi-file-earmark-bar-graph"></i> 库存报表
+        </button>
+        <button type="button" class="tab-btn" data-tab="warehouse" onclick="switchTab('warehouse')">
+            <i class="bi bi-building"></i> 仓库管理
+        </button>
+        {% endfor %}
+    </div>
+    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="showTabConfigModal()">
+        <i class="bi bi-gear"></i>
+    </button>
+</div>

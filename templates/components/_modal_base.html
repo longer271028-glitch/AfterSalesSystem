@@ -1,0 +1,23 @@
+{#
+    Base Modal Component
+    Usage:
+        {% include "components/_modal_base.html" with modal_id="myModal" modal_title="My Title" modal_size="large" %}
+            {% block modal_content %}
+                <!-- Modal content here -->
+            {% endblock %}
+        {% endinclude %}
+
+    Parameters:
+        modal_id: Unique ID for the modal
+        modal_title: Title displayed in modal header
+        modal_size: Optional size class (default: "", options: "large" for wider modals)
+#}
+<div id="{{ modal_id }}" class="modal-overlay{% if modal_size == 'large' %} large{% endif %}">
+    <div class="modal-content{% if modal_size == 'large' %} large{% endif %}">
+        <div class="modal-header">
+            <h5>{{ modal_title }}</h5>
+            <button type="button" class="modal-close" onclick="closeModal('{{ modal_id }}')">&times;</button>
+        </div>
+        {% block modal_content %}{% endblock %}
+    </div>
+</div>

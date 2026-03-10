@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 田小二售后服务平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: rgba(37, 99, 235, 0.1);
+            --success-color: #10b981;
+            --success-light: rgba(16, 185, 129, 0.1);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f172a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 动态背景 */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(37, 99, 235, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 60%);
+            animation: bgPulse 15s ease-in-out infinite;
+        }
+
+        @keyframes bgPulse {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-2%, -2%) rotate(1deg); }
+        }
+
+        /* 浮动光球 */
+        .floating-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 300px;
+            height: 300px;
+            background: rgba(37, 99, 235, 0.3);
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 200px;
+            height: 200px;
+            background: rgba(16, 185, 129, 0.25);
+            bottom: 20%;
+            right: 15%;
+            animation-delay: -3s;
+        }
+
+        .orb-3 {
+            width: 150px;
+            height: 150px;
+            background: rgba(139, 92, 246, 0.2);
+            top: 50%;
+            right: 30%;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.02); }
+        }
+
+        /* 登录容器 */
+        .login-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 440px;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow:
+                0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            animation: cardAppear 0.6s ease-out;
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* 头部 */
+        .login-header {
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 50%, #1e293b 100%);
+            padding: 50px 40px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        .login-logo {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 42px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+            position: relative;
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .login-header h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            position: relative;
+            letter-spacing: 2px;
+        }
+
+        .login-header p {
+            margin: 0;
+            opacity: 0.85;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 300;
+            letter-spacing: 3px;
+        }
+
+        /* 表单区域 */
+        .login-body {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 28px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        .form-group label .required {
+            color: #ef4444;
+            margin-left: 4px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            z-index: 1;
+        }
+
+        .input-group.focused i {
+            color: var(--primary-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 16px 16px 16px 48px;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: white;
+            box-shadow: 0 0 0 4px var(--primary-light), 0 4px 12px rgba(0, 0, 0, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .form-control::placeholder {
+            color: #94a3b8;
+        }
+
+        /* 登录按钮 */
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-family: inherit;
+            letter-spacing: 2px;
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-login:hover::before {
+            left: 100%;
+        }
+
+        .btn-login:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        /* 提示信息 */
+        .alert {
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 28px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: alertShake 0.5s ease;
+        }
+
+        @keyframes alertShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        .alert-danger {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .alert-danger i {
+            font-size: 18px;
+        }
+
+        /* 页脚 */
+        .login-footer {
+            text-align: center;
+            padding: 20px 40px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .login-footer a {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .login-footer a:hover {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        /* 版权 */
+        .copyright {
+            text-align: center;
+            margin-top: 30px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* 响应式 */
+        @media (max-width: 480px) {
+            .login-header {
+                padding: 40px 24px 32px;
+            }
+
+            .login-logo {
+                width: 72px;
+                height: 72px;
+                font-size: 32px;
+                border-radius: 20px;
+            }
+
+            .login-header h1 {
+                font-size: 24px;
+            }
+
+            .login-body {
+                padding: 32px 24px;
+            }
+
+            .form-control {
+                padding: 14px 14px 14px 44px;
+            }
+        }
+
+        /* 加载动画 */
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid transparent;
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 动态背景 -->
+    <div class="bg-animation">
+        <div class="floating-orb orb-1"></div>
+        <div class="floating-orb orb-2"></div>
+        <div class="floating-orb orb-3"></div>
+    </div>
+
+    <div class="login-container">
+        <div class="login-card">
+            <!-- 头部 -->
+            <div class="login-header">
+                <div class="login-logo">
+                    <i class="bi bi-gear-wide-connected"></i>
+                </div>
+                <h1>田小二</h1>
+                <p>售后服务平台</p>
+            </div>
+
+            <!-- 表单区域 -->
+            <div class="login-body">
+                <!-- 错误提示 -->
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-circle-fill"></i>
+                    用户名或密码错误，请重试
+                </div>
+                {% endif %}
+
+                <!-- 登录表单 -->
+                <form method="post" action="{% url 'login' %}" id="loginForm">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label>
+                            用户名 <span class="required">*</span>
+                        </label>
+                        <div class="input-group" id="usernameGroup">
+                            <i class="bi bi-person"></i>
+                            <input type="text"
+                                   name="username"
+                                   class="form-control"
+                                   placeholder="请输入用户名"
+                                   required
+                                   autofocus
+                                   autocomplete="username">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            密码 <span class="required">*</span>
+                        </label>
+                        <div class="input-group" id="passwordGroup">
+                            <i class="bi bi-lock"></i>
+                            <input type="password"
+                                   name="password"
+                                   class="form-control"
+                                   placeholder="请输入密码"
+                                   required
+                                   autocomplete="current-password">
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="next" value="{{ next }}">
+
+                    <button type="submit" class="btn-login" id="loginBtn">
+                        <i class="bi bi-box-arrow-in-right"></i> 立即登录
+                    </button>
+                </form>
+            </div>
+
+                <!-- 页脚 -->
+            <div class="login-footer">
+                <a href="/login/">
+                    <i class="bi bi-arrow-left-circle"></i> 返回登录
+                </a>
+            </div>
+        </div>
+
+        <!-- 版权 -->
+        <p class="copyright">
+            © 2024 田小二售后服务平台 · 让服务更简单
+        </p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 输入框焦点效果
+        document.querySelectorAll('.form-control').forEach(input => {
+            const group = input.closest('.input-group');
+
+            input.addEventListener('focus', () => {
+                group.classList.add('focused');
+            });
+
+            input.addEventListener('blur', () => {
+                group.classList.remove('focused');
+            });
+        });
+
+        // 表单提交按钮效果
+        document.getElementById('loginForm').addEventListener('submit', function() {
+            const btn = document.getElementById('loginBtn');
+            btn.classList.add('loading');
+            btn.innerHTML = '<span>登录中...</span>';
+        });
+
+        // 回车键提交
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('loginForm').submit();
+            }
+        });
+    </script>
+</body>
+</html>

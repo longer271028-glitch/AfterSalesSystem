@@ -1,0 +1,121 @@
+<div class="table-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5>仓库列表</h5>
+        <div>
+            <button class="btn btn-outline-primary btn-sm me-2" onclick="showCategoryManagerModal()">
+                <i class="bi bi-tags"></i> 管理类别
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="showAddWarehouseModal()">
+                <i class="bi bi-plus-circle"></i> 添加仓库
+            </button>
+        </div>
+    </div>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>仓库编码</th>
+                <th>仓库名称</th>
+                <th>仓库类别</th>
+                <th>地址</th>
+                <th>管理员</th>
+                <th>状态</th>
+                <th>创建时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for warehouse in warehouses %}
+            <tr>
+                <td>{{ warehouse.code }}</td>
+                <td>{{ warehouse.name }}</td>
+                <td>
+                    {% if warehouse.category %}
+                    <span class="badge" style="background-color: {{ warehouse.category.color }};">{{ warehouse.category.name }}</span>
+                    {% else %}
+                    <span class="badge bg-light text-dark">未分类</span>
+                    {% endif %}
+                </td>
+                <td>{{ warehouse.address|default:"-" }}</td>
+                <td>{% if warehouse.manager %}{{ warehouse.manager.username }}{% else %}-{% endif %}</td>
+                <td>
+                    {% if warehouse.is_active %}
+                    <span class="badge bg-success">启用</span>
+                    {% else %}
+                    <span class="badge bg-secondary">禁用</span>
+                    {% endif %}
+                </td>
+                <td>{{ warehouse.created_at|date:"Y-m-d" }}</td>
+                <td>
+                    {% if warehouse.is_active %}
+                    <button type="button" class="action-btn btn-out toggle-warehouse-btn" data-id="{{ warehouse.id }}" data-active="false">停用</button>
+                    {% else %}
+                    <button type="button" class="action-btn btn-in toggle-warehouse-btn" data-id="{{ warehouse.id }}" data-active="true">启用</button>
+                    {% endif %}
+                    <button type="button" class="action-btn edit-warehouse-btn" style="background: #6b7280; color: white;"
+                            data-id="{{ warehouse.id }}"
+                            data-name="{{ warehouse.name }}"
+                            data-code="{{ warehouse.code }}"
+                            data-category-id="{% if warehouse.category %}{{ warehouse.category.id }}{% endif %}"
+                            data-address="{{ warehouse.address }}">编辑</button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center text-muted">暂无仓库</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- 类别管理弹窗 -->
+<div id="categoryManagerModal" class="modal-overlay">
+    <div class="modal-content large">
+        <div class="modal-header">
+            <h5><i class="bi bi-tags"></i> 仓库类别管理</h5>
+            <button type="button" class="modal-close" onclick="closeCategoryManagerModal()">&times;</button>
+        </div>
+        <div class="mb-3">
+            <button class="btn btn-success btn-sm" onclick="showAddCategoryForm()">
+                <i class="bi bi-plus-circle"></i> 添加类别
+            </button>
+        </div>
+        <table class="table table-hover" id="categoryTable">
+            <thead>
+                <tr>
+                    <th>类别名称</th>
+                    <th>类别代码</th>
+                    <th>颜色</th>
+                    <th>图标</th>
+                    <th>排序</th>
+                    <th>状态</th>
+                    <th>仓库数</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="categoryTableBody">
+                <tr><td colspan="8" class="text-center">加载中...</td></tr>
+            </tbody>
+        </table>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeCategoryManagerModal()">关闭</button>
+        </div>
+    </div>
+</div>
+
+<!-- Tab配置弹窗 -->
+<div id="tabConfigModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5><i class="bi bi-gear"></i> Tab显示配置</h5>
+            <button type="button" class="modal-close" onclick="closeTabConfigModal()">&times;</button>
+        </div>
+        <div id="tabConfigList">
+            <!-- 动态加载 -->
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeTabConfigModal()">取消</button>
+            <button class="btn btn-primary" onclick="saveTabConfig()">保存</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,47 @@
+<!-- 入库弹窗 -->
+<div id="inboundModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5><i class="bi bi-box-arrow-in-down"></i> 入库操作</h5>
+            <button type="button" class="modal-close" onclick="closeInboundModal()">&times;</button>
+        </div>
+        <form id="inboundFormModal">
+            <div class="mb-3">
+                <label class="form-label">选择仓库 *</label>
+                <select id="inWarehouseModal" class="form-select" required>
+                    <option value="">请选择仓库</option>
+                    {% for warehouse in warehouses %}
+                    {% if warehouse.is_active %}
+                    <option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">选择产品 *</label>
+                <select id="inProductModal" class="form-select" required>
+                    <option value="">请选择产品</option>
+                    {% for product in products %}
+                    <option value="{{ product.id }}">[{{ product.code }}] {{ product.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">入库数量 *</label>
+                <input type="number" id="inQuantityModal" class="form-control" min="1" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">关联单号</label>
+                <input type="text" id="inOrderNoModal" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">备注</label>
+                <textarea id="inRemarkModal" class="form-control" rows="2"></textarea>
+            </div>
+        </form>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeInboundModal()">取消</button>
+            <button type="button" class="btn btn-success" onclick="submitInbound()">确认入库</button>
+        </div>
+    </div>
+</div>

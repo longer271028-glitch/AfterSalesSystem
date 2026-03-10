@@ -1,0 +1,567 @@
+/* ============================================================================
+   Admin List Styles - 列表页面样式（客户管理、故障管理等）
+   ============================================================================ */
+
+/* 主容器 */
+#content-main {
+    background: #ffffff;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    padding: 24px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* 筛选区域 */
+#changelist-filter {
+    margin-bottom: 20px;
+}
+
+/* 卡片样式 */
+.card {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.card-header {
+    background: #f1f5f9;
+    border-bottom: 1px solid #d1d5db;
+    padding: 16px 20px;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-title {
+    margin: 0 0 16px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* 搜索框区域 */
+#changelist-search {
+    margin-bottom: 16px;
+}
+
+.input-group {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    width: 100%;
+    max-width: 400px;
+}
+
+.input-group .form-control {
+    -webkit-border-radius: 6px 0 0 6px;
+    -moz-border-radius: 6px 0 0 6px;
+    border-radius: 6px 0 0 6px;
+    border-right: none;
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    min-width: 0;
+}
+
+.input-group .btn {
+    -webkit-border-radius: 0 6px 6px 0;
+    -moz-border-radius: 0 6px 6px 0;
+    border-radius: 0 6px 6px 0;
+}
+
+/* 表单控件 */
+.form-control {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #1e293b;
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #2563eb;
+    -webkit-box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    -moz-box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* 按钮样式 */
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    border: 1px solid transparent;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.btn-primary {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+/* 表格容器 */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 20px;
+}
+
+/* 主表格样式 */
+#changelist table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    font-size: 14px;
+    border: 1px solid #d1d5db;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+#changelist table thead {
+    background: #f1f5f9;
+}
+
+#changelist table thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #64748b;
+    border-bottom: 2px solid #d1d5db;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+#changelist table tbody tr {
+    border-bottom: 1px solid #f1f5f9;
+    -webkit-transition: background-color 0.2s ease;
+    -moz-transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease;
+}
+
+#changelist table tbody td {
+    padding: 12px 16px;
+    vertical-align: middle;
+    color: #1e293b;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+#changelist table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+#changelist table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+#changelist table tbody tr.selected {
+    background-color: #e0e7ff;
+}
+
+/* 操作列 */
+.action-checkbox-column {
+    width: 40px;
+    text-align: center;
+}
+
+.action-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    margin: 0;
+}
+
+/* 状态徽章 */
+.field-status span,
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+    border-radius: 20px;
+    line-height: 1.4;
+}
+
+/* 状态颜色 */
+.status-pending,
+.field-status .pending {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.status-processing,
+.field-status .processing,
+.field-status .assigned {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.status-resolved,
+.field-status .resolved,
+.field-status .completed {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.status-closed,
+.field-status .closed {
+    background: #f1f5f9;
+    color: #94a3b8;
+}
+
+/* 筛选器样式 */
+#changelist-filter h2 {
+    display: none;
+}
+
+#changelist-filter h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 12px 0;
+}
+
+#changelist-filter ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 16px 0;
+}
+
+#changelist-filter li {
+    padding: 4px 0;
+}
+
+#changelist-filter a {
+    color: #64748b;
+    text-decoration: none;
+    font-size: 13px;
+    display: block;
+    padding: 4px 8px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+}
+
+#changelist-filter a:hover {
+    background: #f1f5f9;
+    color: #2563eb;
+}
+
+#changelist-filter .selected {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+/* 分页样式 */
+.paginator {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    padding: 16px 0;
+    margin: 0;
+}
+
+.paginator a,
+.paginator span {
+    padding: 8px 14px;
+    border: 1px solid #d1d5db;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    color: #1e293b;
+    text-decoration: none;
+    font-size: 14px;
+    -webkit-transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    display: inline-block;
+}
+
+.paginator a:hover {
+    background-color: #f1f5f9;
+    border-color: #2563eb;
+    color: #2563eb;
+}
+
+.paginator .this-page {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+/* 工具栏 */
+.actions {
+    margin: 20px 0;
+    padding: 16px;
+    background: #f1f5f9;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+}
+
+.actions label {
+    font-weight: 500;
+    color: #64748b;
+    margin-right: 8px;
+}
+
+.actions select,
+.actions button {
+    margin-right: 8px;
+}
+
+/* 下拉框样式 - 确保不显示双箭头 */
+.actions select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 8px center;
+    background-repeat: no-repeat;
+    background-size: 16px 16px;
+    padding-right: 32px;
+    cursor: pointer;
+}
+
+/* IE10+ 隐藏默认箭头 */
+.actions select::-ms-expand {
+    display: none;
+}
+
+/* Flexbox工具类 */
+.d-flex {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+.flex-wrap {
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+
+.gap-2 {
+    gap: 8px;
+}
+
+.text-end {
+    text-align: right;
+}
+
+/* Row和Column布局 */
+.row {
+    display: block;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.col-md-6 {
+    display: block;
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+@media (min-width: 768px) {
+    .row {
+        display: -webkit-box;
+        display: -moz-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-flex-wrap: wrap;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        margin: 0 -12px;
+        margin-bottom: 20px;
+    }
+
+    .col-md-6 {
+        -webkit-box-flex: 0;
+        -moz-box-flex: 0;
+        -ms-flex: 0 0 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
+        padding: 0 12px;
+        margin-bottom: 0;
+    }
+}
+
+/* 边距工具类 */
+.mb-3 {
+    margin-bottom: 12px;
+}
+
+/* 模块样式 */
+.module.filtered {
+    background: transparent;
+}
+
+/* 空状态 */
+.empty-message {
+    padding: 40px;
+    text-align: center;
+    color: #94a3b8;
+}
+
+/* 操作链接 */
+a:link,
+a:visited {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+/* 日期层次选择器 */
+.date-hierarchy {
+    padding: 12px 16px;
+    background: #f1f5f9;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.date-hierarchy a {
+    color: #2563eb;
+    text-decoration: none;
+    margin-right: 8px;
+}
+
+.date-hierarchy a:hover {
+    text-decoration: underline;
+}
+
+/* 导航标签 */
+nav[aria-label="Page navigation"] {
+    margin-top: 20px;
+}
+
+/* 结果计数 */
+.paginator .this-page {
+    padding: 8px 16px;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+    #content-main {
+        padding: 16px;
+        margin-right: 0;
+    }
+
+    .card-body {
+        padding: 16px;
+    }
+
+    .input-group {
+        max-width: 100%;
+    }
+
+    #changelist table {
+        font-size: 12px;
+    }
+
+    #changelist table thead th,
+    #changelist table tbody td {
+        padding: 8px 12px;
+    }
+
+    .btn {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .col-md-6 {
+        width: 100%;
+        padding: 0;
+    }
+}
+
+/* 确保所有元素使用box-sizing */
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+/* 滚动条样式优化 */
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}

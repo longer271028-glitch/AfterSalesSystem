@@ -1,0 +1,71 @@
+/* 全局按钮样式 - 统一使用绿色主题 */
+<style>
+    /* 主要按钮样式 */
+    .btn-primary,
+    .grp-btn,
+    input[type="submit"].default,
+    .submit-row input.default,
+    .vaturb-button,
+    .object-tools a,
+    .object-tools li > a,
+    .inline-group .add-row a,
+    .inline-group .add-row td:first-child a,
+    .grp-button,
+    .grp-update-button,
+    .grp-delete-button {
+        background: #10b981 !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 4px !important;
+        padding: 8px 16px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        text-decoration: none !important;
+        transition: background 0.2s !important;
+    }
+
+    .btn-primary:hover,
+    .grp-btn:hover,
+    input[type="submit"].default:hover,
+    .submit-row input.default:hover,
+    .vaturb-button:hover,
+    .object-tools a:hover,
+    .object-tools li > a:hover,
+    .inline-group .add-row a:hover,
+    .grp-button:hover,
+    .grp-update-button:hover {
+        background: #059669 !important;
+    }
+
+    /* 次要按钮样式 */
+    .btn-secondary,
+    .btn,
+    button,
+    input[type="button"],
+    input[type="reset"] {
+        background: #64748b !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 4px !important;
+        padding: 8px 16px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+    }
+
+    .btn-secondary:hover,
+    button:hover,
+    input[type="button"]:hover,
+    input[type="reset"]:hover {
+        background: #475569 !important;
+    }
+
+    /* 删除按钮样式 */
+    .btn-danger,
+    .grp-delete-button {
+        background: #ef4444 !important;
+    }
+
+    .btn-danger:hover {
+        background: #dc2626 !important;
+    }
+</style>

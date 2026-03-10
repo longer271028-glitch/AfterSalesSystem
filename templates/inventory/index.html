@@ -1,0 +1,63 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+
+{% block page_title %}库存管理{% endblock %}
+{% block page_subtitle %}管理库存出入库{% endblock %}
+
+{% block nav_inventory %}active{% endblock %}
+
+{% block extrahead %}
+    <!-- Inventory Styles -->
+    <link rel="stylesheet" href="{% static 'css/common.css' %}">
+    <link rel="stylesheet" href="{% static 'inventory/css/inventory.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <!-- Tab导航 -->
+    {% include 'inventory/partials/_tab_nav.html' %}
+
+    <!-- 库存概览 -->
+    <div id="tab-overview" class="tab-content">
+        {% include 'inventory/tabs/_overview.html' %}
+    </div>
+
+    <!-- 入库 -->
+    <div id="tab-inbound" class="tab-content" style="display: none;">
+        {% include 'inventory/tabs/_inbound.html' %}
+    </div>
+
+    <!-- 出库 -->
+    <div id="tab-outbound" class="tab-content" style="display: none;">
+        {% include 'inventory/tabs/_outbound.html' %}
+    </div>
+
+    <!-- 盘点 -->
+    <div id="tab-check" class="tab-content" style="display: none;">
+        {% include 'inventory/tabs/_check.html' %}
+    </div>
+
+    <!-- 库存报表 -->
+    <div id="tab-report" class="tab-content" style="display: none;">
+        {% include 'inventory/tabs/_report.html' %}
+    </div>
+
+    <!-- 仓库管理 -->
+    <div id="tab-warehouse" class="tab-content" style="display: none;">
+        {% include 'inventory/tabs/_warehouse.html' %}
+    </div>
+</div>
+
+<!-- Modal Components -->
+{% include 'inventory/modals/_inbound_modal.html' %}
+{% include 'inventory/modals/_outbound_modal.html' %}
+
+{% endblock %}
+
+{% block extra_js %}
+    <!-- Inventory JavaScript -->
+    <script src="{% static 'inventory/js/inventory.js' %}"></script>
+    <script src="{% static 'inventory/js/warehouse.js' %}"></script>
+    <script src="{% static 'inventory/js/inbound-outbound.js' %}"></script>
+    <script src="{% static 'inventory/js/check.js' %}"></script>
+{% endblock %}

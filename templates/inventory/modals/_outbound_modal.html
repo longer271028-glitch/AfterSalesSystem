@@ -1,0 +1,47 @@
+<!-- 出库弹窗 -->
+<div id="outboundModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5><i class="bi bi-box-arrow-up"></i> 出库操作</h5>
+            <button type="button" class="modal-close" onclick="closeOutboundModal()">&times;</button>
+        </div>
+        <form id="outboundFormModal">
+            <div class="mb-3">
+                <label class="form-label">选择仓库 *</label>
+                <select id="outWarehouseModal" class="form-select" required>
+                    <option value="">请选择仓库</option>
+                    {% for warehouse in warehouses %}
+                    {% if warehouse.is_active %}
+                    <option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">选择产品 *</label>
+                <select id="outProductModal" class="form-select" required>
+                    <option value="">请选择产品</option>
+                    {% for product in products %}
+                    <option value="{{ product.id }}">[{{ product.code }}] {{ product.name }} (库存: {{ product.current_stock }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">出库数量 *</label>
+                <input type="number" id="outQuantityModal" class="form-control" min="1" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">关联单号</label>
+                <input type="text" id="outOrderNoModal" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">备注</label>
+                <textarea id="outRemarkModal" class="form-control" rows="2"></textarea>
+            </div>
+        </form>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeOutboundModal()">取消</button>
+            <button class="btn btn-warning" onclick="submitOutbound()">确认出库</button>
+        </div>
+    </div>
+</div>

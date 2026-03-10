@@ -1,0 +1,150 @@
+<div class="stats-grid">
+    <div class="stat-item">
+        <div class="stat-value">{{ total_products }}</div>
+        <div class="stat-label">产品种类</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">{{ total_stock }}</div>
+        <div class="stat-label">总库存数量</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">{{ low_stock }}</div>
+        <div class="stat-label">库存预警</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">{{ out_of_stock }}</div>
+        <div class="stat-label">缺货产品</div>
+    </div>
+</div>
+
+<!-- 仓库概览 - 按类别动态分组显示 -->
+<div class="table-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5><i class="bi bi-building"></i> 仓库概览</h5>
+        <a href="{% url 'inventory:index' %}" class="btn btn-sm btn-outline-secondary" onclick="switchTab('warehouse'); return false;">
+            <i class="bi bi-gear"></i> 管理类别
+        </a>
+    </div>
+
+    <!-- 仓库类别统计卡片 -->
+    <div class="row mb-4">
+        {% for cat_stat in category_stats %}
+        <div class="col-md-2">
+            <div class="warehouse-stat-card" style="border-left: 3px solid {{ cat_stat.color }};">
+                <h6><i class="bi {{ cat_stat.icon }}"></i> {{ cat_stat.name }}</h6>
+                <div class="stat-row">
+                    <span class="label">仓库数量</span>
+                    <span class="value">{{ cat_stat.warehouse_count }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="label">总库存</span>
+                    <span class="value balance">{{ cat_stat.total_balance }}</span>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center text-muted">
+            <p>暂无仓库类别，请先添加类别</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 仓库列表 -->
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>仓库名称</th>
+                <th>仓库类别</th>
+                <th>仓库编码</th>
+                <th>入库总量</th>
+                <th>出库总量</th>
+                <th>库存余额</th>
+                <th>状态</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for wh_stat in warehouse_stats %}
+            <tr>
+                <td>
+                    <a href="{% url 'inventory:warehouse_detail' wh_stat.id %}" style="color:#2563eb; text-decoration:underline;">
+                        {{ wh_stat.name }}
+                    </a>
+                </td>
+                <td>
+                    {% if wh_stat.category_name %}
+                    <span class="badge" style="background-color: {{ wh_stat.category_color }};">{{ wh_stat.category_name }}</span>
+                    {% else %}
+                    <span class="badge bg-light text-dark">未分类</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% for warehouse in warehouses %}
+                    {% if warehouse.id == wh_stat.id %}
+                    {{ warehouse.code }}
+                    {% endif %}
+                    {% endfor %}
+                </td>
+                <td class="text-success">{{ wh_stat.in }}</td>
+                <td class="text-danger">{{ wh_stat.out }}</td>
+                <td class="text-primary">{{ wh_stat.balance }}</td>
+                <td>
+                    {% if wh_stat.balance > 100 %}
+                    <span class="badge bg-success">充足</span>
+                    {% elif wh_stat.balance > 50 %}
+                    <span class="badge bg-primary">正常</span>
+                    {% elif wh_stat.balance > 0 %}
+                    <span class="badge bg-warning">偏低</span>
+                    {% else %}
+                    <span class="badge bg-danger">空库</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center text-muted">暂无仓库数据</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- 库存查询 -->
+<div class="table-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5><i class="bi bi-search"></i> 库存查询</h5>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <select id="queryWarehouse" class="form-select">
+                <option value="">全部仓库</option>
+                {% for warehouse in warehouses %}
+                <option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <input type="text" id="queryProduct" class="form-control" placeholder="产品名称/编码">
+        </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-primary" onclick="queryStock()">
+                <i class="bi bi-search"></i> 查询
+            </button>
+        </div>
+    </div>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>产品编码</th>
+                <th>产品名称</th>
+                <th>仓库</th>
+                <th>库存数量</th>
+                <th>状态</th>
+            </tr>
+        </thead>
+        <tbody id="stockQueryResult">
+            <tr>
+                <td colspan="5" class="text-center text-muted">请输入条件查询</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
