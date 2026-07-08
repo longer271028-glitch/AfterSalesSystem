@@ -98,52 +98,19 @@ class RepairOrderViewSet(viewsets.ModelViewSet):
         if not warehouse_id:
             return Response({'error': '请选择仓库'}, status=status.HTTP_400_BAD_REQUEST)
 
-        from apps.inventory.models import Warehouse, Product, ProductCategory, StockRecord
+        from apps.inventory.models import Warehouse, StockRecord
 
         try:
             warehouse = Warehouse.objects.get(id=warehouse_id, is_active=True)
         except Warehouse.DoesNotExist:
             return Response({'error': '仓库不存在或已停用'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 创建或获取产品
-        # 如果还没有关联产品，根据设备名称创建一个产品
-        if not repair.product:
-            # 尝试根据设备名称查找已存在的产品
-            product = Product.objects.filter(name=repair.equipment_name).first()
+        # 检查设备名称是否已设置
+        if not repair.equipment_name:
+            return Response({'error': '设备名称为空，无法入库'}, status=status.HTTP_400_BAD_REQUEST)
 
-            if not product:
-                # 创建新产品
-                # 创建默认分类（返修设备）
-                repair_category, _ = ProductCategory.objects.get_or_create(
-                    code='REPAIR',
-                    defaults={'name': '返修设备'}
-                )
-
-                # 生成产品编码（使用设备名称首字母或简化名称）
-                import re
-                # 提取中文名称的首字母拼音
-                code_prefix = 'RPT'  # 返修设备前缀
-                # 使用设备名称的前几个字符作为编码后缀
-                name_suffix = re.sub(r'[^a-zA-Z0-9]', '', repair.equipment_name[:8]).upper()
-                product_code = f'{code_prefix}{name_suffix}'
-
-                # 确保编码唯一
-                counter = 1
-                while Product.objects.filter(code=product_code).exists():
-                    product_code = f'{code_prefix}{name_suffix}{counter}'
-                    counter += 1
-
-                product = Product.objects.create(
-                    name=repair.equipment_name,
-                    code=product_code,
-                    category=repair_category,
-                    product_type='finished',
-                    unit='台',
-                    specification=repair.equipment_sn,
-                    description=f'返修设备 - {repair.fault_description}'
-                )
-
-            repair.product = product
+        # 使用已有的 equipment_name (QuoteProduct) 作为产品
+        repair.product = repair.equipment_name
 
         # 保存仓库信息
         repair.inbound_warehouse = warehouse
@@ -306,43 +273,17 @@ class RepairOrderViewSet(viewsets.ModelViewSet):
         else:
             outbound_quantity = repair.receive_quantity
 
-        from apps.inventory.models import Warehouse, Product, ProductCategory, StockRecord
+        from apps.inventory.models import Warehouse, StockRecord
 
         try:
             outbound_warehouse = Warehouse.objects.get(id=warehouse_id, is_active=True)
         except Warehouse.DoesNotExist:
             return Response({'error': '出库仓库不存在或已停用'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 检查是否有关联产品
+        # 检查是否有关联产品，如果没有则使用 equipment_name
         if not repair.product:
-            # 如果没有产品，尝试创建
             if repair.equipment_name:
-                product = Product.objects.filter(name=repair.equipment_name).first()
-                if not product:
-                    # 创建产品
-                    repair_category, _ = ProductCategory.objects.get_or_create(
-                        code='REPAIR',
-                        defaults={'name': '返修设备'}
-                    )
-                    import re
-                    code_prefix = 'RPT'
-                    name_suffix = re.sub(r'[^a-zA-Z0-9]', '', repair.equipment_name[:8]).upper()
-                    product_code = f'{code_prefix}{name_suffix}'
-                    counter = 1
-                    while Product.objects.filter(code=product_code).exists():
-                        product_code = f'{code_prefix}{name_suffix}{counter}'
-                        counter += 1
-
-                    product = Product.objects.create(
-                        name=repair.equipment_name,
-                        code=product_code,
-                        category=repair_category,
-                        product_type='finished',
-                        unit='台',
-                        specification=repair.equipment_sn,
-                        description=f'返修设备 - {repair.fault_description}'
-                    )
-                repair.product = product
+                repair.product = repair.equipment_name
                 repair.save()
             else:
                 return Response({'error': '未找到关联产品，无法出库'}, status=status.HTTP_400_BAD_REQUEST)

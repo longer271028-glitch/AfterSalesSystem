@@ -1,12 +1,14 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from django.urls import reverse
+from django.http import HttpResponseRedirect
 from .models import LogisticsChannel, LogisticsRecord, LogisticsTrace
 
 
 @admin.register(LogisticsChannel)
 class LogisticsChannelAdmin(admin.ModelAdmin):
     list_display = ['name', 'secret_id', 'market_api_url', 'created_at']
+    search_fields = ['name']
     fields = ('name', 'code', 'carrier', 'api_type', 'secret_id', 'secret_key_market', 'market_api_url', ('api_url', 'app_id', 'app_key', 'secret_key'), 'is_active')
 
     class Media:
@@ -22,8 +24,20 @@ class LogisticsRecordAdmin(admin.ModelAdmin):
     list_filter = ['track_type', 'is_delivered', 'is_completed', 'created_at']
     search_fields = ['order_no', 'track_no']
     date_hierarchy = 'created_at'
-    raw_id_fields = ['channel']
+    autocomplete_fields = ['channel']
     readonly_fields = ['created_at', 'updated_at', 'last_query_time', 'query_count_today', 'query_date']
+
+    def response_add(self, request, obj, post_url_continue=None):
+        """添加记录后重定向到物流管理页面"""
+        return HttpResponseRedirect('/logistics/')
+
+    def response_change(self, request, obj):
+        """修改记录后重定向到物流管理页面"""
+        return HttpResponseRedirect('/logistics/')
+
+    def response_delete(self, request, obj_display, obj_id):
+        """删除记录后重定向到物流管理页面"""
+        return HttpResponseRedirect('/logistics/')
 
     fields = (
         'order_no', 'track_no', 'track_type', 'channel',

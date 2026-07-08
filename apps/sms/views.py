@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
 from django.shortcuts import render
 from django.db import models
 from django.contrib.auth.decorators import login_required
@@ -6,6 +6,7 @@ from .models import Phone, SmsRecord
 from .serializers import PhoneSerializer, SmsRecordSerializer
 
 
+@login_required
 def sms_management_view(request):
     """手机短信管理页面"""
     return render(request, 'sms/index.html')
@@ -13,8 +14,8 @@ def sms_management_view(request):
 
 class PhoneViewSet(viewsets.ModelViewSet):
     """手机管理视图集"""
-
     serializer_class = PhoneSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         queryset = Phone.objects.all()
@@ -42,8 +43,8 @@ class PhoneViewSet(viewsets.ModelViewSet):
 
 class SmsRecordViewSet(viewsets.ModelViewSet):
     """短信记录视图集"""
-
     serializer_class = SmsRecordSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         queryset = SmsRecord.objects.all()

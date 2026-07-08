@@ -1,74 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
-
-
-class ProductCategory(models.Model):
-    """产品分类"""
-    
-    name = models.CharField('分类名称', max_length=100)
-    code = models.CharField('分类代码', max_length=20, unique=True)
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
-    description = models.TextField('描述', blank=True)
-    created_at = models.DateTimeField('创建时间', auto_now_add=True)
-    
-    class Meta:
-        db_table = 'product_categories'
-        verbose_name = '产品分类'
-        verbose_name_plural = '产品分类'
-    
-    def __str__(self):
-        return f"{self.code} - {self.name}"
-
-
-class Product(models.Model):
-    """产品/设备"""
-    
-    PRODUCT_TYPE_CHOICES = [
-        ('part', '零配件'),
-        ('semi', '半成品'),
-        ('finished', '成品'),
-    ]
-    
-    name = models.CharField('产品名称', max_length=200)
-    code = models.CharField('产品编码', max_length=50, unique=True)
-    category = models.ForeignKey(ProductCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name='products')
-    product_type = models.CharField('产品类型', max_length=20, choices=PRODUCT_TYPE_CHOICES)
-    specification = models.CharField('规格型号', max_length=100, blank=True)
-    unit = models.CharField('单位', max_length=20, default='个')
-    
-    # 价格信息
-    cost_price = models.DecimalField('成本价', max_digits=10, decimal_places=2, default=0)
-    sale_price = models.DecimalField('销售价', max_digits=10, decimal_places=2, default=0)
-    
-    # 库存信息
-    min_stock = models.IntegerField('最小库存', default=0)
-    max_stock = models.IntegerField('最大库存', default=0)
-    
-    # 供应商信息
-    supplier = models.CharField('供应商', max_length=200, blank=True)
-    
-    image = models.ImageField('产品图片', upload_to='products/', blank=True)
-    description = models.TextField('产品描述', blank=True)
-    
-    is_active = models.BooleanField('是否启用', default=True)
-    created_at = models.DateTimeField('创建时间', auto_now_add=True)
-    updated_at = models.DateTimeField('更新时间', auto_now=True)
-    
-    class Meta:
-        db_table = 'products'
-        verbose_name = '产品'
-        verbose_name_plural = '产品'
-    
-    def __str__(self):
-        return f"{self.code} - {self.name}"
-    
-    @property
-    def current_stock(self):
-        return self.stock_records.filter(is_deleted=False).first().quantity if self.stock_records.filter(is_deleted=False).exists() else 0
+from apps.rbac.models import UserProfile
+from apps.quotes.models import QuoteProduct as Product
 
 
 class StockRecord(models.Model):
-    """库存记录"""
+    """库存记录 - 使用QuoteProduct作为产品"""
 
     RECORD_TYPE_CHOICES = [
         ('in', '入库'),
@@ -105,7 +42,7 @@ class StockRecord(models.Model):
 
 
 class StockCheck(models.Model):
-    """库存盘点"""
+    """库存盘点 - 使用QuoteProduct作为产品"""
     
     CHECK_STATUS_CHOICES = [
         ('draft', '草稿'),
@@ -190,7 +127,7 @@ class Warehouse(models.Model):
     code = models.CharField('仓库编码', max_length=20, unique=True)
     category = models.ForeignKey(WarehouseCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name='warehouses', verbose_name='仓库类别')
     address = models.CharField('地址', max_length=200, blank=True)
-    manager = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='managed_warehouses')
+    manager = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='managed_warehouses', verbose_name='管理员')
     is_active = models.BooleanField('是否启用', default=True)
     created_at = models.DateTimeField('创建时间', auto_now_add=True)
 

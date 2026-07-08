@@ -3,11 +3,13 @@ from django.contrib.auth.models import User
 from apps.customers.models import Customer
 from apps.faults.models import FaultReport
 from apps.inventory.models import Warehouse
+from apps.quotes.models import QuoteProduct
+from apps.rbac.models import Project
 
 
 class RepairOrder(models.Model):
     """返修工单"""
-    
+
     STATUS_CHOICES = [
         ('received', '已接收'),
         ('inbound', '已入库'),
@@ -19,16 +21,29 @@ class RepairOrder(models.Model):
         ('completed', '已完成'),
         ('cancelled', '已取消'),
     ]
-    
+
     repair_no = models.CharField('返修单号', max_length=50, unique=True)
-    
+
+    # 项目关联
+    project = models.ForeignKey(
+        Project, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='repair_orders', verbose_name='关联项目'
+    )
+
     # 关联信息
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='repair_orders')
     fault_report = models.ForeignKey(FaultReport, on_delete=models.SET_NULL, null=True, blank=True, related_name='repair_orders')
     
     # 设备信息
     equipment_sn = models.CharField('设备序列号', max_length=100)
-    equipment_name = models.CharField('设备名称', max_length=100)
+    equipment_name = models.ForeignKey(
+        QuoteProduct, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='equipment_repairs', 
+        verbose_name='设备名称'
+    )
     fault_description = models.TextField('故障描述')
     receive_quantity = models.IntegerField('接收数量', default=1)
 
@@ -67,8 +82,8 @@ class RepairOrder(models.Model):
     outbound_warehouse = models.ForeignKey(Warehouse, on_delete=models.SET_NULL, null=True, blank=True,
                                           related_name='outbound_repairs', verbose_name='出库仓库')
 
-    # 产品关联（用于库存管理）
-    product = models.ForeignKey('inventory.Product', on_delete=models.SET_NULL, null=True, blank=True,
+    # 产品关联（用于库存管理 - 使用QuoteProduct）
+    product = models.ForeignKey(QuoteProduct, on_delete=models.SET_NULL, null=True, blank=True,
                               related_name='repair_orders', verbose_name='关联产品')
 
     # 备注
@@ -91,9 +106,27 @@ class RepairOrder(models.Model):
     def save(self, *args, **kwargs):
         if not self.repair_no:
             from django.utils import timezone
-            date_str = timezone.now().strftime('%Y%m%d')
-            count = RepairOrder.objects.filter(repair_no__startswith=f'RO{date_str}').count() + 1
-            self.repair_no = f'RO{date_str}{count:04d}'
+            import time
+            # 获取本地日期（年月日）
+            local_date = time.strftime('%Y%m%d')
+            date_str = local_date
+
+            # 循环尝试生成唯一单号，避免并发冲突
+            max_attempts = 10
+            for attempt in range(max_attempts):
+                # 查询当天最大编号
+                count = RepairOrder.objects.filter(repair_no__startswith=f'RO{date_str}').count() + 1 + attempt
+                new_repair_no = f'RO{date_str}{count:04d}'
+
+                # 检查是否已存在
+                if not RepairOrder.objects.filter(repair_no=new_repair_no).exists():
+                    self.repair_no = new_repair_no
+                    break
+            else:
+                # 如果所有尝试都失败，使用时间戳作为后备
+                import uuid
+                self.repair_no = f'RO{date_str}{uuid.uuid4().hex[:8].upper()}'
+
         super().save(*args, **kwargs)
 
 

@@ -30,6 +30,57 @@
     </form>
 </div>
 
+<!-- 盘点详情弹窗 -->
+<div class="modal-overlay" id="checkDetailModal" style="display: none;">
+    <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
+        <div class="modal-header">
+            <h5 id="checkDetailTitle"><i class="bi bi-clipboard-data"></i> 盘点明细</h5>
+            <button type="button" class="modal-close" onclick="closeCheckDetail()">&times;</button>
+        </div>
+        <div class="modal-body" style="overflow-y: auto;">
+            <!-- 盘点统计 -->
+            <div class="stats-grid mb-3" id="checkStats">
+                <div class="stat-item">
+                    <div class="stat-value" id="statProducts">0</div>
+                    <div class="stat-label">产品数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="statBook">0</div>
+                    <div class="stat-label">账面数量</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="statActual">0</div>
+                    <div class="stat-label">实盘数量</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="statDiff">0</div>
+                    <div class="stat-label">差异数量</div>
+                </div>
+            </div>
+            
+            <!-- 盘点明细表格 -->
+            <table class="table table-sm table-hover" id="checkDetailTable">
+                <thead>
+                    <tr>
+                        <th>产品名称</th>
+                        <th>账面数量</th>
+                        <th>实盘数量</th>
+                        <th>差异</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="checkDetailBody">
+                    <tr><td colspan="5" class="text-center">加载中...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeCheckDetail()">关闭</button>
+            <button class="btn btn-success" onclick="completeStockCheck(currentCheckId)">完成盘点</button>
+        </div>
+    </div>
+</div>
+
 <div class="table-card">
     <h5>盘点记录</h5>
     <table class="table table-hover">
@@ -67,7 +118,9 @@
                     {% if check.status == 'draft' %}
                     <button class="action-btn btn-check" onclick="startStockCheck({{ check.id }})">开始</button>
                     {% elif check.status == 'checking' %}
-                    <button class="action-btn btn-success" onclick="completeStockCheck({{ check.id }})">完成</button>
+                    <button class="action-btn btn-info" onclick="viewCheckDetail({{ check.id }})">盘点</button>
+                    {% elif check.status == 'completed' %}
+                    <button class="action-btn btn-secondary" onclick="viewCheckReport({{ check.id }})">报告</button>
                     {% endif %}
                 </td>
             </tr>

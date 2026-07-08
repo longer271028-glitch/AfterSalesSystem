@@ -1,13 +1,7 @@
 from rest_framework import serializers
-from .models import Product, ProductCategory, StockRecord, StockCheck, StockCheckDetail, Warehouse, WarehouseCategory, InventoryTabConfig
-
-
-class ProductCategorySerializer(serializers.ModelSerializer):
-    """产品分类序列化器"""
-
-    class Meta:
-        model = ProductCategory
-        fields = '__all__'
+from apps.quotes.models import QuoteProduct
+from .models import StockRecord, StockCheck, StockCheckDetail, Warehouse, WarehouseCategory, InventoryTabConfig
+from apps.user_management.admin import get_user_display_name
 
 
 class WarehouseCategorySerializer(serializers.ModelSerializer):
@@ -26,13 +20,18 @@ class WarehouseCategorySerializer(serializers.ModelSerializer):
 class WarehouseSerializer(serializers.ModelSerializer):
     """仓库序列化器"""
 
-    manager_name = serializers.CharField(source='manager.username', read_only=True)
+    manager_name = serializers.SerializerMethodField()
     category_name = serializers.CharField(source='category.name', read_only=True)
     category_color = serializers.CharField(source='category.color', read_only=True)
 
     class Meta:
         model = Warehouse
         fields = '__all__'
+
+    def get_manager_name(self, obj):
+        if obj.manager and obj.manager.name:
+            return obj.manager.name
+        return None
 
 
 class InventoryTabConfigSerializer(serializers.ModelSerializer):
@@ -47,10 +46,9 @@ class InventoryTabConfigSerializer(serializers.ModelSerializer):
 
 class StockCheckDetailSerializer(serializers.ModelSerializer):
     """盘点明细序列化器"""
-    
+
     product_name = serializers.CharField(source='product.name', read_only=True)
-    product_code = serializers.CharField(source='product.code', read_only=True)
-    
+
     class Meta:
         model = StockCheckDetail
         fields = '__all__'
@@ -69,23 +67,11 @@ class StockCheckSerializer(serializers.ModelSerializer):
 
 class StockRecordSerializer(serializers.ModelSerializer):
     """库存记录序列化器"""
-    
+
     product_name = serializers.CharField(source='product.name', read_only=True)
-    product_code = serializers.CharField(source='product.code', read_only=True)
     operator_name = serializers.CharField(source='operator.username', read_only=True)
-    warehouse_name = serializers.CharField(source='warehouse.name', read_only=True, allow_null=True)
-    
+    warehouse_name = serializers.CharField(source='warehouse.name', read_only=True)
+
     class Meta:
         model = StockRecord
-        fields = '__all__'
-
-
-class ProductSerializer(serializers.ModelSerializer):
-    """产品序列化器"""
-    
-    category_name = serializers.CharField(source='category.name', read_only=True)
-    current_stock = serializers.IntegerField(read_only=True)
-    
-    class Meta:
-        model = Product
         fields = '__all__'

@@ -6,6 +6,37 @@ from .models import UserPermissions
 from .forms import CustomUserCreationForm
 
 
+# 修改 User.__str__ 方法，让 admin 下拉框显示姓名
+def get_user_display_name(user):
+    """获取用户显示名称，按优先级从多个表中获取"""
+    # 1. 优先使用 UserPermissions.name (user_page_permissions 表)
+    try:
+        permissions = getattr(user, 'page_permissions', None)
+        if permissions and permissions.name:
+            return permissions.name
+    except:
+        pass
+
+    # 2. 其次使用 rbac_user_profiles.name (rbac_user_profiles 表)
+    try:
+        rbac_profile = getattr(user, 'rbac_profile', None)
+        if rbac_profile and rbac_profile.name:
+            return rbac_profile.name
+    except:
+        pass
+
+    # 3. 最后使用 Django User 的 first_name + last_name
+    if user.first_name or user.last_name:
+        name = f"{user.last_name}{user.first_name}".strip()
+        if not name:
+            name = f"{user.first_name} {user.last_name}".strip()
+        return name
+
+    return user.username
+
+User.__str__ = get_user_display_name
+
+
 class UserPermissionsInline(admin.StackedInline):
     """用户权限内联"""
 
@@ -57,8 +88,27 @@ class UserAdmin(BaseUserAdmin):
 
     def get_autocomplete(self, request, term):
         """自定义autocomplete搜索结果，返回姓名"""
-        queryset = self.get_search_results(request, self.model.objects.all(), term, False)
+        from django.db.models import Q
+        queryset = self.model.objects.filter(
+            Q(username__icontains=term) |
+            Q(first_name__icontains=term) |
+            Q(last_name__icontains=term)
+        )
+        # 返回带姓名的格式
         return queryset[:20]
+
+    def get_autocomplete_results(self, request, term, model_admin, source_field):
+        """
+        自定义autocomplete搜索结果的显示文本
+        """
+        from django.db.models import Q
+        queryset = self.model.objects.filter(
+            Q(username__icontains=term) |
+            Q(first_name__icontains=term) |
+            Q(last_name__icontains=term)
+        )
+        # 返回 (id, display_text) 格式的列表
+        return [(obj.pk, get_user_display_name(obj)) for obj in queryset[:20]]
 
     # 添加用户时不显示inline
     def get_inline_instances(self, request, obj=None):
@@ -84,7 +134,9 @@ class UserAdmin(BaseUserAdmin):
     def get_department(self, obj):
         """显示部门"""
         permissions = getattr(obj, 'page_permissions', None)
-        return permissions.department if permissions else ''
+        if permissions and permissions.department:
+            return permissions.department
+        return ''
     get_department.short_description = '部门'
 
     def save_model(self, request, obj, form, change):

@@ -119,12 +119,116 @@ class LogisticsRecordViewSet(viewsets.ModelViewSet):
 
         if api_type == 'tencent':
             return self.query_tencent_api(record, channel)
+        elif api_type == 'tencent_market':
+            return self.query_tencent_market_api(record, channel)
         elif api_type == 'kuaidi':
             return self.query_kuaidi_api(record, channel)
         elif api_type == 'kuaidi100':
             return self.query_kuaidi100_api(record, channel)
         else:
             return {'success': False, 'error': f'暂不支持该API类型: {api_type}'}
+
+    def query_tencent_market_api(self, record, channel):
+        """腾讯云市场物流API查询"""
+        import requests
+        import uuid
+        from datetime import datetime
+
+        secret_id = channel.secret_id
+        secret_key = channel.secret_key_market
+        api_url = channel.market_api_url or 'https://ap-beijing.cloudmarket-apigw.com/service-2r11e3tz/point-list'
+
+        print(f"\n[腾讯云市场API] 物流单号: {record.track_no}")
+        print(f"API配置: SecretID={secret_id[:10]}..., SecretKey={secret_key[:10]}...")
+        print(f"API URL: {api_url}")
+
+        if not all([secret_id, secret_key]):
+            return {'success': False, 'error': '腾讯云市场API配置不完整，请配置Secret ID和Secret Key'}
+
+        try:
+            # 构造签名 - 使用HMAC-SHA1
+            datetime_str = datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
+            sign_str = f"x-date: {datetime_str}"
+            
+            import hmac
+            import hashlib
+            import base64
+            
+            sign = base64.b64encode(hmac.new(secret_key.encode('utf-8'), sign_str.encode('utf-8'), hashlib.sha1).digest())
+            auth = f'{{"id": "{secret_id}", "x-date": "{datetime_str}", "signature": "{sign.decode("utf-8")}"}}'
+
+            # 请求头
+            headers = {
+                'request-id': str(uuid.uuid1()),
+                'Authorization': auth,
+            }
+
+            # 查询参数 - 快递单号和手机号后4位
+            query_params = {
+                'nu': record.track_no,
+            }
+            # 如果有收货人电话，取后4位
+            if record.receiver_phone and len(record.receiver_phone) >= 4:
+                query_params['phone'] = record.receiver_phone[-4:]
+
+            # 拼接URL
+            url = api_url
+            if query_params:
+                import urllib.parse
+                url = api_url + '?' + urllib.parse.urlencode(query_params)
+
+            print(f"[请求URL] {url}")
+            print(f"[请求头] Authorization: {auth[:50]}...")
+
+            # 发送GET请求
+            response = requests.get(url, headers=headers, timeout=15, verify=False)
+
+            print(f"[响应状态码] {response.status_code}")
+            print(f"[响应内容] {response.text[:500]}")
+
+            # 检查响应状态
+            if response.status_code == 200:
+                result = response.json()
+                
+                # 检查成功状态码 - 兼容多种格式
+                # showapi_res_code: 0 表示成功
+                # showapi_res_body.ret_code: 0 表示成功
+                is_success = (
+                    result.get('showapi_res_code') == 0 or 
+                    result.get('code') == 0 or 
+                    result.get('code') == '0'
+                )
+                
+                if is_success:
+                    # 从 showapi_res_body 中提取数据
+                    body = result.get('showapi_res_body', {})
+                    data = body.get('data', [])
+                    
+                    # 格式化数据以便保存
+                    formatted_data = {
+                        'status': body.get('status'),
+                        'ischeck': body.get('flag'),
+                        'data': data,
+                        'mailNo': body.get('mailNo'),
+                        'updateStr': body.get('updateStr'),
+                        'tel': body.get('tel'),
+                        'expSpellName': body.get('expSpellName')
+                    }
+                    
+                    self.save_logistics_result(record, formatted_data)
+                    return {'success': True, 'data': formatted_data}
+                else:
+                    error_msg = result.get('showapi_res_error', result.get('message', '查询失败'))
+                    return {'success': False, 'error': error_msg}
+            else:
+                return {'success': False, 'error': f'HTTP错误: {response.status_code}, {response.text[:200]}'}
+
+        except requests.Timeout:
+            return {'success': False, 'error': 'API请求超时'}
+        except requests.exceptions.RequestException as e:
+            return {'success': False, 'error': f'网络请求失败: {str(e)}'}
+        except Exception as e:
+            return {'success': False, 'error': f'API调用失败: {str(e)}'}
 
     def query_tencent_api(self, record, channel):
         """腾讯云物流API查询"""
@@ -251,9 +355,29 @@ class LogisticsRecordViewSet(viewsets.ModelViewSet):
             status = data.get('state', data.get('status', ''))
             current_location = data.get('location', '')
             is_delivered = data.get('ischeck', data.get('is_delivered', False))
-
-            # 检查是否已完成
-            is_completed = status in ['已签收', '已签收', '派送完成', '已取消', '已退回']
+            
+            # 处理腾讯云市场API返回的状态码 (2=运输中, 3=已签收, 4=异常等)
+            status_mapping = {
+                0: '已下单',
+                1: '已发货',
+                2: '运输中',
+                3: '已签收',
+                4: '异常',
+                5: '退件中',
+                6: '已退回'
+            }
+            if isinstance(status, int) and status in status_mapping:
+                status = status_mapping[status]
+                if status in ['已签收', '已退回']:
+                    is_delivered = True
+                    is_completed = True
+                elif status == '异常':
+                    is_completed = False
+                else:
+                    is_completed = False
+            else:
+                # 检查是否已完成
+                is_completed = status in ['已签收', '已签收', '派送完成', '已取消', '已退回']
 
             record.status = status
             record.current_location = current_location
@@ -264,8 +388,9 @@ class LogisticsRecordViewSet(viewsets.ModelViewSet):
             traces = data.get('data', []) if 'data' in data else data.get('traces', [])
             if isinstance(traces, list):
                 for trace in traces:
-                    trace_time_str = trace.get('time', trace.get('accept_time', trace.get('time_str', '')))
-                    location = trace.get('context', trace.get('location', trace.get('accept_station', '')))
+                    # 兼容不同API返回的字段名
+                    trace_time_str = trace.get('time', trace.get('accept_time', trace.get('time_str', trace.get('ftime', ''))))
+                    location = trace.get('context', trace.get('location', trace.get('accept_station', trace.get('desc', ''))))
                     status_desc = trace.get('status', trace.get('desc', ''))
 
                     # 解析时间

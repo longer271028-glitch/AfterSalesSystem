@@ -1,4 +1,6 @@
 <script>
+    console.log('Inventory scripts loaded');
+
     function switchTab(tabName) {
         // 移除所有按钮的active状态
         document.querySelectorAll('.tab-btn').forEach(function(btn) {
@@ -44,10 +46,10 @@
         }
     });
 
-    // 查看仓库详情
+    // 仓库详情查看
     function viewWarehouseDetail(warehouseId, warehouseName) {
         document.getElementById('warehouseDetailTitle').textContent = '仓库详情 - ' + warehouseName;
-        document.getElementById('warehouseDetailModal').style.display = 'block';
+        document.getElementById('warehouseDetailModal').style.display = 'flex';
 
         // 获取仓库详情数据
         fetch('/api/inventory/stock/query/?warehouse=' + warehouseId, {
@@ -76,7 +78,7 @@
                     '<td class="text-success">' + inQty + '</td>' +
                     '<td class="text-danger">' + outQty + '</td>' +
                     '<td class="text-primary"><strong>' + balance + '</strong></td>' +
-                '</tr>';
+                    '</tr>';
             }).join('');
         })
         .catch(err => {
@@ -91,7 +93,7 @@
 
     // 入库弹窗显示
     function showInboundModal() {
-        document.getElementById('inboundModal').style.display = 'block';
+        document.getElementById('inboundModal').style.display = 'flex';
     }
     function closeInboundModal() {
         document.getElementById('inboundModal').style.display = 'none';
@@ -99,7 +101,7 @@
 
     // 出库弹窗显示
     function showOutboundModal() {
-        document.getElementById('outboundModal').style.display = 'block';
+        document.getElementById('outboundModal').style.display = 'flex';
     }
     function closeOutboundModal() {
         document.getElementById('outboundModal').style.display = 'none';
@@ -309,89 +311,6 @@
         })
         .catch(err => {
             alert('查询失败: ' + err);
-        });
-    }
-
-    // 添加仓库
-    function showAddWarehouseModal() {
-        const name = prompt('请输入仓库名称:');
-        if (!name) return;
-        const code = prompt('请输入仓库编码:');
-        if (!code) return;
-        const address = prompt('请输入仓库地址 (可选):') || '';
-
-        fetch('/api/inventory/warehouses/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCSRFToken()
-            },
-            body: JSON.stringify({
-                name: name,
-                code: code,
-                address: address
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            alert('仓库添加成功!');
-            location.reload();
-        })
-        .catch(err => {
-            alert('添加失败: ' + err);
-        });
-    }
-
-    // 编辑仓库
-    function editWarehouse(id, name, code, address) {
-        const newName = prompt('请输入仓库名称:', name);
-        if (!newName) return;
-        const newCode = prompt('请输入仓库编码:', code);
-        if (!newCode) return;
-        const newAddress = prompt('请输入仓库地址:', address || '') || '';
-
-        fetch('/api/inventory/warehouses/' + id + '/', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCSRFToken()
-            },
-            body: JSON.stringify({
-                name: newName,
-                code: newCode,
-                address: newAddress
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            alert('仓库更新成功!');
-            location.reload();
-        })
-        .catch(err => {
-            alert('更新失败: ' + err);
-        });
-    }
-
-    // 启用/停用仓库
-    function toggleWarehouse(id, activate) {
-        const url = '/api/inventory/warehouses/' + id + '/';
-        fetch(url, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCSRFToken()
-            },
-            body: JSON.stringify({
-                is_active: activate
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            alert(activate ? '仓库已启用!' : '仓库已停用!');
-            location.reload();
-        })
-        .catch(err => {
-            alert('操作失败: ' + err);
         });
     }
 

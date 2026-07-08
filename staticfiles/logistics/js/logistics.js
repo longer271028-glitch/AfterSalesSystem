@@ -118,6 +118,7 @@
                     ${queryBtn}
                     ${tracesBtn}
                     <a class="logistics-action-link" href="/admin/logistics/logisticsrecord/${record.id}/change/">编辑</a>
+                    <a class="logistics-action-link delete" onclick="deleteLogisticsRecord(${record.id})">删除</a>
                 </td>
             </tr>
         `}).join('');
@@ -223,6 +224,32 @@
         const modal = document.getElementById('traceModal');
         if (modal) {
             modal.remove();
+        }
+    };
+
+    // 删除物流记录
+    window.deleteLogisticsRecord = async function(id) {
+        if (!confirm('确定要删除此物流记录吗？此操作不可恢复！')) return;
+
+        try {
+            const response = await fetch(`/api/logistics/records/${id}/`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            });
+
+            if (response.ok) {
+                alert('删除成功！');
+                loadRecords(); // 刷新列表
+            } else {
+                const data = await response.json();
+                alert('删除失败: ' + (data.detail || '未知错误'));
+            }
+        } catch (error) {
+            console.error('删除失败:', error);
+            alert('删除失败');
         }
     };
 

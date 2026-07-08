@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, pagination
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import render
@@ -7,6 +7,13 @@ from .serializers import (
     QuoteTemplateSerializer, QuoteSerializer, QuoteItemSerializer,
     PriceConfigSerializer, ProductSeriesSerializer, QuoteProductSerializer
 )
+
+
+class CustomPagination(pagination.PageNumberPagination):
+    """自定义分页类，支持动态页面大小"""
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 
 def product_list_view(request):
@@ -18,6 +25,7 @@ class ProductSeriesViewSet(viewsets.ModelViewSet):
     """产品系列视图集"""
 
     serializer_class = ProductSeriesSerializer
+    pagination_class = None  # 禁用分页，返回所有数据
 
     def get_queryset(self):
         queryset = ProductSeries.objects.all().order_by('name')
@@ -41,6 +49,7 @@ class QuoteProductViewSet(viewsets.ModelViewSet):
 
     queryset = QuoteProduct.objects.all().order_by('-created_at')
     serializer_class = QuoteProductSerializer
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         queryset = super().get_queryset()

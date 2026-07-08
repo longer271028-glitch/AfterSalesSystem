@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from apps.customers.models import Customer
+from apps.quotes.models import QuoteProduct
 
 
 class FaultCategory(models.Model):
@@ -54,7 +55,14 @@ class FaultReport(models.Model):
     # 关联信息
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='fault_reports', null=True, blank=True)
     equipment_sn = models.CharField('设备序列号', max_length=100, blank=True)
-    equipment_name = models.CharField('设备名称', max_length=100, blank=True)
+    equipment_name = models.ForeignKey(
+        QuoteProduct,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='fault_reports',
+        verbose_name='设备名称'
+    )
     fault_category = models.ForeignKey(FaultCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name='fault_reports')
     
     # 状态与优先级
@@ -63,7 +71,10 @@ class FaultReport(models.Model):
     source = models.CharField('来源', max_length=20, choices=SOURCE_CHOICES, default='customer')
     
     # 上报信息
-    reporter_name = models.CharField('上报人', max_length=100)
+    reporter = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+                                related_name='fault_reporter', verbose_name='上报人')
+    reporter_name = models.CharField('上报人姓名（备用）', max_length=100, blank=True,
+                                    help_text='用于外部人员上报，内部用户请关联到reporter字段')
     reporter_phone = models.CharField('上报人电话', max_length=20, blank=True)
     report_time = models.DateTimeField('上报时间', auto_now_add=True)
     

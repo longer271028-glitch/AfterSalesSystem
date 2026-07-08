@@ -87,9 +87,8 @@
         <table class="table table-hover">
             <thead>
                 <tr>
-                    <th>产品编码</th>
                     <th>产品名称</th>
-                    <th>类别</th>
+                    <th>产品系列</th>
                     <th>入库数量</th>
                     <th>出库数量</th>
                     <th>库存余额</th>
@@ -99,9 +98,8 @@
             <tbody id="warehouseDetailTable">
                 {% for stock in stock_details %}
                 <tr>
-                    <td>{{ stock.product_code }}</td>
                     <td>{{ stock.product_name }}</td>
-                    <td>{{ stock.category|default:'-' }}</td>
+                    <td>{{ stock.series|default:'-' }}</td>
                     <td class="text-success">{{ stock.in_qty }}</td>
                     <td class="text-danger">{{ stock.out_qty }}</td>
                     <td class="text-primary"><strong>{{ stock.balance }}</strong></td>
@@ -119,7 +117,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="7" class="text-center text-muted">暂无库存数据</td>
+                    <td colspan="6" class="text-center text-muted">暂无库存数据</td>
                 </tr>
                 {% endfor %}
             </tbody>

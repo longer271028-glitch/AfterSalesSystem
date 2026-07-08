@@ -2,32 +2,45 @@
 <div id="outboundModal" class="modal-overlay">
     <div class="modal-content">
         <div class="modal-header">
-            <h5><i class="bi bi-box-arrow-up"></i> 出库操作</h5>
+            <h5><i class="bi bi-box-arrow-up"></i> 出库/调拨操作</h5>
             <button type="button" class="modal-close" onclick="closeOutboundModal()">&times;</button>
         </div>
         <form id="outboundFormModal">
-            <div class="mb-3">
-                <label class="form-label">选择仓库 *</label>
-                <select id="outWarehouseModal" class="form-select" required>
-                    <option value="">请选择仓库</option>
-                    {% for warehouse in warehouses %}
-                    {% if warehouse.is_active %}
-                    <option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
-                    {% endif %}
-                    {% endfor %}
-                </select>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">出库仓库 *</label>
+                    <select id="outWarehouseModal" class="form-select" required>
+                        <option value="">请选择出库仓库</option>
+                        {% for warehouse in warehouses %}
+                        {% if warehouse.is_active %}
+                        <option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">入库仓库 *</label>
+                    <select id="inWarehouseTransferModal" class="form-select" required>
+                        <option value="">请选择入库仓库</option>
+                        {% for warehouse in warehouses %}
+                        {% if warehouse.is_active %}
+                        <option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
             <div class="mb-3">
                 <label class="form-label">选择产品 *</label>
-                <select id="outProductModal" class="form-select" required>
-                    <option value="">请选择产品</option>
+                <input type="text" id="outProductModal" class="form-select" list="productListOutbound" placeholder="请输入产品名称搜索" required>
+                <datalist id="productListOutbound">
                     {% for product in products %}
-                    <option value="{{ product.id }}">[{{ product.code }}] {{ product.name }} (库存: {{ product.current_stock }})</option>
+                    <option value="{{ product.id }}|{{ product.name }}">{{ product.name }}</option>
                     {% endfor %}
-                </select>
+                </datalist>
             </div>
             <div class="mb-3">
-                <label class="form-label">出库数量 *</label>
+                <label class="form-label">调拨数量 *</label>
                 <input type="number" id="outQuantityModal" class="form-control" min="1" required>
             </div>
             <div class="mb-3">
@@ -41,7 +54,7 @@
         </form>
         <div class="modal-footer">
             <button class="btn btn-secondary" onclick="closeOutboundModal()">取消</button>
-            <button class="btn btn-warning" onclick="submitOutbound()">确认出库</button>
+            <button class="btn btn-warning" onclick="submitOutbound()">确认调拨</button>
         </div>
     </div>
 </div>

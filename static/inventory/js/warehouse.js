@@ -1,9 +1,9 @@
 /**
  * Inventory Module - Warehouse Management
- * Warehouse CRUD operations with dynamic categories
+ * Warehouse CRUD operations with modal dialogs
  */
 
-// API base path - 正确的路径应该是 /inventory/api/
+// API base path
 const API_BASE = '/inventory/api/';
 
 // Warehouse categories cache
@@ -19,106 +19,166 @@ function loadWarehouseCategories() {
         return res.json();
     })
     .then(data => {
-        warehouseCategories = data;
+        warehouseCategories = data.results || data;
     })
     .catch(err => {
         console.error('Failed to load categories:', err);
     });
 }
 
-// Helper function to select category
-function promptCategory(defaultCategoryId) {
-    if (warehouseCategories.length === 0) {
-        loadWarehouseCategories();
-    }
+// ===== Warehouse Modal Functions =====
 
-    let options = '\n请选择仓库类别:\n';
-    options += '0. 不选择类别\n';
-    warehouseCategories.forEach((cat, index) => {
-        const marker = cat.id === defaultCategoryId ? ' [当前]' : '';
-        options += `${index + 1}. ${cat.name}${marker}\n`;
-    });
-
-    const choice = prompt(options + '\n请输入序号:');
-    if (choice === null) return defaultCategoryId;
-
-    const index = parseInt(choice);
-    if (index === 0) return null;
-    if (index > 0 && index <= warehouseCategories.length) {
-        return warehouseCategories[index - 1].id;
-    }
-    return defaultCategoryId;
+// Show Add Warehouse Modal
+function showAddWarehouseModal() {
+    document.getElementById('warehouseModalTitle').innerHTML = '<i class="bi bi-building"></i> 添加仓库';
+    document.getElementById('warehouseId').value = '';
+    document.getElementById('warehouseName').value = '';
+    document.getElementById('warehouseCode').value = '';
+    document.getElementById('warehouseCategory').value = '';
+    document.getElementById('warehouseAddress').value = '';
+    document.getElementById('warehouseManager').value = '';
+    document.getElementById('warehouseActive').checked = true;
+    
+    // Load options
+    loadWarehouseOptions();
+    
+    document.getElementById('warehouseModal').style.display = 'flex';
 }
 
-// Add Warehouse
-function showAddWarehouseModal() {
-    const name = prompt('请输入仓库名称:');
-    if (!name) return;
-    const code = prompt('请输入仓库编码:');
-    if (!code) return;
-    const categoryId = promptCategory(null);
-    const address = prompt('请输入仓库地址 (可选):') || '';
+// Load warehouse form options
+function loadWarehouseOptions() {
+    // Load warehouse categories
+    fetch(API_BASE + 'warehouse-categories/', {
+        headers: {'X-Requested-With': 'XMLHttpRequest'}
+    })
+    .then(res => res.json())
+    .then(data => {
+        const categorySelect = document.getElementById('warehouseCategory');
+        const results = data.results || data;
+        categorySelect.innerHTML = '<option value="">请选择类别</option>';
+        results.forEach(item => {
+            if (item.is_active) {
+                categorySelect.innerHTML += `<option value="${item.id}">${item.name}</option>`;
+            }
+        });
+    })
+    .catch(err => console.error('加载类别失败:', err));
+    
+    // Load manager list - fetch from rbac user profile API
+    fetch('/api/rbac/user-profiles/', {
+        headers: {'X-Requested-With': 'XMLHttpRequest'}
+    })
+    .then(res => res.json())
+    .then(data => {
+        const profiles = data.results || data;
+        const managerSelect = document.getElementById('warehouseManager');
+        managerSelect.innerHTML = '<option value="">请选择管理员</option>';
+        profiles.forEach(item => {
+            // 只显示有姓名的用户
+            if (item.name) {
+                managerSelect.innerHTML += `<option value="${item.id}">${item.name}</option>`;
+            }
+        });
+    })
+    .catch(err => {
+        console.error('加载管理员失败:', err);
+    });
+}
 
-    fetch(API_BASE + 'warehouses/', {
-        method: 'POST',
+// Close Warehouse Modal
+function closeWarehouseModal() {
+    document.getElementById('warehouseModal').style.display = 'none';
+}
+
+// Submit Warehouse Form
+function submitWarehouse() {
+    const id = document.getElementById('warehouseId').value;
+    const name = document.getElementById('warehouseName').value.trim();
+    const code = document.getElementById('warehouseCode').value.trim();
+    const category = document.getElementById('warehouseCategory').value;
+    const address = document.getElementById('warehouseAddress').value.trim();
+    const manager = document.getElementById('warehouseManager').value;
+    const isActive = document.getElementById('warehouseActive').checked;
+
+    if (!name) {
+        alert('请输入仓库名称');
+        return;
+    }
+    if (!code) {
+        alert('请输入仓库编码');
+        return;
+    }
+
+    const data = {
+        name: name,
+        code: code,
+        address: address,
+        is_active: isActive
+    };
+    if (category) data.category = parseInt(category);
+    if (manager) data.manager = parseInt(manager);
+
+    const url = id ? API_BASE + 'warehouses/' + id + '/' : API_BASE + 'warehouses/';
+    const method = id ? 'PUT' : 'POST';
+
+    fetch(url, {
+        method: method,
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCSRFToken()
         },
-        body: JSON.stringify({
-            name: name,
-            code: code,
-            category: categoryId,
-            address: address
-        })
+        body: JSON.stringify(data)
     })
-    .then(res => res.json())
-    .then(data => {
-        if (data.error) {
-            alert('添加失败: ' + data.error);
-        } else {
-            alert('仓库添加成功!');
-            location.reload();
+    .then(res => {
+        if (!res.ok) {
+            return res.json().then(err => Promise.reject(err));
         }
+        return res.json();
+    })
+    .then(data => {
+        alert(id ? '仓库更新成功!' : '仓库添加成功!');
+        closeWarehouseModal();
+        location.reload();
     })
     .catch(err => {
-        alert('添加失败: ' + err);
+        const errorMsg = err.error || err.detail || JSON.stringify(err);
+        alert('操作失败: ' + errorMsg);
     });
 }
 
 // Edit Warehouse
 function editWarehouse(id, name, code, address, categoryId) {
-    const newName = prompt('请输入仓库名称:', name);
-    if (!newName) return;
-    const newCode = prompt('请输入仓库编码:', code);
-    if (!newCode) return;
-    const newCategoryId = promptCategory(categoryId);
-    const newAddress = prompt('请输入仓库地址:', address || '') || '';
-
+    document.getElementById('warehouseModalTitle').innerHTML = '<i class="bi bi-building"></i> 编辑仓库';
+    
+    // Load options first
+    loadWarehouseOptions();
+    
+    // Get warehouse details
     fetch(API_BASE + 'warehouses/' + id + '/', {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCSRFToken()
-        },
-        body: JSON.stringify({
-            name: newName,
-            code: newCode,
-            category: newCategoryId,
-            address: newAddress
-        })
+        headers: {'X-Requested-With': 'XMLHttpRequest'}
     })
     .then(res => res.json())
     .then(data => {
-        if (data.error) {
-            alert('更新失败: ' + data.error);
-        } else {
-            alert('仓库更新成功!');
-            location.reload();
-        }
+        document.getElementById('warehouseId').value = data.id;
+        document.getElementById('warehouseName').value = data.name || '';
+        document.getElementById('warehouseCode').value = data.code || '';
+        document.getElementById('warehouseAddress').value = data.address || '';
+        document.getElementById('warehouseActive').checked = data.is_active !== false;
+        
+        // Set category and manager after options are loaded
+        setTimeout(() => {
+            if (data.category) {
+                document.getElementById('warehouseCategory').value = data.category;
+            }
+            if (data.manager) {
+                document.getElementById('warehouseManager').value = data.manager;
+            }
+        }, 300);
+        
+        document.getElementById('warehouseModal').style.display = 'flex';
     })
     .catch(err => {
-        alert('更新失败: ' + err);
+        alert('获取仓库信息失败: ' + err);
     });
 }
 
@@ -145,10 +205,38 @@ function toggleWarehouse(id, activate) {
     });
 }
 
+// Delete Warehouse
+function deleteWarehouse(id, name) {
+    if (!confirm('确定要删除仓库 "' + name + '" 吗？此操作不可恢复！')) {
+        return;
+    }
+
+    const url = API_BASE + 'warehouses/' + id + '/';
+    fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+    .then(res => {
+        if (res.ok) {
+            alert('仓库已删除!');
+            location.reload();
+        } else {
+            return res.json().then(err => {
+                throw new Error(err.detail || '删除失败');
+            });
+        }
+    })
+    .catch(err => {
+        alert('删除失败: ' + err.message);
+    });
+}
+
 // ===== Category Management =====
 
 function showCategoryManagerModal() {
-    document.getElementById('categoryManagerModal').style.display = 'block';
+    document.getElementById('categoryManagerModal').style.display = 'flex';
     loadCategoriesTable();
 }
 
@@ -165,7 +253,7 @@ function loadCategoriesTable() {
         return res.json();
     })
     .then(data => {
-        // 处理分页响应格式
+        // Handle paginated response format
         const categories = data.results || data;
         warehouseCategories = categories;
         const tbody = document.getElementById('categoryTableBody');
@@ -203,7 +291,7 @@ function showAddCategoryForm() {
     const code = prompt('请输入类别代码 (英文,唯一):');
     if (!code) return;
 
-    // 验证code格式
+    // Validate code format
     if (!/^[a-z_][a-z0-9_]*$/.test(code)) {
         alert('类别代码只能使用小写字母，数字和下划线，且以字母或下划线开头');
         return;
@@ -322,7 +410,7 @@ function toggleCategory(id, activate) {
 // ===== Tab Configuration =====
 
 function showTabConfigModal() {
-    document.getElementById('tabConfigModal').style.display = 'block';
+    document.getElementById('tabConfigModal').style.display = 'flex';
     loadTabConfigs();
 }
 
@@ -393,6 +481,11 @@ function saveTabConfig() {
     });
 }
 
+// CSRF Token helper
+function getCSRFToken() {
+    return document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
     loadWarehouseCategories();
@@ -419,5 +512,12 @@ document.addEventListener('click', function(e) {
             btn.getAttribute('data-category-id') ? parseInt(btn.getAttribute('data-category-id')) : null
         );
     }
-});
 
+    // Warehouse delete
+    if (e.target.classList.contains('delete-warehouse-btn')) {
+        var btn = e.target;
+        var warehouseId = btn.getAttribute('data-id');
+        var warehouseName = btn.getAttribute('data-name');
+        deleteWarehouse(warehouseId, warehouseName);
+    }
+});

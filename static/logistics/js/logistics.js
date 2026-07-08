@@ -101,23 +101,21 @@
             const queryBtn = canQuery
                 ? `<a class="logistics-action-link query" onclick="queryLogistics(${record.id})">查询</a>`
                 : `<span style="color: #999;">已查询</span>`;
-            const tracesBtn = record.traces && record.traces.length > 0
-                ? `<a class="logistics-action-link trace" onclick="viewTraces(${record.id})">查看轨迹</a>`
-                : '';
             return `
             <tr>
                 <td>${record.track_no || '-'}</td>
                 <td>${record.order_no || '-'}</td>
                 <td>${record.track_type === 'inbound' ? '收件' : '发件'}</td>
-                <td>${record.channel?.name || '-'}</td>
+                <td>${record.channel_name || '-'}</td>
                 <td><span class="logistics-status-badge ${getStatusClass(record.status)}">${record.status || '-'}</span></td>
                 <td>${renderTraces(record.traces)}</td>
                 <td>${record.current_location || '-'}</td>
                 <td>${formatDate(record.created_at)}</td>
                 <td>
                     ${queryBtn}
-                    ${tracesBtn}
+                    <a class="logistics-action-link trace" onclick="viewLogisticsInfo(${record.id})">查看物流</a>
                     <a class="logistics-action-link" href="/admin/logistics/logisticsrecord/${record.id}/change/">编辑</a>
+                    <a class="logistics-action-link delete" onclick="deleteLogisticsRecord(${record.id})">删除</a>
                 </td>
             </tr>
         `}).join('');
@@ -223,6 +221,162 @@
         const modal = document.getElementById('traceModal');
         if (modal) {
             modal.remove();
+        }
+    };
+
+    // 查看物流信息 - 弹窗显示快递单号物流跟踪详情
+    window.viewLogisticsInfo = async function(id) {
+        try {
+            // 先获取记录详情
+            const response = await fetch(`/logistics/api/records/${id}/`);
+            const record = await response.json();
+
+            // 获取状态样式类
+            const getStatusTagClass = (status) => {
+                if (!status) return '';
+                if (status.includes('签收') || status.includes('完成')) return 'delivered';
+                if (status.includes('异常') || status.includes('退回')) return 'exception';
+                return 'transit';
+            };
+
+            // 构建轨迹HTML - 时间轴样式
+            let tracesHtml = '';
+            if (record.traces && record.traces.length > 0) {
+                // 按时间倒序排列，最新的在上面
+                const sortedTraces = record.traces.slice().reverse();
+                tracesHtml = sortedTraces.map((trace, index) => `
+                    <div class="trace-timeline-item ${index === 0 ? 'latest' : ''}">
+                        <div class="trace-timeline-dot ${index === 0 ? 'latest' : ''}"></div>
+                        <div class="trace-timeline-content">
+                            <div class="trace-time">${formatDate(trace.trace_time)}</div>
+                            <div class="trace-status">${trace.status || '-'}</div>
+                            <div class="trace-location">${trace.location || trace.description || '-'}</div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                tracesHtml = `
+                    <div class="trace-empty">
+                        <i class="bi bi-truck"></i>
+                        <div>暂无物流轨迹信息</div>
+                        <small>请点击"刷新物流信息"获取最新数据</small>
+                    </div>
+                `;
+            }
+
+            // 构建弹窗内容 - 快递单号物流跟踪详情样式
+            const modalHtml = `
+                <div class="logistics-trace-modal" id="traceModal">
+                    <div class="logistics-trace-modal-content">
+                        <div class="logistics-trace-modal-header">
+                            <h3><i class="bi bi-box-seam-fill"></i> 快递单号物流跟踪详情</h3>
+                            <button class="logistics-trace-modal-close" onclick="closeTraceModal()">&times;</button>
+                        </div>
+                        <div class="logistics-trace-modal-body">
+                            <!-- 快递信息卡片 -->
+                            <div class="trace-info-card">
+                                <div class="trace-info-row">
+                                    <span class="trace-info-label">快递单号</span>
+                                    <span class="trace-info-value">${record.track_no || '-'}</span>
+                                    <button class="btn btn-sm" onclick="copyTrackNo('${record.track_no}')">📋 复制</button>
+                                </div>
+                                <div class="trace-info-row">
+                                    <span class="trace-info-label">物流状态</span>
+                                    <span class="trace-info-value">
+                                        <span class="logistics-status-tag ${getStatusTagClass(record.status)}">${record.status || '暂无信息'}</span>
+                                    </span>
+                                </div>
+                                <div class="trace-info-row">
+                                    <span class="trace-info-label">当前地点</span>
+                                    <span class="trace-info-value">${record.current_location || '-'}</span>
+                                </div>
+                                <div class="trace-info-row">
+                                    <span class="trace-info-label">物流公司</span>
+                                    <span class="trace-info-value">${record.channel_name || '-'}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- 物流轨迹时间轴 -->
+                            <div class="trace-timeline">
+                                <h5 class="trace-timeline-title">📍 物流跟踪信息</h5>
+                                ${tracesHtml}
+                            </div>
+                        </div>
+                        <div class="logistics-trace-modal-footer">
+                            <button class="btn btn-secondary" onclick="closeTraceModal()">关闭</button>
+                            ${record.can_query_today && !record.is_completed ? `<button class="btn btn-primary" onclick="doQueryAndRefresh(${record.id})">🔄 刷新物流信息</button>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 添加到页面
+            const existingModal = document.getElementById('traceModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        } catch (error) {
+            console.error('加载物流信息失败:', error);
+            alert('加载物流信息失败');
+        }
+    };
+
+    // 复制快递单号
+    window.copyTrackNo = function(trackNo) {
+        navigator.clipboard.writeText(trackNo).then(() => {
+            alert('已复制到剪贴板');
+        }).catch(() => {
+            alert('复制失败');
+        });
+    };
+
+    // 查询并刷新
+    window.doQueryAndRefresh = async function(id) {
+        if (!confirm('确定查询该物流信息吗？每天只能查询一次。')) return;
+
+        try {
+            const response = await fetch(`/logistics/api/records/${id}/query/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') }
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                // 重新打开弹窗刷新数据
+                viewLogisticsInfo(id);
+            } else {
+                alert('查询失败: ' + (data.error || '未知错误'));
+            }
+        } catch (error) {
+            console.error('查询失败:', error);
+            alert('查询失败');
+        }
+    };
+
+    // 删除物流记录
+    window.deleteLogisticsRecord = async function(id) {
+        if (!confirm('确定要删除此物流记录吗？此操作不可恢复！')) return;
+
+        try {
+            const response = await fetch(`/api/logistics/records/${id}/`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            });
+
+            if (response.ok) {
+                alert('删除成功！');
+                loadRecords(); // 刷新列表
+            } else {
+                const data = await response.json();
+                alert('删除失败: ' + (data.detail || '未知错误'));
+            }
+        } catch (error) {
+            console.error('删除失败:', error);
+            alert('删除失败');
         }
     };
 
@@ -376,6 +530,7 @@
         const data = {
             name,
             code: name.toLowerCase().replace(/\s+/g, '_'),
+            carrier: name,
             api_type: 'tencent_market',
             secret_id: secretId,
             secret_key_market: secretKey,
@@ -389,7 +544,10 @@
 
             const response = await fetch(url, {
                 method,
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
                 body: JSON.stringify(data)
             });
 

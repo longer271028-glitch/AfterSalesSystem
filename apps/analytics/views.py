@@ -138,23 +138,28 @@ class DashboardStatsView(APIView):
         # 待处理故障数量 - 使用英文状态码
         pending_faults_count = FaultReport.objects.filter(status='pending').count()
 
-        # 维修中数量 - 只计算 status='repairing'
-        repairing_count = RepairOrder.objects.filter(status='repairing').count()
+        # 维修中数量 - 包括检测中、维修中、质检中的单子
+        repairing_count = RepairOrder.objects.filter(
+            status__in=['repairing', 'detecting', 'testing']
+        ).count()
 
-        # 库存预警数量 (当前库存小于最小库存)
+        # 库存预警数量 (当前没有库存字段，暂时返回0)
+        # QuoteProduct 没有 current_stock 和 min_stock 字段
+        # 库存信息存储在 StockRecord 中
         low_stock_count = 0
-        for product in Product.objects.filter(is_active=True):
-            if product.current_stock < product.min_stock:
-                low_stock_count += 1
+        # 保留注释的原始逻辑供参考
+        # for product in Product.objects.filter(status='active'):
+        #     if product.current_stock < product.min_stock:
+        #         low_stock_count += 1
 
         # 最近故障 (最新5条)
         recent_faults = FaultReport.objects.order_by('-created_at')[:5].values(
             'id', 'fault_no', 'title', 'status'
         )
 
-        # 最近返修 (最新5条)
+        # 最近返修 (最新5条) - 使用 equipment_name__name 获取设备名称
         recent_repairs = RepairOrder.objects.order_by('-created_at')[:5].values(
-            'id', 'repair_no', 'equipment_name', 'status'
+            'id', 'repair_no', 'equipment_name__name', 'status'
         )
 
         return Response({

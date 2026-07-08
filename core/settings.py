@@ -46,7 +46,9 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'corsheaders',
-    # Custom apps
+    'import_export',  # 数据导入导出
+    # Custom apps - RBAC must be first for permissions
+    'apps.rbac',
     'apps.user_management',
     'apps.customers',
     'apps.faults',
@@ -69,6 +71,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'apps.rbac.middleware.PermissionMiddleware',  # RBAC权限中间件
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -86,6 +89,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'apps.rbac.context_processors.rbac_context',  # RBAC上下文处理器
             ],
         },
     },

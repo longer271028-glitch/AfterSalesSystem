@@ -877,7 +877,9 @@ input[type="button"]:hover {
 /* 结果列表表格 - 覆盖Django admin默认样式 */
 #changelist table,
 .module table,
-.results table {
+.results table,
+#result_list,
+#result_list table {
     width: 100% !important;
     border-collapse: collapse !important;
     background: white !important;
@@ -888,13 +890,15 @@ input[type="button"]:hover {
 
 #changelist table thead,
 .module table thead,
-.results table thead {
+.results table thead,
+#result_list thead {
     background: #f8fafc !important;
 }
 
 #changelist table thead th,
 .module table thead th,
-.results table thead th {
+.results table thead th,
+#result_list thead th {
     background: #f8fafc !important;
     padding: 12px 16px !important;
     text-align: left !important;
@@ -907,15 +911,29 @@ input[type="button"]:hover {
 
 #changelist table tbody tr,
 .module table tbody tr,
-.results table tbody tr {
+.results table tbody tr,
+#result_list tbody tr {
     border-bottom: 1px solid #f1f5f9 !important;
     transition: background-color 0.2s ease !important;
+}
+
+/* 斑马纹 - 间隔换色 */
+#changelist table tbody tr:nth-child(odd),
+.module table tbody tr:nth-child(odd),
+.results table tbody tr:nth-child(odd) {
+    background-color: #ffffff !important;
+}
+
+#changelist table tbody tr:nth-child(even),
+.module table tbody tr:nth-child(even),
+.results table tbody tr:nth-child(even) {
+    background-color: #f8fafc !important;
 }
 
 #changelist table tbody tr:hover,
 .module table tbody tr:hover,
 .results table tbody tr:hover {
-    background: #f8fafc !important;
+    background: #e0f2fe !important;
 }
 
 #changelist table tbody td,

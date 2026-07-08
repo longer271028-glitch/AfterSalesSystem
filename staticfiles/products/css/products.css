@@ -227,6 +227,32 @@
     padding: 20px;
     overflow-y: auto;
     flex: 1;
+    max-height: calc(90vh - 130px);  /* 确保有足够空间显示内容 */
+}
+
+/* 系列列表样式 */
+#seriesList {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+}
+
+#seriesList .d-flex {
+    padding: 12px;
+    transition: background 0.2s;
+}
+
+#seriesList .d-flex:hover {
+    background: #f8fafc;
+}
+
+#seriesList .border-bottom {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+#seriesList .border-bottom:last-child {
+    border-bottom: none;
 }
 
 .modal-footer {
@@ -294,32 +320,78 @@
 .pagination {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 8px;
     margin-top: 20px;
+    padding: 10px;
+    flex-wrap: wrap;
 }
 
-.pagination button {
-    padding: 8px 16px;
+.pagination-btn {
+    padding: 8px 12px;
     border: 1px solid #d1d5db;
     background: white;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;
+    font-size: 14px;
+    min-width: 36px;
 }
 
-.pagination button:hover {
+.pagination-btn:hover:not(.disabled) {
     background: #f8fafc;
+    border-color: #94a3b8;
 }
 
-.pagination button.active {
+.pagination-btn.active {
     background: #10b981;
     color: white;
     border-color: #10b981;
 }
 
-.pagination button:disabled {
+.pagination-btn.disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.pagination-ellipsis {
+    padding: 8px 4px;
+    color: #64748b;
+}
+
+.pagination-info {
+    margin-left: 16px;
+    font-size: 14px;
+    color: #64748b;
+    white-space: nowrap;
+}
+
+/* 每页显示数量选择器 */
+.page-size-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 16px;
+    font-size: 14px;
+    color: #64748b;
+}
+
+.page-size-selector select {
+    padding: 6px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 8px;
 }
 
 /* 文本居中 */

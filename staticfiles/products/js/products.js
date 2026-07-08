@@ -5,6 +5,8 @@
     let currentData = [];
     let currentPage = 1;
     let pageSize = 10;
+    let totalPages = 1;
+    let totalCount = 0;
     let currentSort = { field: 'id', order: 'asc' };
 
     // 获取CSRF Token
@@ -44,6 +46,15 @@
         try {
             let url = '/api/quotes/products/?';
 
+            // 添加分页参数
+            url += `page=${currentPage}&page_size=${pageSize}&`;
+
+            // 添加排序参数
+            if (currentSort.field && currentSort.order) {
+                const orderPrefix = currentSort.order === 'asc' ? '' : '-';
+                url += `ordering=${orderPrefix}${currentSort.field}&`;
+            }
+
             // 添加筛选参数
             const search = document.getElementById('searchInput').value.trim();
             if (search) url += `search=${search}&`;
@@ -68,18 +79,32 @@
 
             const response = await fetch(url);
             const data = await response.json();
-            currentData = Array.isArray(data) ? data : (data.results || data || []);
+
+            // 处理分页响应
+            if (data.results) {
+                currentData = data.results || [];
+                totalCount = data.count || 0;
+                totalPages = Math.ceil(totalCount / pageSize);
+            } else {
+                currentData = Array.isArray(data) ? data : [];
+                totalCount = currentData.length;
+                totalPages = 1;
+            }
+
             renderTable(currentData);
+            renderPagination();
         } catch (error) {
             console.error('加载失败:', error);
             renderTable([]);
+            renderPagination();
         }
     }
 
     // 加载系列列表
     async function loadSeries() {
         try {
-            const response = await fetch('/api/quotes/series/');
+            // 加载所有系列（包括未启用的），以便在下拉框中显示
+            const response = await fetch('/api/quotes/series/?include_inactive=true');
             const data = await response.json();
             const series = Array.isArray(data) ? data : (data.results || data || []);
 
@@ -90,9 +115,13 @@
             filterSelect.innerHTML = '<option value="">全部系列</option>';
 
             series.forEach(s => {
-                const option = `<option value="${s.id}">${s.name}</option>`;
-                select.innerHTML += option;
-                filterSelect.innerHTML += option;
+                // 只在下拉框中显示启用的系列
+                if (s.is_active) {
+                    const option = `<option value="${s.id}">${s.name}</option>`;
+                    select.innerHTML += option;
+                }
+                // 过滤器显示所有系列（包括未启用的）
+                filterSelect.innerHTML += `<option value="${s.id}">${s.name}</option>`;
             });
         } catch (error) {
             console.error('加载系列失败:', error);
@@ -118,13 +147,77 @@
                 <td>
                     <button class="btn btn-sm btn-primary" onclick="editProduct(${product.id})">编辑</button>
                     <button class="btn btn-sm btn-info" onclick="viewProduct(${product.id})">查看</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteProduct(${product.id})">删除</button>
                 </td>
             </tr>
         `).join('');
     }
 
+    // 渲染分页控件
+    function renderPagination() {
+        const container = document.getElementById('pagination');
+        if (totalPages <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+
+        let html = `
+            <button class="pagination-btn ${currentPage === 1 ? 'disabled' : ''}" onclick="goToPage(1)">
+                首页
+            </button>
+            <button class="pagination-btn ${currentPage === 1 ? 'disabled' : ''}" onclick="goToPage(${currentPage - 1})">
+                上一页
+            </button>
+        `;
+
+        // 显示页码按钮
+        for (let i = 1; i <= totalPages; i++) {
+            // 只显示第一页、最后一页和当前页附近的页码
+            if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                html += `
+                    <button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">
+                        ${i}
+                    </button>
+                `;
+            } else if (i === currentPage - 3 || i === currentPage + 3) {
+                html += '<span class="pagination-ellipsis">...</span>';
+            }
+        }
+
+        html += `
+            <button class="pagination-btn ${currentPage === totalPages ? 'disabled' : ''}" onclick="goToPage(${currentPage + 1})">
+                下一页
+            </button>
+            <button class="pagination-btn ${currentPage === totalPages ? 'disabled' : ''}" onclick="goToPage(${totalPages})">
+                末页
+            </button>
+            <div class="pagination-info">
+                共 ${totalCount} 条数据，第 ${currentPage} / ${totalPages} 页
+            </div>
+        `;
+
+        container.innerHTML = html;
+    }
+
+    // 跳转到指定页
+    function goToPage(page) {
+        if (page < 1 || page > totalPages || page === currentPage) {
+            return;
+        }
+        currentPage = page;
+        loadProducts();
+    }
+
+    // 改变每页显示数量
+    function changePageSize(size) {
+        pageSize = size;
+        currentPage = 1;  // 重置到第一页
+        loadProducts();
+    }
+
     // 应用筛选
     function applyFilters() {
+        currentPage = 1;  // 筛选时重置到第一页
         loadProducts();
     }
 
@@ -137,6 +230,7 @@
         document.getElementById('minLabor').value = '';
         document.getElementById('maxLabor').value = '';
         document.getElementById('statusFilter').value = '';
+        currentPage = 1;  // 重置到第一页
         loadProducts();
     }
 
@@ -149,21 +243,9 @@
             currentSort.order = 'asc';
         }
 
-        currentData.sort((a, b) => {
-            let aVal = a[field] || '';
-            let bVal = b[field] || '';
-
-            if (field === 'repair_price' || field === 'labor_fee') {
-                aVal = parseFloat(aVal) || 0;
-                bVal = parseFloat(bVal) || 0;
-            }
-
-            if (aVal < bVal) return currentSort.order === 'asc' ? -1 : 1;
-            if (aVal > bVal) return currentSort.order === 'asc' ? 1 : -1;
-            return 0;
-        });
-
-        renderTable(currentData);
+        // 重新加载数据
+        currentPage = 1;  // 排序时重置到第一页
+        loadProducts();
     }
 
     // 显示新增产品模态框
@@ -205,6 +287,29 @@
     // 查看产品详情
     function viewProduct(id) {
         window.open(`/admin/quotes/quoteproduct/${id}/change/`, '_blank');
+    }
+
+    // 删除产品
+    async function deleteProduct(id) {
+        if (!confirm('确定要删除此产品吗？此操作不可恢复！')) return;
+
+        try {
+            const response = await fetch(`/api/quotes/products/${id}/`, {
+                method: 'DELETE',
+                headers: { 'X-CSRFToken': csrftoken }
+            });
+
+            if (response.ok) {
+                alert('删除成功！');
+                loadProducts(); // 刷新列表
+            } else {
+                const error = await response.json();
+                alert(error.detail || '删除失败');
+            }
+        } catch (error) {
+            console.error('删除失败:', error);
+            alert('删除失败');
+        }
     }
 
     // 保存产品
@@ -296,10 +401,138 @@
     window.showAddProductModal = showAddProductModal;
     window.editProduct = editProduct;
     window.viewProduct = viewProduct;
+    window.deleteProduct = deleteProduct;
     window.saveProduct = saveProduct;
     window.closeModal = closeModal;
     window.applyFilters = applyFilters;
     window.resetFilters = resetFilters;
+    window.goToPage = goToPage;
+    window.changePageSize = changePageSize;
+
+    // ==================== 导入导出功能 ====================
+
+    // 显示导入模态框
+    window.showImportModal = function() {
+        document.getElementById('importModal').classList.add('show');
+        document.getElementById('importFile').value = '';
+        document.getElementById('importProgress').style.display = 'none';
+        document.getElementById('importResult').style.display = 'none';
+        document.getElementById('importBtn').disabled = false;
+    };
+
+    // 关闭导入模态框
+    window.closeImportModal = function() {
+        document.getElementById('importModal').classList.remove('show');
+    };
+
+    // 执行导入
+    window.doImport = async function() {
+        const fileInput = document.getElementById('importFile');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert('请选择要导入的文件');
+            return;
+        }
+
+        // 显示进度
+        document.getElementById('importProgress').style.display = 'block';
+        document.getElementById('importResult').style.display = 'none';
+        document.getElementById('importBtn').disabled = true;
+
+        const formData = new FormData();
+        formData.append('import_file', file);
+
+        try {
+            const response = await fetch('/api/quotes/products/import/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken
+                },
+                body: formData
+            });
+
+            // 检查响应类型
+            const contentType = response.headers.get('content-type') || '';
+            
+            if (contentType.includes('application/json')) {
+                const result = await response.json();
+
+                // 显示结果
+                document.getElementById('importProgress').style.display = 'none';
+                document.getElementById('importResult').style.display = 'block';
+
+                if (result.success) {
+                    document.getElementById('importResult').innerHTML = `
+                        <div class="alert alert-success">
+                            <strong>导入成功！</strong><br>
+                            ${result.message || ''}
+                            ${result.new !== undefined ? '新增: ${result.new} 条<br>' : ''}
+                            ${result.updated !== undefined ? '更新: ${result.updated} 条<br>' : ''}
+                            ${result.skipped !== undefined ? '跳过: ${result.skipped} 条' : ''}
+                        </div>
+                    `;
+                    // 刷新列表
+                    loadProducts();
+                } else {
+                    let errorDetails = '';
+                    if (result.details && Array.isArray(result.details)) {
+                        errorDetails = '<strong>详细错误：</strong><ul>' + 
+                            result.details.map(d => '<li>' + d + '</li>').join('') + 
+                            '</ul>';
+                    }
+                    document.getElementById('importResult').innerHTML = `
+                        <div class="alert alert-danger">
+                            <strong>导入失败</strong><br>
+                            ${result.error || result.message || '未知错误'}
+                            ${errorDetails}
+                        </div>
+                    `;
+                }
+            } else {
+                // 如果返回的不是 JSON，尝试读取文本
+                const text = await response.text();
+                document.getElementById('importProgress').style.display = 'none';
+                document.getElementById('importResult').style.display = 'block';
+                document.getElementById('importResult').innerHTML = `
+                    <div class="alert alert-danger">
+                        <strong>服务器错误</strong><br>
+                        服务器返回了非 JSON 格式的响应<br>
+                        <pre style="max-height:200px;overflow:auto;font-size:11px;">${escapeHtml(text.substring(0, 500))}</pre>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('导入失败:', error);
+            document.getElementById('importProgress').style.display = 'none';
+            document.getElementById('importResult').style.display = 'block';
+            document.getElementById('importResult').innerHTML = `
+                <div class="alert alert-danger">
+                    <strong>导入失败</strong><br>
+                    ${error.message}
+                </div>
+            `;
+        }
+
+        document.getElementById('importBtn').disabled = false;
+    };
+
+    // 导出产品
+    window.exportProducts = async function() {
+        try {
+            // 显示加载状态
+            const btn = event.target.closest('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> 导出中...';
+            btn.disabled = true;
+
+            // 直接跳转到 admin 导出页面
+            window.location.href = '/admin/quotes/quoteproduct/export/';
+        } catch (error) {
+            console.error('导出失败:', error);
+            window.location.href = '/admin/quotes/quoteproduct/export/';
+        }
+    };
 
     // ==================== 产品系列管理 ====================
 
@@ -330,6 +563,8 @@
             const response = await fetch('/api/quotes/series/?include_inactive=true');
             const data = await response.json();
             const series = Array.isArray(data) ? data : (data.results || data || []);
+
+            console.log('加载到的系列数据:', series);  // 调试日志
             renderSeriesList(series);
         } catch (error) {
             console.error('加载系列失败:', error);
@@ -363,6 +598,15 @@
                 </div>
             </div>
         `).join('');
+
+        // 在底部添加统计信息
+        const activeCount = series.filter(s => s.is_active).length;
+        const totalCount = series.length;
+        container.innerHTML += `
+            <div class="text-center text-muted mt-3">
+                <small>共 ${totalCount} 个系列，其中 ${activeCount} 个启用</small>
+            </div>
+        `;
     }
 
     // 保存系列

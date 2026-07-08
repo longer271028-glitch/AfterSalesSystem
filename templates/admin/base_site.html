@@ -246,9 +246,8 @@
 <body class="{% block bodyclass %}{% endblock %}">
     <!-- 侧边栏 -->
     <nav class="sidebar">
-        <div class="sidebar-header">
-            <h4 style="margin:0;"><i class="bi bi-gear-wide-connected"></i> 田小二</h4>
-            <small style="color: rgba(255,255,255,0.7);">售后服务平台</small>
+        <div class="sidebar-header" style="margin: auto;">
+<image style="width: 40px;height: 40px;" src="/static/img/tx2-logo.png" alt="logo"/> 售后服务平台
         </div>
         <div class="sidebar-menu">
             <div class="menu-section-title">业务管理</div>
@@ -288,8 +287,11 @@
             <a href="/admin/workflows/workflowtype/" class="menu-item {% block nav_workflows %}{% endblock %}">
                 <i class="bi bi-diagram-3"></i> 流程引擎
             </a>
-            <a href="/admin/auth/user/" class="menu-item {% block nav_users %}{% endblock %}">
+            <a href="/users/" class="menu-item {% block nav_users %}{% endblock %}">
                 <i class="bi bi-people-fill"></i> 平台用户管理
+            </a>
+            <a href="/organization-management/" class="menu-item {% block nav_organization %}{% endblock %}">
+                <i class="bi bi-diagram-3"></i> 部门管理
             </a>
             <a href="/permissions/" class="menu-item {% block nav_permissions %}{% endblock %}">
                 <i class="bi bi-shield-check"></i> 权限管理

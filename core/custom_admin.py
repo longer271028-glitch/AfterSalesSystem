@@ -2,6 +2,14 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
+from core.admin_utils import get_user_display_name
+
+
+# Monkey patch User.__str__ to display name in admin autocomplete
+def custom_user_str(self):
+    return get_user_display_name(self)
+
+User.add_to_class('__str__', custom_user_str)
 
 
 class UserAdmin(BaseUserAdmin):
@@ -13,19 +21,26 @@ class UserAdmin(BaseUserAdmin):
 
     # 合并姓名字段
     def get_fieldsets(self, request, obj=None):
-        fieldsets = [
-            (_('基本信息'), {'fields': ('username', 'password', 'full_name', 'email')}),
-            (_('个人信息'), {'fields': ('role', 'department', 'phone')}),
-            (_('权限'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions', 'page_permissions')}),
-            (_('重要日期'), {'fields': ('last_login', 'date_joined')}),
-        ]
+        if obj:  # 编辑用户时
+            fieldsets = [
+                (_('基本信息'), {'fields': ('username', 'email', 'first_name', 'last_name')}),
+                (_('个人信息'), {'fields': ('role', 'department', 'phone')}),
+                (_('权限'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+                (_('重要日期'), {'fields': ('last_login', 'date_joined')}),
+            ]
+        else:  # 新建用户时
+            fieldsets = [
+                (_('基本信息'), {'fields': ('username', 'password', 'first_name', 'last_name', 'email')}),
+                (_('个人信息'), {'fields': ('role', 'department', 'phone')}),
+                (_('权限'), {'fields': ('is_active', 'is_staff', 'is_superuser')}),
+            ]
         return fieldsets
 
     # 添加字段
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'full_name', 'email', 'password1', 'password2', 'role'),
+            'fields': ('username', 'first_name', 'last_name', 'email', 'password1', 'password2', 'role'),
         }),
     )
 
@@ -46,17 +61,7 @@ class UserAdmin(BaseUserAdmin):
         return readonly_fields
 
     def save_model(self, request, obj, form, change):
-        """保存时自动处理姓名字段"""
-        if not change:  # 新建用户
-            if hasattr(obj, 'full_name') and obj.full_name:
-                # 将full_name拆分为first_name和last_name
-                name_parts = obj.full_name.split(' ', 1)
-                if len(name_parts) == 1:
-                    obj.first_name = name_parts[0]
-                    obj.last_name = ''
-                else:
-                    obj.first_name = name_parts[0]
-                    obj.last_name = name_parts[1]
+        """保存用户"""
         super().save_model(request, obj, form, change)
 
 

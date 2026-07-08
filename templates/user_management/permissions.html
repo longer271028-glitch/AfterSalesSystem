@@ -12,7 +12,7 @@
     <div class="page-header">
         <div class="header-left">
             <h2>用户权限管理</h2>
-            <p>为用户分配页面访问权限</p>
+            <p>为用户分配页面访问权限（用户数据来源于平台用户管理）</p>
         </div>
     </div>
 
@@ -22,19 +22,10 @@
             <input type="text" id="searchInput" placeholder="搜索用户名/姓名..." />
         </div>
         <div class="filter-item">
-            <select id="roleFilter">
-                <option value="">全部角色</option>
-                <option value="admin">管理员</option>
-                <option value="manager">经理</option>
-                <option value="staff">员工</option>
-                <option value="viewer">访客</option>
-            </select>
-        </div>
-        <div class="filter-item">
             <select id="statusFilter">
                 <option value="">全部状态</option>
-                <option value="active">激活</option>
-                <option value="inactive">未激活</option>
+                <option value="true">激活</option>
+                <option value="false">未激活</option>
             </select>
         </div>
         <button class="btn btn-secondary" onclick="applyFilters()">筛选</button>
@@ -47,9 +38,9 @@
             <tr>
                 <th>用户名</th>
                 <th>姓名</th>
-                <th>角色</th>
                 <th>部门</th>
                 <th>状态</th>
+                <th>角色</th>
                 <th>页面权限</th>
                 <th>操作</th>
             </tr>
@@ -69,7 +60,7 @@
         </div>
         <div class="modal-body">
             <input type="hidden" id="editUserId" />
-            
+
             <div class="user-info-row">
                 <div class="info-item">
                     <label>用户名：</label>
@@ -77,23 +68,25 @@
                 </div>
                 <div class="info-item">
                     <label>姓名：</label>
-                    <input type="text" id="editName" class="form-input" placeholder="请输入姓名" />
+                    <span id="editName"></span>
                 </div>
             </div>
-            
+
             <div class="user-info-row">
                 <div class="info-item">
-                    <label>角色：</label>
-                    <select id="editRole" class="form-input">
-                        <option value="admin">管理员</option>
-                        <option value="manager">经理</option>
-                        <option value="staff">员工</option>
-                        <option value="viewer">访客</option>
-                    </select>
+                    <label>部门：</label>
+                    <span id="editDepartment"></span>
                 </div>
                 <div class="info-item">
-                    <label>部门：</label>
-                    <input type="text" id="editDepartment" class="form-input" placeholder="请输入部门" />
+                    <label>状态：</label>
+                    <span id="editStatus"></span>
+                </div>
+            </div>
+
+            <div class="permissions-section">
+                <h4>角色分配</h4>
+                <div id="rolesList" class="permissions-grid">
+                    <!-- 角色复选框将动态生成 -->
                 </div>
             </div>
 
@@ -112,5 +105,27 @@
     </div>
 </div>
 
-<script src="/static/user_management/js/permissions.js"></script>
+<!-- 删除确认模态框 -->
+<div class="modal" id="deleteModal">
+    <div class="modal-content modal-sm">
+        <div class="modal-header">
+            <h3>确认删除</h3>
+            <button class="btn-close" onclick="closeDeleteModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <p>确定要删除该用户吗？</p>
+            <p class="text-warning">注意：删除后无法恢复！</p>
+            <div id="deleteWarning" class="alert alert-warning" style="display: none;">
+                该用户有以下未完成的业务数据：
+                <ul id="deleteWarningList"></ul>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeDeleteModal()">取消</button>
+            <button class="btn btn-danger" onclick="confirmDelete()">确认删除</button>
+        </div>
+    </div>
+</div>
+
+<script src="/static/user_management/js/permissions_new.js"></script>
 {% endblock %}

@@ -13,7 +13,7 @@ class ProductSeriesSerializer(serializers.ModelSerializer):
 
 class QuoteProductSerializer(serializers.ModelSerializer):
     """产品序列化器"""
-    series_name = serializers.CharField(source='series.name', read_only=True, allow_null=True)
+    series_name = serializers.CharField(source='series.name', read_only=True)
     created_by_name = serializers.CharField(source='created_by.username', read_only=True)
 
     class Meta:
@@ -32,7 +32,7 @@ class QuoteProductSerializer(serializers.ModelSerializer):
 
 class QuoteItemSerializer(serializers.ModelSerializer):
     """报价明细序列化器"""
-    product_name = serializers.CharField(source='product.name', read_only=True, allow_null=True)
+    product_name = serializers.CharField(source='product.name', read_only=True)
 
     class Meta:
         model = QuoteItem
@@ -65,7 +65,7 @@ class PriceConfigSerializer(serializers.ModelSerializer):
     """价格配置序列化器"""
 
     type_name = serializers.CharField(source='get_config_type_display', read_only=True)
-    product_name = serializers.CharField(source='product.name', read_only=True, allow_null=True)
+    product_name = serializers.CharField(source='product.name', read_only=True)
 
     class Meta:
         model = PriceConfig

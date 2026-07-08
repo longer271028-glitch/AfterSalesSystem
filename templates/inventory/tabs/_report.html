@@ -1,60 +1,210 @@
-<div class="stats-grid">
-    <div class="stat-item">
-        <div class="stat-value">{{ beginning_stock }}</div>
-        <div class="stat-label">期初库存</div>
-    </div>
-    <div class="stat-item">
-        <div class="stat-value">{{ total_in }}</div>
-        <div class="stat-label">本期入库</div>
-    </div>
-    <div class="stat-item">
-        <div class="stat-value">{{ total_out }}</div>
-        <div class="stat-label">本期出库</div>
-    </div>
-    <div class="stat-item">
-        <div class="stat-value">{{ ending_stock }}</div>
-        <div class="stat-label">期末库存</div>
+<div class="form-card mb-3">
+    <div class="row align-items-center">
+        <div class="col-md-3">
+            <h5><i class="bi bi-bar-chart"></i> 库存报表分析</h5>
+        </div>
+        <div class="col-md-9">
+            <div class="row">
+                <div class="col-md-3">
+                    <input type="month" id="reportMonth" class="form-control" value="{{ report_month }}">
+                </div>
+                <div class="col-md-3">
+                    <select id="reportWarehouse" class="form-select">
+                        <option value="">全部仓库</option>
+                        {% for warehouse in warehouses %}
+                        <option value="{{ warehouse.name }}">{{ warehouse.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select id="reportType" class="form-select">
+                        <option value="">全部类型</option>
+                        <option value="in">入库</option>
+                        <option value="out">出库</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-primary" onclick="refreshReport()">查询</button>
+                    <button class="btn btn-success" onclick="exportReport()">导出</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="table-card">
-    <h5>库存变动报表</h5>
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th>日期</th>
-                <th>产品</th>
-                <th>仓库</th>
-                <th>类型</th>
-                <th>数量</th>
-                <th>余额</th>
-                <th>操作人</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for record in all_records %}
-            <tr>
-                <td>{{ record.operate_time|date:"Y-m-d H:i" }}</td>
-                <td>{{ record.product.name }}</td>
-                <td>{{ record.warehouse.name|default:"-" }}</td>
-                <td>
-                    {% if record.record_type == 'in' %}
-                    <span class="text-success">入库</span>
-                    {% elif record.record_type == 'out' %}
-                    <span class="text-danger">出库</span>
-                    {% else %}
-                    <span>{{ record.get_record_type_display }}</span>
-                    {% endif %}
-                </td>
-                <td>{% if record.record_type == 'in' %}+{% else %}-{% endif %}{{ record.quantity }}</td>
-                <td>{{ record.balance }}</td>
-                <td>{{ record.operator.username|default:"-" }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="7" class="text-center text-muted">暂无记录</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<!-- BI分析图表区域 -->
+<div class="row mb-3">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value">{{ beginning_stock }}</div>
+                <div class="stat-label">期初库存</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                <i class="bi bi-arrow-down-circle"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value">{{ total_in }}</div>
+                <div class="stat-label">本期入库</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                <i class="bi bi-arrow-up-circle"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value">{{ total_out }}</div>
+                <div class="stat-label">本期出库</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
+                <i class="bi bi-archive"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value">{{ ending_stock }}</div>
+                <div class="stat-label">期末库存</div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- 图表区域 -->
+<div class="row mb-3">
+    <div class="col-md-6">
+        <div class="chart-card">
+            <h6>库存变动趋势</h6>
+            <canvas id="trendChart" height="200"></canvas>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="chart-card">
+            <h6>入库/出库占比</h6>
+            <canvas id="pieChart" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- 库存变动报表 -->
+<div class="table-card">
+    <h5>库存变动明细</h5>
+    <div class="table-responsive">
+        <table class="table table-hover" id="reportTable">
+            <thead>
+                <tr>
+                    <th>日期</th>
+                    <th>产品</th>
+                    <th>仓库</th>
+                    <th>类型</th>
+                    <th>数量</th>
+                    <th>余额</th>
+                    <th>操作人</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in all_records %}
+                <tr>
+                    <td>{{ record.operate_time|date:"Y-m-d H:i" }}</td>
+                    <td>{{ record.product.name }}</td>
+                    <td>{{ record.warehouse.name|default:"-" }}</td>
+                    <td>
+                        {% if record.record_type == 'in' %}
+                        <span class="badge bg-success">入库</span>
+                        {% elif record.record_type == 'out' %}
+                        <span class="badge bg-danger">出库</span>
+                        {% else %}
+                        <span class="badge bg-secondary">{{ record.get_record_type_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="{% if record.record_type == 'in' %}text-success{% else %}text-danger{% endif %}">
+                        {% if record.record_type == 'in' %}+{% else %}-{% endif %}{{ record.quantity }}
+                    </td>
+                    <td>{{ record.balance }}</td>
+                    <td>{{ record.operator.username|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted">暂无记录</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    initCharts();
+});
+
+function initCharts() {
+    const inCount = {{ total_in }};
+    const outCount = {{ total_out }};
+
+    const trendCtx = document.getElementById('trendChart');
+    if (trendCtx) {
+        new Chart(trendCtx, {
+            type: 'bar',
+            data: {
+                labels: ['期初', '入库', '出库', '期末'],
+                datasets: [{
+                    label: '库存数量',
+                    data: [{{ beginning_stock }}, {{ total_in }}, {{ total_out }}, {{ ending_stock }}],
+                    backgroundColor: ['#667eea', '#10b981', '#f59e0b', '#3b82f6'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    const pieCtx = document.getElementById('pieChart');
+    if (pieCtx) {
+        new Chart(pieCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['入库', '出库'],
+                datasets: [{
+                    data: [inCount, outCount],
+                    backgroundColor: ['#10b981', '#f59e0b']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    }
+}
+
+function refreshReport() {
+    const month = document.getElementById('reportMonth').value;
+    const warehouse = document.getElementById('reportWarehouse').value;
+    const type = document.getElementById('reportType').value;
+
+    let url = `/inventory/?tab=report&month=${month}`;
+    if (warehouse) url += `&warehouse=${encodeURIComponent(warehouse)}`;
+    if (type) url += `&type=${type}`;
+
+    location.href = url;
+}
+
+function exportReport() {
+    alert('导出功能开发中...');
+}
+</script>

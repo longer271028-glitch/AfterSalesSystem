@@ -19,12 +19,12 @@
             </div>
             <div class="mb-3">
                 <label class="form-label">选择产品 *</label>
-                <select id="inProductModal" class="form-select" required>
-                    <option value="">请选择产品</option>
+                <input type="text" id="inProductModal" class="form-select" list="productListInbound" placeholder="请输入产品名称搜索" required>
+                <datalist id="productListInbound">
                     {% for product in products %}
-                    <option value="{{ product.id }}">[{{ product.code }}] {{ product.name }}</option>
+                    <option value="{{ product.id }}|{{ product.name }}">{{ product.name }}</option>
                     {% endfor %}
-                </select>
+                </datalist>
             </div>
             <div class="mb-3">
                 <label class="form-label">入库数量 *</label>

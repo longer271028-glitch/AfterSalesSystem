@@ -18,7 +18,9 @@ function closeInboundModal() {
 // Submit Inbound
 function submitInbound() {
     const warehouse = document.getElementById('inWarehouseModal').value;
-    const productId = document.getElementById('inProductModal').value;
+    const productInput = document.getElementById('inProductModal').value;
+    // 从"id|name"格式中提取ID
+    const productId = productInput.includes('|') ? productInput.split('|')[0] : productInput;
     const quantity = document.getElementById('inQuantityModal').value;
     const orderNo = document.getElementById('inOrderNoModal').value;
     const remark = document.getElementById('inRemarkModal').value;
@@ -112,15 +114,47 @@ function closeOutboundModal() {
     document.getElementById('outboundModal').style.display = 'none';
 }
 
-// Submit Outbound
+// Submit Outbound / Transfer
 function submitOutbound() {
-    const warehouse = document.getElementById('outWarehouseModal').value;
-    const productId = document.getElementById('outProductModal').value;
-    const quantity = document.getElementById('outQuantityModal').value;
+    const outWarehouseEl = document.getElementById('outWarehouseModal');
+    const inWarehouseEl = document.getElementById('inWarehouseTransferModal');
+    const productEl = document.getElementById('outProductModal');
+    const quantityEl = document.getElementById('outQuantityModal');
+    
+    const outWarehouse = outWarehouseEl ? outWarehouseEl.value : '';
+    const inWarehouse = inWarehouseEl ? inWarehouseEl.value : '';
+    const productInput = productEl ? productEl.value : '';
+    // 从"id|name"格式中提取ID
+    const productId = productInput.includes('|') ? productInput.split('|')[0] : productInput;
+    const quantity = quantityEl ? quantityEl.value : '';
     const orderNo = document.getElementById('outOrderNoModal').value;
     const remark = document.getElementById('outRemarkModal').value;
 
-    if (!productId || !quantity) {
+    console.log('=== 调拨表单数据 ===');
+    console.log('出库仓库:', outWarehouse, '- 长度:', outWarehouse.length);
+    console.log('入库仓库:', inWarehouse, '- 长度:', inWarehouse.length);
+    
+    // 检查入库仓库选择器的详细信息
+    if (inWarehouseEl) {
+        const selectedOption = inWarehouseEl.options[inWarehouseEl.selectedIndex];
+        console.log('入库仓库选择器:');
+        console.log('  - value属性:', inWarehouseEl.value);
+        console.log('  - selectedIndex:', inWarehouseEl.selectedIndex);
+        console.log('  - 选中选项text:', selectedOption ? selectedOption.text : '无');
+        console.log('  - 选中选项value:', selectedOption ? selectedOption.value : '无');
+        console.log('  - options数量:', inWarehouseEl.options.length);
+        // 列出所有选项
+        for (let i = 0; i < inWarehouseEl.options.length; i++) {
+            console.log(`    选项${i}: value="${inWarehouseEl.options[i].value}", text="${inWarehouseEl.options[i].text}"`);
+        }
+    } else {
+        console.log('入库仓库选择器DOM元素不存在!');
+    }
+    
+    console.log('产品ID:', productId, '- 长度:', productId.length);
+    console.log('调拨数量:', quantity, '- 长度:', quantity.length);
+
+    if (!outWarehouse || !inWarehouse || !productId || !quantity) {
         alert('请填写完整信息');
         return;
     }
@@ -132,7 +166,8 @@ function submitOutbound() {
             'X-CSRFToken': getCSRFToken()
         },
         body: JSON.stringify({
-            warehouse: warehouse,
+            out_warehouse: outWarehouse,
+            in_warehouse: inWarehouse,
             product_id: productId,
             quantity: parseInt(quantity),
             order_no: orderNo,
@@ -144,13 +179,13 @@ function submitOutbound() {
         if (data.error) {
             alert(data.error);
         } else {
-            alert('出库成功!');
+            alert('调拨成功!');
             closeOutboundModal();
             location.reload();
         }
     })
     .catch(err => {
-        alert('出库失败: ' + err);
+        alert('操作失败: ' + err);
     });
 }
 

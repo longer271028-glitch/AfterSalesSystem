@@ -19,8 +19,8 @@ class UserPermissions(models.Model):
     ]
     role = models.CharField('角色', max_length=20, choices=ROLE_CHOICES, default='staff')
 
-    # 部门信息
-    department = models.CharField('部门', max_length=50, blank=True)
+    # 部门信息 - 使用 CharField，关联 rbac_organizations 表
+    department = models.CharField('部门', max_length=50, blank=True, default='')
 
     # 页面权限（JSON格式存储）
     page_permissions = models.JSONField('页面权限', default=list, blank=True,

@@ -4,6 +4,7 @@ from .views import (
     ProductSeriesViewSet, QuoteProductViewSet, QuoteTemplateViewSet,
     QuoteViewSet, QuoteItemViewSet, PriceConfigViewSet
 )
+from .api_views import ProductImportAPIView, ProductExportAPIView, import_export_view
 
 # API路由
 router = DefaultRouter()
@@ -16,4 +17,7 @@ router.register(r'price-configs', PriceConfigViewSet, basename='price-config')
 
 urlpatterns = [
     path('', include(router.urls)),
+    # 自定义导入导出 API
+    path('products/import/', ProductImportAPIView.as_view(), name='product-import'),
+    path('products/export/', ProductExportAPIView.as_view(), name='product-export'),
 ]

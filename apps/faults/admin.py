@@ -4,18 +4,7 @@ from django.utils.html import format_html
 from django.db.models import Case, When, Value, IntegerField
 from django.contrib.auth.models import User
 from .models import FaultCategory, FaultReport, FaultImage, FaultComment, Solution
-
-
-def get_user_name(user):
-    """获取用户的姓名，优先使用 first_name + last_name，否则使用 username"""
-    if user is None:
-        return '-'
-    if user.first_name or user.last_name:
-        name = f"{user.last_name}{user.first_name}".strip()
-        if not name:
-            name = f"{user.first_name} {user.last_name}".strip()
-        return name
-    return user.username
+from core.admin_utils import get_user_name
 
 
 class FaultCategoryAdmin(admin.ModelAdmin):
@@ -59,11 +48,11 @@ class StrictLoginMixin:
 
 class FaultReportAdmin(StrictLoginMixin, admin.ModelAdmin):
     form = FaultReportAdminForm
-    list_display = ['fault_no', 'title', 'customer', 'formatted_priority', 'formatted_status', 'created_at']
+    list_display = ['fault_no', 'title', 'customer', 'formatted_equipment_name', 'formatted_priority', 'formatted_status', 'created_at']
     list_filter = ['status', 'priority', 'fault_category']
-    search_fields = ['fault_no', 'title', 'equipment_sn', 'customer__name']
+    search_fields = ['fault_no', 'title', 'equipment_sn', 'equipment_name__name', 'customer__name']
     date_hierarchy = 'created_at'
-    autocomplete_fields = ['customer']  # 使用弹出选择框选择客户
+    autocomplete_fields = ['customer', 'equipment_name']  # 使用弹出选择框选择客户和设备
     raw_id_fields = ['assigned_to', 'created_by']
     list_per_page = 20  # 每页显示20条记录
 
@@ -142,6 +131,14 @@ class FaultReportAdmin(StrictLoginMixin, admin.ModelAdmin):
 
     formatted_status.short_description = '状态'
     formatted_status.admin_order_field = 'status'
+
+    def formatted_equipment_name(self, obj):
+        """格式化设备名称显示"""
+        if obj.equipment_name:
+            return obj.equipment_name.name
+        return '-'
+    formatted_equipment_name.short_description = '设备名称'
+    formatted_equipment_name.admin_order_field = 'equipment_name__name'
 
     def has_view_permission(self, request, obj=None):
         """检查是否有查看权限"""

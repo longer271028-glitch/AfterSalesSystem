@@ -269,7 +269,7 @@
                 <th>客户名称</th>
                 <th>故障编号</th>
                 <th>设备名称</th>
-                <th>设备序列号</th>
+                <th>接收数量</th>
                 <th>状态</th>
                 <th>报价金额</th>
                 <th>创建时间</th>
@@ -285,7 +285,7 @@
                 <td>{% if repair.customer %}{{ repair.customer.name }}{% else %}-{% endif %}</td>
                 <td>{% if repair.fault_report %}{{ repair.fault_report.fault_no }}{% else %}-{% endif %}</td>
                 <td>{{ repair.equipment_name }}</td>
-                <td>{{ repair.equipment_sn }}</td>
+                <td>{{ repair.receive_quantity }}</td>
                 <td>
                     <span class="status-badge status-{{ repair.status }}">
                         {{ repair.get_status_display }}
@@ -311,9 +311,8 @@
                     <button class="action-btn action-btn-success" onclick="updateStatus({{ repair.id }}, 'completed', '完成')">完成</button>
                     {% elif repair.status == 'completed' %}
                     <button class="action-btn action-btn-secondary" onclick="viewDetail({{ repair.id }})">查看</button>
-                    {% else %}
-                    -
                     {% endif %}
+                    <button class="action-btn action-btn-danger" onclick="deleteRepair({{ repair.id }})">删除</button>
                 </td>
             </tr>
             {% empty %}
@@ -489,7 +488,7 @@
                             <td>${repair.customer_name || '-'}</td>
                             <td>${repair.fault_report_no || '-'}</td>
                             <td>${repair.equipment_name}</td>
-                            <td>${repair.equipment_sn}</td>
+                            <td>${repair.receive_quantity || 1}</td>
                             <td><span class="status-badge status-${repair.status}">${statusMap[repair.status] || repair.status}</span></td>
                             <td>¥${repair.quote_amount || '0.00'}</td>
                             <td>${new Date(repair.created_at).toLocaleString('zh-CN')}</td>
@@ -603,6 +602,29 @@
 
     function viewDetail(id) {
         window.location.href = '/admin/repairs/repairorder/' + id + '/change/';
+    }
+
+    function deleteRepair(id) {
+        if (!confirm('确定要删除此返修单吗？此操作不可恢复！')) return;
+
+        fetch('/api/repairs/orders/' + id + '/', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            }
+        })
+        .then(res => {
+            if (res.ok) {
+                alert('删除成功!');
+                location.reload();
+            } else {
+                return res.json().then(data => {
+                    throw new Error(data.detail || '删除失败');
+                });
+            }
+        })
+        .catch(err => alert(err.message || '删除失败'));
     }
 
     function getCSRFToken() {

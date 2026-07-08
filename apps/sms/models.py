@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from apps.rbac.models import UserProfile
 
 
 class Phone(models.Model):
@@ -7,7 +8,16 @@ class Phone(models.Model):
 
     name = models.CharField('手机名称', max_length=100)
     model = models.CharField('手机型号', max_length=100, blank=True)
-    user = models.CharField('使用者', max_length=50, blank=True)
+    user = models.ForeignKey(
+        UserProfile,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='assigned_phones',
+        verbose_name='使用者'
+    )
+    user_name = models.CharField('使用者姓名（备用）', max_length=50, blank=True,
+                                 help_text='用于外部人员，内部员工请关联到user字段')
     phone_number = models.CharField('手机号码', max_length=20, unique=True)
     remark = models.TextField('备注', blank=True)
     is_active = models.BooleanField('是否启用', default=True)

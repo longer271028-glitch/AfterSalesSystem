@@ -491,6 +491,17 @@ ffffff;
     <div class="page-header">
         <h1><i class="bi bi-list"></i> {{ cl.opts.verbose_name_plural|capfirst }}</h1>
         <div class="header-actions">
+            {# 导入导出按钮 #}
+            {% if import_url %}
+            <a href="{{ import_url }}" class="btn btn-secondary" style="background:#3b82f6;">
+                <i class="bi bi-upload"></i> 导入
+            </a>
+            {% endif %}
+            {% if export_url %}
+            <a href="{{ export_url }}" class="btn btn-secondary" style="background:#8b5cf6;">
+                <i class="bi bi-download"></i> 导出
+            </a>
+            {% endif %}
             {% url cl.opts|admin_urlname:'add' as add_url %}
             {% if add_url and has_add_permission %}
             <a href="{{ add_url }}" class="btn">

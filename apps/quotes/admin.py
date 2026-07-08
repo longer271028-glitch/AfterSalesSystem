@@ -1,38 +1,60 @@
 from django.contrib import admin
+from import_export.admin import ImportMixin, ExportMixin
+from django.urls import path, reverse
 from .models import QuoteTemplate, Quote, QuoteItem, PriceConfig, ProductSeries, QuoteProduct
+from .resources import QuoteProductResource
+from core.admin_utils import get_user_name
 
 
-def get_user_name(user):
-    """获取用户的姓名，优先使用 first_name + last_name，否则使用 username"""
-    if user is None:
-        return '-'
-    if user.first_name or user.last_name:
-        name = f"{user.last_name}{user.first_name}".strip()
-        if not name:
-            name = f"{user.first_name} {user.last_name}".strip()
-        return name
-    return user.username
-
-
-@admin.register(ProductSeries)
 class ProductSeriesAdmin(admin.ModelAdmin):
+    """产品系列管理"""
     list_display = ['name', 'description', 'is_active', 'formatted_created_by', 'created_at']
     list_filter = ['is_active']
     search_fields = ['name', 'description']
     raw_id_fields = ['created_by']
+    list_per_page = 50  # 增加每页显示数量
+    list_editable = ['is_active']  # 允许在列表中直接编辑启用状态
+
+    def get_queryset(self, request):
+        """确保显示所有数据，包括未启用的"""
+        return super().get_queryset(request).all()
 
     def formatted_created_by(self, obj):
         return get_user_name(obj.created_by)
     formatted_created_by.short_description = '创建人'
 
 
-@admin.register(QuoteProduct)
-class QuoteProductAdmin(admin.ModelAdmin):
+class QuoteProductAdmin(ImportMixin, ExportMixin, admin.ModelAdmin):
+    """产品管理 Admin - 支持导入导出"""
+    resource_class = QuoteProductResource
+    change_list_template = 'admin/change_list.html'
     list_display = ['id', 'name', 'series', 'repair_price', 'labor_fee', 'status', 'formatted_created_by', 'created_at']
     list_filter = ['status', 'series', 'created_at']
-    search_fields = ['name']
-    raw_id_fields = ['series', 'created_by']
+    search_fields = ['name', 'series__name']
+    raw_id_fields = ['created_by']
+    autocomplete_fields = ['series']  # 使用自动完成选择器
     readonly_fields = ['id', 'created_at', 'updated_at']
+
+    # 导入导出配置
+    from_encoding = 'utf-8-sig'  # 支持 Excel 中文
+    skip_admin_log = False  # 记录导入日志
+    skip_failed = False  # 导入失败时停止
+
+    def get_urls(self):
+        """添加导入导出 URL"""
+        urls = super().get_urls()
+        custom_urls = [
+            path('import/', self.admin_site.admin_view(self.import_action), name='quotes_quoteproduct_import'),
+            path('export/', self.admin_site.admin_view(self.export_action), name='quotes_quoteproduct_export'),
+        ]
+        return custom_urls + urls
+
+    def changelist_view(self, request, extra_context=None):
+        """在列表页添加导入导出 URL"""
+        extra_context = extra_context or {}
+        extra_context['import_url'] = reverse('admin:quotes_quoteproduct_import')
+        extra_context['export_url'] = reverse('admin:quotes_quoteproduct_export')
+        return super().changelist_view(request, extra_context)
 
     def formatted_created_by(self, obj):
         return get_user_name(obj.created_by)
@@ -56,7 +78,6 @@ class QuoteProductAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
-@admin.register(QuoteTemplate)
 class QuoteTemplateAdmin(admin.ModelAdmin):
     list_display = ['name', 'is_active', 'formatted_created_by', 'created_at']
     list_filter = ['is_active']
@@ -67,7 +88,6 @@ class QuoteTemplateAdmin(admin.ModelAdmin):
     formatted_created_by.short_description = '创建人'
 
 
-@admin.register(Quote)
 class QuoteAdmin(admin.ModelAdmin):
     list_display = ['quote_no', 'name', 'parts_amount', 'labor_amount', 'total_amount', 'status', 'valid_until', 'formatted_created_by', 'created_at']
     list_filter = ['status', 'created_at']
@@ -94,7 +114,6 @@ class QuoteAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
-@admin.register(QuoteItem)
 class QuoteItemAdmin(admin.ModelAdmin):
     list_display = ['quote', 'item_type', 'product', 'item_name', 'quantity', 'unit_price', 'total_price']
     list_filter = ['item_type']
@@ -102,9 +121,17 @@ class QuoteItemAdmin(admin.ModelAdmin):
     raw_id_fields = ['quote', 'product']
 
 
-@admin.register(PriceConfig)
 class PriceConfigAdmin(admin.ModelAdmin):
     list_display = ['config_type', 'name', 'code', 'product', 'price', 'is_active']
     list_filter = ['config_type', 'is_active']
     search_fields = ['name', 'code']
     raw_id_fields = ['product']
+
+
+# 手动注册所有模型到admin.site
+admin.site.register(ProductSeries, ProductSeriesAdmin)
+admin.site.register(QuoteProduct, QuoteProductAdmin)
+admin.site.register(QuoteTemplate, QuoteTemplateAdmin)
+admin.site.register(Quote, QuoteAdmin)
+admin.site.register(QuoteItem, QuoteItemAdmin)
+admin.site.register(PriceConfig, PriceConfigAdmin)

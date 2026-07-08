@@ -1,18 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 from .models import KnowledgeBase, KnowledgeDocument, Conversation, Message, AIConfig, IntentPattern
-
-
-def get_user_name(user):
-    """获取用户的姓名，优先使用 first_name + last_name，否则使用 username"""
-    if user is None:
-        return '-'
-    if user.first_name or user.last_name:
-        name = f"{user.last_name}{user.first_name}".strip()
-        if not name:
-            name = f"{user.first_name} {user.last_name}".strip()
-        return name
-    return user.username
+from core.admin_utils import get_user_name
 
 
 class KnowledgeBaseAdmin(admin.ModelAdmin):

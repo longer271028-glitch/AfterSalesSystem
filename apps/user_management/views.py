@@ -22,6 +22,20 @@ def permissions_management_view(request):
     return render(request, 'user_management/permissions.html')
 
 
+def users_management_view(request):
+    """用户管理页面"""
+    # 检查是否登录
+    if not request.user.is_authenticated:
+        from django.shortcuts import redirect
+        return redirect('/login/')
+
+    # 检查是否是管理员或有权限
+    if not request.user.is_superuser and not request.user.has_perm('auth.change_user'):
+        return render(request, 'user_management/unauthorized.html')
+
+    return render(request, 'user_management/users.html')
+
+
 class UserPermissionsViewSet(viewsets.ViewSet):
     """用户权限API"""
 
@@ -111,7 +125,7 @@ class UserPermissionsViewSet(viewsets.ViewSet):
         try:
             user = User.objects.get(pk=pk)
             perms, created = UserPermissions.objects.get_or_create(user=user)
-            
+
             # 更新权限
             if 'page_permissions' in request.data:
                 perms.page_permissions = request.data['page_permissions']
@@ -121,9 +135,9 @@ class UserPermissionsViewSet(viewsets.ViewSet):
                 perms.department = request.data['department']
             if 'name' in request.data:
                 perms.name = request.data['name']
-            
+
             perms.save()
-            
+
             return Response({
                 'success': True,
                 'page_permissions': perms.page_permissions,
@@ -140,7 +154,7 @@ class UserPermissionsViewSet(viewsets.ViewSet):
         try:
             user = User.objects.get(pk=pk)
             perms, created = UserPermissions.objects.get_or_create(user=user)
-            
+
             return Response({
                 'id': user.id,
                 'username': user.username,

@@ -139,9 +139,9 @@
 
         document.getElementById('editUserId').value = userId;
         document.getElementById('editUsername').textContent = user.username;
-        document.getElementById('editName').value = user.name || '';
+        document.getElementById('editName').textContent = user.name || '-';
         document.getElementById('editRole').value = user.role || 'staff';
-        document.getElementById('editDepartment').value = user.department || '';
+        document.getElementById('editDepartment').textContent = user.department || '-';
 
         // 生成权限复选框
         const permList = document.getElementById('permissionsList');
@@ -164,9 +164,7 @@
     // 保存权限
     async function savePermissions() {
         const userId = document.getElementById('editUserId').value;
-        const name = document.getElementById('editName').value.trim();
         const role = document.getElementById('editRole').value;
-        const department = document.getElementById('editDepartment').value.trim();
 
         // 收集选中的权限
         const checkboxes = document.querySelectorAll('#permissionsList input[type="checkbox"]:checked');
@@ -180,9 +178,7 @@
                     'X-CSRFToken': csrftoken
                 },
                 body: JSON.stringify({
-                    name,
                     role,
-                    department,
                     page_permissions: permissions
                 })
             });

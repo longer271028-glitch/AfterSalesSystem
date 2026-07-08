@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import RepairOrder, RepairRecord, RepairPart
+from apps.quotes.models import QuoteProduct
 
 
 class RepairPartSerializer(serializers.ModelSerializer):
@@ -35,6 +36,16 @@ class RepairOrderSerializer(serializers.ModelSerializer):
     inbound_warehouse_name = serializers.CharField(source='inbound_warehouse.name', read_only=True)
     outbound_warehouse_name = serializers.CharField(source='outbound_warehouse.name', read_only=True)
     product_name = serializers.CharField(source='product.name', read_only=True)
+    # 设备名称 - 返回产品名称字符串而不是ID
+    equipment_name = serializers.StringRelatedField(read_only=True)
+    # 设备名称ID - 用于编辑时关联
+    equipment_name_id = serializers.PrimaryKeyRelatedField(
+        source='equipment_name',
+        queryset=QuoteProduct.objects.all(),
+        write_only=True,
+        required=False,
+        allow_null=True
+    )
 
     class Meta:
         model = RepairOrder

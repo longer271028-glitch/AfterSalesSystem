@@ -1,4 +1,4 @@
-/*global gettext, interpolate, ngettext, Actions*/
+/*global gettext, interpolate, ngettext*/
 'use strict';
 {
     function show(selector) {
@@ -142,35 +142,28 @@
             return filtered;
         };
 
-        // Only attach event listeners if result_list exists
-        const resultList = document.getElementById('result_list');
-        if (resultList) {
-            Array.from(resultList.tBodies).forEach(function(el) {
-                el.addEventListener('change', function(event) {
-                    const target = event.target;
-                    if (target.classList.contains('action-select')) {
-                        const checkboxes = affectedCheckboxes(target, shiftPressed);
-                        checker(checkboxes, options, target.checked);
-                        updateCounter(actionCheckboxes, options);
-                        lastChecked = target;
-                    } else {
-                        list_editable_changed = true;
-                    }
-                });
-            });
-        }
-
-        const indexButton = document.querySelector('#changelist-form button[name=index]');
-        if (indexButton) {
-            indexButton.addEventListener('click', function(event) {
-                if (list_editable_changed) {
-                    const confirmed = confirm(gettext("You have unsaved changes on individual editable fields. If you run an action, your unsaved changes will be lost."));
-                    if (!confirmed) {
-                        event.preventDefault();
-                    }
+        Array.from(document.getElementById('result_list').tBodies).forEach(function(el) {
+            el.addEventListener('change', function(event) {
+                const target = event.target;
+                if (target.classList.contains('action-select')) {
+                    const checkboxes = affectedCheckboxes(target, shiftPressed);
+                    checker(checkboxes, options, target.checked);
+                    updateCounter(actionCheckboxes, options);
+                    lastChecked = target;
+                } else {
+                    list_editable_changed = true;
                 }
             });
-        }
+        });
+
+        document.querySelector('#changelist-form button[name=index]').addEventListener('click', function(event) {
+            if (list_editable_changed) {
+                const confirmed = confirm(gettext("You have unsaved changes on individual editable fields. If you run an action, your unsaved changes will be lost."));
+                if (!confirmed) {
+                    event.preventDefault();
+                }
+            }
+        });
 
         const el = document.querySelector('#changelist-form input[name=_save]');
         // The button does not exist if no fields are editable.
@@ -186,9 +179,6 @@
                 }
             });
         }
-        // Sync counter when navigating to the page, such as through the back
-        // button.
-        window.addEventListener('pageshow', (event) => updateCounter(actionCheckboxes, options));
     };
 
     // Call function fn when the DOM is loaded and ready. If it is already

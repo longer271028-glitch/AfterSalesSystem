@@ -50,6 +50,7 @@ urlpatterns = [
     path('accounts/logout/', custom_logout),
 
     # API endpoints
+    path('api/rbac/', include('apps.rbac.urls')),  # RBAC API
     path('api/customers/', include('apps.customers.urls')),
     path('api/faults/', include('apps.faults.urls')),
     path('api/repairs/', include('apps.repairs.urls')),

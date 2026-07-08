@@ -12,7 +12,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <div class="fs-3 fw-bold text-primary">128</div>
+                        <div class="fs-3 fw-bold text-primary" id="customerCount">--</div>
                         <div class="text-muted small">客户总数</div>
                     </div>
                     <div class="fs-1 text-primary" style="opacity: 0.15;">
@@ -27,7 +27,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <div class="fs-3 fw-bold text-warning">12</div>
+                        <div class="fs-3 fw-bold text-warning" id="pendingFaultsCount">--</div>
                         <div class="text-muted small">待处理故障</div>
                     </div>
                     <div class="fs-1 text-warning" style="opacity: 0.15;">
@@ -42,7 +42,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <div class="fs-3 fw-bold text-success">8</div>
+                        <div class="fs-3 fw-bold text-success" id="repairingCount">--</div>
                         <div class="text-muted small">维修中</div>
                     </div>
                     <div class="fs-1 text-success" style="opacity: 0.15;">
@@ -57,7 +57,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <div class="fs-3 fw-bold text-danger">5</div>
+                        <div class="fs-3 fw-bold text-danger" id="lowStockCount">--</div>
                         <div class="text-muted small">库存预警</div>
                     </div>
                     <div class="fs-1 text-danger" style="opacity: 0.15;">
@@ -135,22 +135,8 @@
                             <th>状态</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>FT202403150001</td>
-                            <td>设备无法启动</td>
-                            <td><span class="badge bg-warning">待处理</span></td>
-                        </tr>
-                        <tr>
-                            <td>FT202403140002</td>
-                            <td>显示屏闪烁</td>
-                            <td><span class="badge bg-primary">处理中</span></td>
-                        </tr>
-                        <tr>
-                            <td>FT202403130003</td>
-                            <td>传感器异常</td>
-                            <td><span class="badge bg-success">已解决</span></td>
-                        </tr>
+                    <tbody id="recentFaultsTable">
+                        <tr><td colspan="3" class="text-center text-muted">加载中...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -173,22 +159,8 @@
                             <th>状态</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>RO202403150001</td>
-                            <td>工业控制器-X1</td>
-                            <td><span class="badge bg-primary">检测中</span></td>
-                        </tr>
-                        <tr>
-                            <td>RO202403140002</td>
-                            <td>电机驱动-M2</td>
-                            <td><span class="badge bg-warning">报价中</span></td>
-                        </tr>
-                        <tr>
-                            <td>RO202403130003</td>
-                            <td>电源模块-P3</td>
-                            <td><span class="badge bg-success">已完成</span></td>
-                        </tr>
+                    <tbody id="recentRepairsTable">
+                        <tr><td colspan="3" class="text-center text-muted">加载中...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -199,6 +171,22 @@
 
 {% block extra_js %}
 <script>
+// 获取CSRF Token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 // 加载控制台数据
 async function loadDashboardData() {
     try {
@@ -206,74 +194,91 @@ async function loadDashboardData() {
         const data = await response.json();
 
         // 更新统计数据
-        const primaryElement = document.querySelector('.text-primary.fs-3');
-        if (primaryElement) primaryElement.textContent = data.customer_count;
-
-        const warningElement = document.querySelector('.text-warning.fs-3');
-        if (warningElement) warningElement.textContent = data.pending_faults_count;
-
-        document.querySelectorAll('.text-success.fs-3').forEach(el => {
-            el.textContent = data.repairing_count;
-        });
-
-        const dangerElement = document.querySelector('.text-danger.fs-3');
-        if (dangerElement) dangerElement.textContent = data.low_stock_count;
+        document.getElementById('customerCount').textContent = data.customer_count || 0;
+        document.getElementById('pendingFaultsCount').textContent = data.pending_faults_count || 0;
+        document.getElementById('repairingCount').textContent = data.repairing_count || 0;
+        document.getElementById('lowStockCount').textContent = data.low_stock_count || 0;
 
         // 更新最近故障
-        const faultTableBody = document.querySelector('tbody');
-        if (faultTableBody && data.recent_faults && data.recent_faults.length > 0) {
-            const firstTable = faultTableBody;
-            firstTable.innerHTML = data.recent_faults.map(fault => {
-                let statusBadge = '';
-                if (fault.status === '待处理' || fault.status === 'pending') {
-                    statusBadge = '<span class="badge bg-warning">待处理</span>';
-                } else if (fault.status === '处理中' || fault.status === 'processing') {
-                    statusBadge = '<span class="badge bg-primary">处理中</span>';
-                } else if (fault.status === '已解决' || fault.status === 'resolved') {
-                    statusBadge = '<span class="badge bg-success">已解决</span>';
-                } else {
-                    statusBadge = `<span class="badge bg-secondary">${fault.status}</span>`;
-                }
-                return `
-                    <tr>
-                        <td>${fault.fault_no || '-'}</td>
-                        <td>${fault.title || '-'}</td>
-                        <td>${statusBadge}</td>
-                    </tr>
-                `;
-            }).join('');
+        const faultTableBody = document.getElementById('recentFaultsTable');
+        if (faultTableBody) {
+            if (data.recent_faults && data.recent_faults.length > 0) {
+                faultTableBody.innerHTML = data.recent_faults.map(fault => {
+                    let statusBadge = '';
+                    const status = fault.status || '';
+                    if (status === 'pending') {
+                        statusBadge = '<span class="badge bg-warning">待处理</span>';
+                    } else if (status === 'processing' || status === 'in_progress') {
+                        statusBadge = '<span class="badge bg-primary">处理中</span>';
+                    } else if (status === 'resolved' || status === 'completed') {
+                        statusBadge = '<span class="badge bg-success">已解决</span>';
+                    } else if (status === 'testing') {
+                        statusBadge = '<span class="badge bg-info">测试中</span>';
+                    } else {
+                        statusBadge = `<span class="badge bg-secondary">${status}</span>`;
+                    }
+                    return `
+                        <tr>
+                            <td>${fault.fault_no || '-'}</td>
+                            <td>${fault.title || '-'}</td>
+                            <td>${statusBadge}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } else {
+                faultTableBody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">暂无数据</td></tr>';
+            }
         }
 
         // 更新最近返修
-        const tables = document.querySelectorAll('tbody');
-        if (tables.length >= 2 && data.recent_repairs && data.recent_repairs.length > 0) {
-            const repairTableBody = tables[1];
-            repairTableBody.innerHTML = data.recent_repairs.map(repair => {
-                let statusBadge = '';
-                if (repair.status === '检测中' || repair.status === 'testing') {
-                    statusBadge = '<span class="badge bg-primary">检测中</span>';
-                } else if (repair.status === '报价中' || repair.status === 'quoting') {
-                    statusBadge = '<span class="badge bg-warning">报价中</span>';
-                } else if (repair.status === '已完成' || repair.status === 'completed') {
-                    statusBadge = '<span class="badge bg-success">已完成</span>';
-                } else if (repair.status === '维修中' || repair.status === 'repairing') {
-                    statusBadge = '<span class="badge bg-info">维修中</span>';
-                } else if (repair.status === 'outbound') {
-                    statusBadge = '<span class="badge bg-secondary">已出库</span>';
-                } else {
-                    statusBadge = `<span class="badge bg-secondary">${repair.status}</span>`;
-                }
-                return `
-                    <tr>
-                        <td>${repair.repair_no || '-'}</td>
-                        <td>${repair.equipment_name || '-'}</td>
-                        <td>${statusBadge}</td>
-                    </tr>
-                `;
-            }).join('');
+        const repairTableBody = document.getElementById('recentRepairsTable');
+        if (repairTableBody) {
+            if (data.recent_repairs && data.recent_repairs.length > 0) {
+                repairTableBody.innerHTML = data.recent_repairs.map(repair => {
+                    let statusBadge = '';
+                    const status = repair.status || '';
+                    // 获取设备名称，支持 equipment_name__name 和 equipment_name 两种格式
+                    const equipmentName = repair.equipment_name__name || repair.equipment_name || '-';
+                    if (status === 'detecting') {
+                        statusBadge = '<span class="badge bg-primary">检测中</span>';
+                    } else if (status === 'quoting') {
+                        statusBadge = '<span class="badge bg-warning">报价中</span>';
+                    } else if (status === 'completed') {
+                        statusBadge = '<span class="badge bg-success">已完成</span>';
+                    } else if (status === 'repairing') {
+                        statusBadge = '<span class="badge bg-info">维修中</span>';
+                    } else if (status === 'testing') {
+                        statusBadge = '<span class="badge bg-info">质检中</span>';
+                    } else if (status === 'outbound') {
+                        statusBadge = '<span class="badge bg-secondary">已出库</span>';
+                    } else if (status === 'inbound') {
+                        statusBadge = '<span class="badge bg-secondary">已入库</span>';
+                    } else if (status === 'received') {
+                        statusBadge = '<span class="badge bg-secondary">已接收</span>';
+                    } else if (status === 'cancelled') {
+                        statusBadge = '<span class="badge bg-danger">已取消</span>';
+                    } else {
+                        statusBadge = `<span class="badge bg-secondary">${status}</span>`;
+                    }
+                    return `
+                        <tr>
+                            <td>${repair.repair_no || '-'}</td>
+                            <td>${equipmentName}</td>
+                            <td>${statusBadge}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } else {
+                repairTableBody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">暂无数据</td></tr>';
+            }
         }
     } catch (error) {
         console.error('加载控制台数据失败:', error);
+        // 加载失败时显示占位数据
+        document.getElementById('customerCount').textContent = '0';
+        document.getElementById('pendingFaultsCount').textContent = '0';
+        document.getElementById('repairingCount').textContent = '0';
+        document.getElementById('lowStockCount').textContent = '0';
     }
 }
 
